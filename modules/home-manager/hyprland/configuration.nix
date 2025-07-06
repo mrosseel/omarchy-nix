@@ -10,6 +10,7 @@ in {
     ./autostart.nix
     ./bindings.nix
     ./envs.nix
+    ./input.nix
     ./looknfeel.nix
     ./windows.nix
   ];
@@ -22,17 +23,6 @@ in {
     "$passwordManager" = lib.mkDefault "1password";
     "$messenger" = lib.mkDefault "signal-desktop";
     "$webapp" = lib.mkDefault "$browser --app";
-
-    # Environment variables
-    env = [
-      "GDK_SCALE,2" # Change to 1 if on a 1x display
-
-      # TODO: Flake config
-      # Uncomment if running NVIDIA GPU:
-      # "NVD_BACKEND,direct"
-      # "LIBVA_DRIVER_NAME,nvidia"
-      # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-    ];
 
     monitor = cfg.monitors;
   };

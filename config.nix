@@ -33,6 +33,11 @@ lib: {
       type = lib.types.listOf lib.types.str;
       default = [];
     };
+    scale = lib.mkOption {
+      type = lib.types.int;
+      default = 2;
+      description = "Display scale factor (1 for 1x displays, 2 for 2x displays)";
+    };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";
