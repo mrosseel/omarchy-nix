@@ -4,10 +4,10 @@
   pkgs,
   osConfig ? {},
   ...
-}: 
+}:
 let
 hasNvidiaDrivers = builtins.elem "nvidia" osConfig.services.xserver.videoDrivers;
-  
+
   nvidiaEnv = [
     "NVD_BACKEND,direct"
     "LIBVA_DRIVER_NAME,nvidia"
@@ -18,7 +18,7 @@ in
   wayland.windowManager.hyprland.settings = {
     # Environment variables
     env = (lib.optionals hasNvidiaDrivers nvidiaEnv) ++ [
-      "GDK_SCALE,2" # Change to 1 if on a 1x display
+      "GDK_SCALE,1" # Change to 1 if on a 1x display
       # Uncomment if running NVIDIA GPU:
       # "NVD_BACKEND,direct"
       # "LIBVA_DRIVER_NAME,nvidia"
