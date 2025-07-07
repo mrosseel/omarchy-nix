@@ -11,6 +11,7 @@
     nautilus
     hyprshot
     hyprpicker
+    clipse  # clipboard TUI
     alejandra
     pamixer
     playerctl

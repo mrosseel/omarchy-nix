@@ -68,7 +68,7 @@
         cpu = {
           interval = 5;
           format = "󰍛";
-          on-click = "ghostty -e btop";
+          on-click = "$terminal btop";
         };
         clock = {
           format = "{:%A %I:%M %p}";
@@ -86,7 +86,7 @@
           tooltip-format-disconnected = "Disconnected";
           interval = 3;
           nospacing = 1;
-          on-click = "ghostty -e nmcli";
+          on-click = "$terminal nmcli";
         };
         battery = {
           interval = 5;

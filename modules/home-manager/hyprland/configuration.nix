@@ -15,24 +15,15 @@ in {
   ];
   wayland.windowManager.hyprland.settings = {
     # Default applications
-    "$terminal" = lib.mkDefault "ghostty";
+    "$terminal" = lib.mkDefault "kitty";
     "$fileManager" = lib.mkDefault "nautilus --new-window";
-    "$browser" = lib.mkDefault "chromium --new-window --ozone-platform=wayland";
+    "$browser" = lib.mkDefault "brave --new-window --ozone-platform=wayland";
     "$music" = lib.mkDefault "spotify";
-    "$passwordManager" = lib.mkDefault "1password";
+    "$passwordManager" = lib.mkDefault "keepassx";
     "$messenger" = lib.mkDefault "signal-desktop";
     "$webapp" = lib.mkDefault "$browser --app";
 
-    # Environment variables
-    env = [
-      "GDK_SCALE,2" # Change to 1 if on a 1x display
-
-      # TODO: Flake config
-      # Uncomment if running NVIDIA GPU:
-      # "NVD_BACKEND,direct"
-      # "LIBVA_DRIVER_NAME,nvidia"
-      # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-    ];
+    
 
     monitor = cfg.monitors;
   };
