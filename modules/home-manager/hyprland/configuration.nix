@@ -10,6 +10,7 @@ in {
     ./autostart.nix
     ./bindings.nix
     ./envs.nix
+    ./input.nix
     ./looknfeel.nix
     ./windows.nix
   ];
