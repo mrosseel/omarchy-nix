@@ -8,8 +8,8 @@
       # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
       "suppressevent maximize, class:.*"
 
-      # Force chromium into a tile to deal with --app bug
-      "tile, class:^(chromium)$"
+      # Force brave into a tile to deal with --app bug
+      "tile, class:^(brave-browser)$"
 
       # Settings management
       "float, class:^(org.pulseaudio.pavucontrol|blueberry.py)$"
@@ -20,7 +20,7 @@
 
       # Just dash of transparency
       "opacity 0.97 0.9, class:.*"
-      "opacity 1 0.97, class:^(chromium|google-chrome|google-chrome-unstable)$"
+      "opacity 1 0.97, class:^(brave-browser|chromium|google-chrome|google-chrome-unstable)$"
       "opacity 0.97 0.9, initialClass:^(chrome-.*-Default)$ # web apps"
       "opacity 1 1, initialClass:^(chrome-youtube.*-Default)$ # Youtube"
       "opacity 1 1, class:^(zoom|vlc|org.kde.kdenlive|com.obsproject.Studio)$"

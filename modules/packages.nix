@@ -37,7 +37,7 @@
     fastfetch
 
     # GUIs
-    chromium
+    brave
     obsidian
     vlc
 
