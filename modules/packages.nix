@@ -50,7 +50,7 @@
     # kdePackages.kdenLive
     # pinta
     # libreoffice
-    # signal_desktop
+    signal_desktop
 
     # Commercial GUIs
     typora

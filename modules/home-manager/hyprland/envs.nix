@@ -6,6 +6,7 @@
   ...
 }:
 let
+cfg = config.omarchy;
 hasNvidiaDrivers = builtins.elem "nvidia" osConfig.services.xserver.videoDrivers;
 
   nvidiaEnv = [
@@ -18,8 +19,9 @@ in
   wayland.windowManager.hyprland.settings = {
     # Environment variables
     env = (lib.optionals hasNvidiaDrivers nvidiaEnv) ++ [
-      "GDK_SCALE,1" # Change to 1 if on a 1x display
-      # Uncomment if running NVIDIA GPU:
+      "GDK_SCALE,${toString cfg.scale}"
+      
+      # Manual NVIDIA configuration (automatically enabled above if NVIDIA drivers detected):
       # "NVD_BACKEND,direct"
       # "LIBVA_DRIVER_NAME,nvidia"
       # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
