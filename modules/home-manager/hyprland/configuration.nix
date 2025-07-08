@@ -25,5 +25,14 @@ in {
     "$webapp" = lib.mkDefault "$browser --app";
 
     monitor = cfg.monitors;
+    
+    # Environment variables
+    env = [
+      # TODO: Flake config
+      # Uncomment if running NVIDIA GPU:
+      # "NVD_BACKEND,direct"
+      # "LIBVA_DRIVER_NAME,nvidia"
+      # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
+    ];
   };
 }
