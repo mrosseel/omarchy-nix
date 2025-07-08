@@ -6,9 +6,8 @@
   ...
 }:
 let
-cfg = config.omarchy;
-hasNvidiaDrivers = builtins.elem "nvidia" osConfig.services.xserver.videoDrivers;
-
+  cfg = config.omarchy;
+  hasNvidiaDrivers = builtins.elem "nvidia" osConfig.services.xserver.videoDrivers;
   nvidiaEnv = [
     "NVD_BACKEND,direct"
     "LIBVA_DRIVER_NAME,nvidia"
@@ -21,11 +20,6 @@ in
     env = (lib.optionals hasNvidiaDrivers nvidiaEnv) ++ [
       "GDK_SCALE,${toString cfg.scale}"
       
-      # Manual NVIDIA configuration (automatically enabled above if NVIDIA drivers detected):
-      # "NVD_BACKEND,direct"
-      # "LIBVA_DRIVER_NAME,nvidia"
-      # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-
       # Cursor size
       "XCURSOR_SIZE,24"
       "HYPRCURSOR_SIZE,24"

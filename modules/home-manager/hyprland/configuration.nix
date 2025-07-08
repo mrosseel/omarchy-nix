@@ -18,21 +18,12 @@ in {
     # Default applications
     "$terminal" = lib.mkDefault "ghostty";
     "$fileManager" = lib.mkDefault "nautilus --new-window";
-    "$browser" = lib.mkDefault "brave --new-window --ozone-platform=wayland";
+    "$browser" = lib.mkDefault "chromium --new-window --ozone-platform=wayland";
     "$music" = lib.mkDefault "spotify";
     "$passwordManager" = lib.mkDefault "1password";
     "$messenger" = lib.mkDefault "signal-desktop";
     "$webapp" = lib.mkDefault "$browser --app";
 
     monitor = cfg.monitors;
-    
-    # Environment variables
-    env = [
-      # TODO: Flake config
-      # Uncomment if running NVIDIA GPU:
-      # "NVD_BACKEND,direct"
-      # "LIBVA_DRIVER_NAME,nvidia"
-      # "__GLX_VENDOR_LIBRARY_NAME,nvidia"
-    ];
   };
 }
