@@ -7,10 +7,10 @@
     # Environment variables
     # https://wiki.hyprland.org/Configuring/Variables/#input
     input = {
-      kb_layout = "us";
-      kb_variant = "dvorak";
+      kb_layout = us;
+      # kb_variant =
       # kb_model =
-      kb_options = "compose:caps";
+      kb_options = compose:caps;
       # kb_rules =
 
       follow_mouse = 1;
