@@ -1,12 +1,13 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }: {
   wayland.windowManager.hyprland.settings = {
     # Environment variables
     # https://wiki.hyprland.org/Configuring/Variables/#input
-    input = {
+    input = lib.mkDefault {
       kb_layout = "us";
       kb_variant = "dvorak";
       # kb_model =
@@ -23,7 +24,7 @@
     };
 
     # https://wiki.hyprland.org/Configuring/Variables/#gestures
-    gestures = {
+    gestures = lib.mkDefault {
       workspace_swipe = false;
     };
   };

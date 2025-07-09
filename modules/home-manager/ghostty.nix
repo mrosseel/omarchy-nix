@@ -19,6 +19,9 @@ in {
       font-size = 12;
 
       theme = "omarchy";
+      keybinds = [
+        "ctrl+k=reset"
+      ];
     };
     themes = {
       omarchy = {

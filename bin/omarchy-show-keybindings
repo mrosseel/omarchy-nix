@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# A script to display Hyprland keybindings defined in your configuration
+# using wofi for an interactive search menu.
+USER_HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
+
+# Process the configuration file to extract and format keybindings
+# Updated to handle both "bind =" and "bind=" formats from Home Manager
+grep -h '^[[:space:]]*bind' "$USER_HYPRLAND_CONF" |
+  awk -F, '
+{
+    # Strip trailing comments
+    sub(/#.*/, "");
+    
+    # Handle both "bind =" and "bind=" formats
+    # Remove the "bind[el]?[m]?=" part and surrounding whitespace
+    sub(/^[[:space:]]*bind[elm]*[[:space:]]*=[[:space:]]*/, "", $1);
+    
+    # Combine the modifier and key (first two fields)
+    key_combo = $1 " + " $2;
+    
+    # Clean up: strip leading/trailing spaces and normalize
+    gsub(/^[ \t]+|[ \t]+$/, "", key_combo);
+    gsub(/[ \t]+/, " ", key_combo);
+    
+    # Reconstruct the command from the remaining fields
+    action = "";
+    for (i = 3; i <= NF; i++) {
+        action = action $i (i < NF ? "," : "");
+    }
+    
+    # Clean up action: remove "exec, " prefix and trim
+    sub(/^[[:space:]]*exec[[:space:]]*,?[[:space:]]*/, "", action);
+    gsub(/^[ \t]+|[ \t]+$/, "", action);
+    
+    # Only print if we have both key combo and action
+    if (key_combo != "" && action != "") {
+        printf "%-35s → %s\n", key_combo, action;
+    }
+}' |
+flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 30% --height 40% -p 'Hyprland Keybindings' -O alphabetical"

@@ -23,6 +23,7 @@ in {
 
   # Install packages
   environment.systemPackages = packages.systemPackages;
+  programs.direnv.enable = true;
 
   # Networking
   services.resolved.enable = true;

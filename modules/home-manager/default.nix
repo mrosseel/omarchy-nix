@@ -26,6 +26,12 @@ in {
     (import ./zsh.nix)
   ];
 
+  home.file = {
+    ".local/share/omarchy/bin" = {
+      source = ../../bin;
+      recursive = true;
+    };
+  };
   home.packages = packages.homePackages;
 
   colorScheme = inputs.nix-colors.colorSchemes.${selectedTheme.base16-theme};

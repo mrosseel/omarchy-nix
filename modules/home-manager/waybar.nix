@@ -34,6 +34,7 @@
         ];
         modules-right = [
           # "custom/dropbox"
+          "tray"
           "bluetooth"
           "network"
           "wireplumber"

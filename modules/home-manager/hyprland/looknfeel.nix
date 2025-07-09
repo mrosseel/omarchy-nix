@@ -27,12 +27,14 @@ in {
     };
 
     decoration = {
-      rounding = 0;
+      rounding = 4;
 
       shadow = {
         enabled = true;
-        range = 2;
+        range = 14;
         render_power = 3;
+        ignore_window = true;
+        color = "rgba(00000045)";
         # color = hexToRgba config.colorScheme.palette.base00 "ee";
       };
 

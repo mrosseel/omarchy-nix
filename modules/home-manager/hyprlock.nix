@@ -21,7 +21,6 @@ in {
       };
       auth = {
         fingerprint.enabled = true;
-        fingerprint.placeholder_text = "  Enter Password 󰈷 ";
       };
       background = {
         monitor = "";
@@ -46,7 +45,8 @@ in {
         font_color = foregroundRgb;
 
         placeholder_color = foregroundMutedRgb;
-        placeholder_text = "Enter Password";
+        # placeholder_text = "Enter Password";
+        placeholder_text = "  Enter Password 󰈷 ";
         check_color = "rgba(131, 192, 146, 1.0)";
         fail_text = "Wrong";
 

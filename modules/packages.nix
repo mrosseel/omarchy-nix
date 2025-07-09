@@ -64,7 +64,7 @@
 
     # Containers
     docker-compose
-    podman-compose
+    # podman-compose
   ];
 
   homePackages = with pkgs; [
