@@ -17,6 +17,7 @@
     bibata-cursors
     gnome-themes-extra
     blueberry
+    clipse
 
     # Shell tools
     fzf
