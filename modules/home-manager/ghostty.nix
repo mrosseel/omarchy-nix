@@ -19,7 +19,7 @@ in {
       font-size = 12;
 
       theme = "omarchy";
-      keybinds = [
+      keybind = [
         "ctrl+k=reset"
       ];
     };
