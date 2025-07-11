@@ -47,6 +47,11 @@ in
       "XCOMPOSEFILE,~/.XCompose"
       "EDITOR,nvim"
       # "DOCKER_HOST,unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+      
+      # XDG Desktop Portal
+      "XDG_CURRENT_DESKTOP,Hyprland"
+      "XDG_SESSION_TYPE,wayland"
+      "XDG_SESSION_DESKTOP,Hyprland"
     ];
 
     xwayland = {
