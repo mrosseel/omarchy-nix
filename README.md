@@ -38,6 +38,14 @@ Once ready, add this flake to your system configuration, you'll also need [home-
             full_name = "Your Name";
             email_address = "your.email@example.com";
             theme = "tokyo-night";
+            
+            # Optional: Seamless boot experience (like original Omarchy)
+            seamless_boot = {
+              enable = true;              # Enable Plymouth + auto-login
+              username = "your-username"; # Required for auto-login
+              plymouth_theme = "omarchy"; # Boot splash theme
+              silent_boot = true;         # Hide kernel messages
+            };
           };
           
           home-manager = {
@@ -54,7 +62,22 @@ Once ready, add this flake to your system configuration, you'll also need [home-
 
 ## Configuration Options
 
-I've specified some basic configuration options to help you get started with initial setup, as well as some simple overrides for common configuration settings I found I was modifying often. These are likely subject to change with future versions as I iron things out.
+### Basic Configuration
+- `full_name` - Your full name for git and system configuration
+- `email_address` - Your email address 
+- `theme` - Color theme: "tokyo-night", "kanagawa", "everforest", "catppuccin", "nord", "gruvbox", "gruvbox-light"
+- `monitors` - List of monitor configurations
+- `scale` - Display scale factor (1 for 1x, 2 for 2x displays)
+
+### Seamless Boot (New!)
+Omarchy-nix now supports the seamless boot experience from the original Omarchy:
+
+- `seamless_boot.enable` - Enable Plymouth boot splash + auto-login (default: true)
+- `seamless_boot.username` - Username for auto-login (required when enabled)
+- `seamless_boot.plymouth_theme` - Boot splash theme (default: "omarchy") 
+- `seamless_boot.silent_boot` - Hide kernel messages during boot (default: true)
+
+This provides the same smooth boot-to-desktop experience as the original Omarchy, with no visible terminal or login prompts after disk encryption.
 
 Refer to [the root configuration](https://github.com/henrysipp/omarchy-nix/blob/main/config.nix) file for more information on what options are available. 
 

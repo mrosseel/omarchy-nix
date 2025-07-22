@@ -1,4 +1,6 @@
-{pkgs}: {
+{pkgs}: let
+  plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
+in {
   # Regular packages
   systemPackages = with pkgs; [
     # Base system tools
@@ -18,6 +20,20 @@
     gnome-themes-extra
     blueberry
     clipse
+    
+    # App launcher and productivity
+    walker
+    
+    # Screenshot and recording
+    satty
+    wf-recorder
+    slurp
+    
+    # Audio management
+    wiremix
+    
+    # Background management
+    swaybg
 
     # Shell tools
     fzf
@@ -69,5 +85,10 @@
   ];
 
   homePackages = with pkgs; [
+  ];
+
+  # Plymouth theme
+  plymouthThemes = [
+    plymouth-theme-omarchy
   ];
 }

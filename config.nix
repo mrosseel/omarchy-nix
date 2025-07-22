@@ -14,6 +14,7 @@ lib: {
         "kanagawa"
         "everforest"
         "catppuccin"
+        "catppuccin-latte"
         "nord"
         "gruvbox"
         "gruvbox-light"
@@ -62,6 +63,33 @@ lib: {
         "SUPER, O, exec, obsidian -disable-gpu"
         "SUPER, slash, exec, $passwordManager"
       ];
+    };
+    seamless_boot = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable seamless boot experience with Plymouth and auto-login";
+          };
+          username = lib.mkOption {
+            type = lib.types.str;
+            description = "Username for auto-login (required when seamless boot is enabled)";
+          };
+          plymouth_theme = lib.mkOption {
+            type = lib.types.str;
+            default = "omarchy";
+            description = "Plymouth theme to use for boot splash";
+          };
+          silent_boot = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable silent boot (suppress kernel messages)";
+          };
+        };
+      };
+      default = {};
+      description = "Seamless boot configuration options";
     };
   };
 }

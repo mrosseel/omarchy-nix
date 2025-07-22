@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # A script to display Hyprland keybindings defined in your configuration
-# using wofi for an interactive search menu.
+# using walker for an interactive search menu.
 USER_HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
 
 # Process the configuration file to extract and format keybindings
@@ -37,4 +37,4 @@ grep -h '^[[:space:]]*bind' "$USER_HYPRLAND_CONF" |
         printf "%-35s → %s\n", key_combo, action;
     }
 }' |
-flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 30% --height 40% -p 'Hyprland Keybindings' -O alphabetical"
+walker --dmenu --placeholder "Search keybindings..."

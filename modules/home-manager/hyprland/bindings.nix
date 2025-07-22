@@ -9,9 +9,9 @@ in {
     bind =
       cfg.quick_app_bindings
       ++ [
-        "SUPER, space, exec, wofi --show drun --sort-order=alphabetical"
+        "SUPER, space, exec, walker"
         "SUPER SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
-        # "SUPER CTRL, SPACE, exec, ~/.local/share/omarchy/bin/swaybg-next"
+        "SUPER CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-bg-next"
         # "SUPER SHIFT CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-theme-next"
 
         "SUPER, W, killactive,"
@@ -84,16 +84,24 @@ in {
         "SUPER, S, togglespecialworkspace, magic"
         "SUPER SHIFT, S, movetoworkspace, special:magic"
 
-        # Screenshots
-        ", PRINT, exec, hyprshot -m region"
-        "SHIFT, PRINT, exec, hyprshot -m window"
-        "CTRL, PRINT, exec, hyprshot -m output"
+        # Screenshots with satty editing
+        ", PRINT, exec, hyprshot -m region --clipboard-only && satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png"
+        "SHIFT, PRINT, exec, hyprshot -m window --clipboard-only && satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png"
+        "CTRL, PRINT, exec, hyprshot -m output --clipboard-only && satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png"
+        
+        # Screen recording
+        "SUPER, PRINT, exec, wf-recorder -g \"$(slurp)\" -f ~/Videos/recording-$(date '+%Y%m%d-%H%M%S').mp4"
+        "SUPER SHIFT, PRINT, exec, wf-recorder -f ~/Videos/recording-$(date '+%Y%m%d-%H%M%S').mp4"
+        "SUPER CTRL, PRINT, exec, pkill -SIGINT wf-recorder"
 
         # Color picker
-        "SUPER, PRINT, exec, hyprpicker -a"
+        "ALT, PRINT, exec, hyprpicker -a"
 
         # Clipse
         "CTRL SUPER, V, exec, ghostty --class clipse -e clipse"
+        
+        # Audio management
+        "SUPER SHIFT, M, exec, ghostty --class wiremix -e wiremix"
       ];
 
     bindm = [

@@ -8,6 +8,11 @@
     vscode-theme = "Catppuccin Macchiato";
   };
 
+  "catppuccin-latte" = {
+    base16-theme = "catppuccin-latte";
+    vscode-theme = "Catppuccin Latte";
+  };
+
   "kanagawa" = {
     base16-theme = "kanagawa";
     vscode-theme = "Kanagawa";

@@ -11,7 +11,7 @@ in {
   imports = [
     (import ./hyprland.nix inputs)
     (import ./hyprlock.nix inputs)
-    (import ./hyprpaper.nix)
+    (import ./swaybg.nix)
     (import ./hypridle.nix)
     (import ./ghostty.nix)
     (import ./btop.nix)
@@ -21,7 +21,7 @@ in {
     # (import ./starship.nix)
     (import ./vscode.nix)
     (import ./waybar.nix)
-    (import ./wofi.nix)
+    (import ./walker.nix)
     (import ./zoxide.nix)
     (import ./zsh.nix)
   ];
