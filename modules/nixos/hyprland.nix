@@ -19,4 +19,7 @@ inputs: {
     config.common.default = "*";
     config.hyprland.default = [ "hyprland" "gtk" ];
   };
+
+  # Enable InputCapture portal for screen sharing applications like Deskflow
+  xdg.portal.config.hyprland."org.freedesktop.impl.portal.InputCapture" = [ "hyprland" ];
 }

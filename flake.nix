@@ -4,6 +4,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
     nix-colors.url = "github:misterio77/nix-colors";
+    walker.url = "github:abenz1267/walker";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,6 +15,7 @@
     nixpkgs,
     hyprland,
     nix-colors,
+    walker,
     home-manager,
   }: {
     nixosModules = {
@@ -44,6 +46,7 @@
       }: {
         imports = [
           nix-colors.homeManagerModules.default
+          walker.homeManagerModules.default
           (import ./modules/home-manager/default.nix inputs)
         ];
         options.omarchy = (import ./config.nix lib).omarchyOptions;

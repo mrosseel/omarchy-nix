@@ -69,12 +69,13 @@ lib: {
         options = {
           enable = lib.mkOption {
             type = lib.types.bool;
-            default = true;
+            default = false;
             description = "Enable seamless boot experience with Plymouth and auto-login";
           };
           username = lib.mkOption {
             type = lib.types.str;
-            description = "Username for auto-login (required when seamless boot is enabled)";
+            description = "Username for auto-login. Set this when seamless_boot.enable = true.";
+            example = "mike";
           };
           plymouth_theme = lib.mkOption {
             type = lib.types.str;

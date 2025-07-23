@@ -62,7 +62,7 @@ in {
     };
     
     # Style walker with current theme colors
-    style = ''
+    theme.style = ''
       * {
         color: #${colors.base05};
         font-family: "CaskaydiaMono Nerd Font";
@@ -70,7 +70,7 @@ in {
       }
       
       #window {
-        background-color: rgba(${toString (lib.toInt "0x${colors.base00}")}, ${toString (lib.toInt "0x${colors.base00}")}, ${toString (lib.toInt "0x${colors.base00}")}, 0.9);
+        background-color: #${colors.base00}E6;
         border: 2px solid #${colors.base0C};
         border-radius: 10px;
       }
