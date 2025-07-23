@@ -75,7 +75,7 @@ lib: {
           username = lib.mkOption {
             type = lib.types.str;
             description = "Username for auto-login. Set this when seamless_boot.enable = true.";
-            example = "mike";
+            example = "dhh";
           };
           plymouth_theme = lib.mkOption {
             type = lib.types.str;

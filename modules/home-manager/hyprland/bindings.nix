@@ -12,7 +12,7 @@ in {
         "SUPER, space, exec, walker"
         "SUPER SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
         "SUPER CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-bg-next"
-        # "SUPER SHIFT CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-theme-next"
+        "SUPER SHIFT CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-theme-next"
 
         "SUPER, W, killactive,"
 

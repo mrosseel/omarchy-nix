@@ -41,10 +41,6 @@ in {
 
   # UWSM integration for Hyprland
   programs.uwsm.enable = lib.mkIf cfg.seamless_boot.enable true;
-  programs.hyprland = lib.mkIf cfg.seamless_boot.enable {
-    enable = true;
-    withUWSM = true;
-  };
 
   # Login configuration
   services.greetd = {
