@@ -13,6 +13,7 @@ in {
     nautilus
     hyprshot
     hyprpicker
+    hyprsunset
     alejandra
     pamixer
     playerctl

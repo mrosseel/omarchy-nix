@@ -6,5 +6,4 @@
     # TODO: Dynamically get user names
     _1password-gui.polkitPolicyOwners = ["henry"];
   };
-
 }

@@ -20,7 +20,7 @@ in {
     (import ./mako.nix)
     # (import ./starship.nix)
     (import ./vscode.nix)
-    (import ./waybar.nix)
+    (import ./waybar.nix inputs)
     (import ./walker.nix)
     (import ./zoxide.nix)
     (import ./zsh.nix)
@@ -36,12 +36,6 @@ in {
 
   colorScheme = inputs.nix-colors.colorSchemes.${selectedTheme.base16-theme};
 
-  dconf.settings = {
-    "org/gnome/desktop/interface" = {
-      color-scheme = "prefer-dark";
-    };
-  };
-
   gtk = {
     enable = true;
     theme = {
@@ -50,6 +44,6 @@ in {
     };
   };
 
-  # TODO: Add an actual nvim config 
+  # TODO: Add an actual nvim config
   programs.neovim.enable = true;
 }

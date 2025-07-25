@@ -3,7 +3,6 @@
     base16-theme = "tokyo-night-dark";
     vscode-theme = "Tokyo Night";
   };
-
   "catppuccin-macchiato" = {
     vscode-theme = "Catppuccin Macchiato";
   };

@@ -1,8 +1,12 @@
-{
+inputs: {
   config,
   pkgs,
   ...
-}: {
+}: let
+  palette = config.colorScheme.palette;
+  convert = inputs.nix-colors.lib.conversions.hexToRGBString;
+  backgroundRgb = "rgb(${convert ", " palette.base00})";
+in {
   home.file = {
     ".config/waybar/" = {
       source = ../../config/waybar;
@@ -10,9 +14,13 @@
     };
     ".config/waybar/theme.css" = {
       text = ''
+        @define-color background ${backgroundRgb};
         * {
-          color: #${config.colorScheme.palette.base05};
-          background-color: #${config.colorScheme.palette.base00};
+          color: white; 
+        }
+
+        window#waybar {
+          background-color: ${backgroundRgb};
         }
       '';
     };
@@ -146,6 +154,7 @@
           on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; # Updated command
           max-volume = 150; # Optional: allow volume over 100%
         };
+        tray = {spacing = 13;};
         power-profiles-daemon = {
           format = "{icon}";
           tooltip-format = "Power profile: {profile}";

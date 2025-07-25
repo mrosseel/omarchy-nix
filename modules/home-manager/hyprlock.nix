@@ -6,6 +6,7 @@ inputs: {
 }: let
   palette = config.colorScheme.palette;
   convert = inputs.nix-colors.lib.conversions.hexToRGBString;
+  selected_wallpaper_path = (import ../../lib/selected-wallpaper.nix config).wallpaper_path;
 
   backgroundRgb = "rgba(${convert ", " palette.base00}, 0.8)";
   surfaceRgb = "rgb(${convert ", " palette.base02})";
@@ -24,9 +25,9 @@ in {
       };
       background = {
         monitor = "";
-        path = "screenshot";
-        blur_passes = 3;
-        brightness = 0.5;
+        path = selected_wallpaper_path;
+        # blur_passes = 3;
+        # brightness = 0.5;
       };
 
       input-field = {
@@ -45,7 +46,6 @@ in {
         font_color = foregroundRgb;
 
         placeholder_color = foregroundMutedRgb;
-        # placeholder_text = "Enter Password";
         placeholder_text = "  Enter Password 󰈷 ";
         check_color = "rgba(131, 192, 146, 1.0)";
         fail_text = "Wrong";
@@ -60,7 +60,7 @@ in {
         text = "\$FPRINTPROMPT";
         text_align = "center";
         color = "rgb(211, 198, 170)";
-        font_size = 24; 
+        font_size = 24;
         font_family = "CaskaydiaMono Nerd Font";
         position = "0, -100";
         halign = "center";

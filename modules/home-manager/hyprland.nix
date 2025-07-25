@@ -9,5 +9,4 @@ inputs: {
     package = inputs.hyprland.packages.${pkgs.system}.hyprland;
   };
   services.hyprpolkitagent.enable = true;
-
 }

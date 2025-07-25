@@ -15,6 +15,7 @@ in {
         "SUPER SHIFT CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-theme-next"
 
         "SUPER, W, killactive,"
+        "SUPER, Backspace, killactive,"
 
         # End active session
         "SUPER, ESCAPE, exec, hyprlock"
@@ -22,7 +23,6 @@ in {
         "SUPER CTRL, ESCAPE, exec, reboot"
         "SUPER SHIFT CTRL, ESCAPE, exec, systemctl poweroff"
         "SUPER, K, exec, ~/.local/share/omarchy/bin/omarchy-show-keybindings"
-
 
         # Control tiling
         "SUPER, J, togglesplit, # dwindle"
@@ -46,6 +46,9 @@ in {
         "SUPER, 8, workspace, 8"
         "SUPER, 9, workspace, 9"
         "SUPER, 0, workspace, 10"
+        
+        "SUPER, comma, workspace, -1"
+        "SUPER, period, workspace, +1"
 
         # Move active window to a workspace with mainMod + SHIFT + [0-9]
         "SUPER SHIFT, 1, movetoworkspace, 1"

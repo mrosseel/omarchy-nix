@@ -30,18 +30,17 @@ in {
       rounding = 4;
 
       shadow = {
-        enabled = true;
-        range = 14;
+        enabled = false;
+        range = 30;
         render_power = 3;
         ignore_window = true;
         color = "rgba(00000045)";
-        # color = hexToRgba config.colorScheme.palette.base00 "ee";
       };
 
       blur = {
         enabled = true;
-        size = 3;
-        passes = 1;
+        size = 5;
+        passes = 2;
 
         vibrancy = 0.1696;
       };
