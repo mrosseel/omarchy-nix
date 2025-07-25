@@ -18,7 +18,12 @@ in {
     # Default applications
     "$terminal" = lib.mkDefault "ghostty";
     "$fileManager" = lib.mkDefault "nautilus --new-window";
-    "$browser" = lib.mkDefault "brave --new-window --ozone-platform=wayland";
+    "$browser" = lib.mkDefault (
+      if cfg.browser == "brave" then
+        "brave --new-window --ozone-platform=wayland"
+      else
+        "chromium --new-window --ozone-platform=wayland"
+    );
     "$music" = lib.mkDefault "spotify";
     "$passwordManager" = lib.mkDefault "1password";
     "$messenger" = lib.mkDefault "signal-desktop";

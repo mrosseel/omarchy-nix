@@ -39,6 +39,11 @@ lib: {
       default = 2;
       description = "Display scale factor (1 for 1x displays, 2 for 2x displays)";
     };
+    browser = lib.mkOption {
+      type = lib.types.enum ["chromium" "brave"];
+      default = "chromium";
+      description = "Browser to use for web browsing";
+    };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";

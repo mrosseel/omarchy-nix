@@ -1,5 +1,6 @@
-{pkgs}: let
+{pkgs, config}: let
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
+  cfg = config.omarchy;
 in {
   # Regular packages
   systemPackages = with pkgs; [
@@ -55,7 +56,7 @@ in {
     fastfetch
 
     # GUIs
-    brave
+    ${cfg.browser}
     obsidian
     vlc
 
