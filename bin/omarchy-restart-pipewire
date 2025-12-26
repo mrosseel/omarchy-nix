@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Restart PipeWire audio system
+
+echo "Restarting PipeWire..."
+
+# Restart pipewire and related services
+systemctl --user restart pipewire pipewire-pulse wireplumber
+
+# Wait for services to start
+sleep 1
+
+notify-send "Audio Restarted" "PipeWire audio system has been restarted" -u low -i audio-card
+echo "PipeWire restarted successfully"

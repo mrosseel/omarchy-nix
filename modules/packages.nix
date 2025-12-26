@@ -70,6 +70,7 @@ in {
     evince
     loupe
     krita
+    xournalpp
   ]
   ++ lib.optionals cfg.office_suite.enable [
     libreoffice-fresh

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Restart WiFi connection
+
+echo "Restarting WiFi..."
+
+# Stop WiFi
+nmcli radio wifi off
+
+# Wait a moment
+sleep 1
+
+# Start WiFi
+nmcli radio wifi on
+
+# Wait for connection
+sleep 2
+
+notify-send "WiFi Restarted" "WiFi connection has been restarted" -u low -i network-wireless
+echo "WiFi restarted successfully"

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Monitor battery and show low battery notifications
+
+# Configuration
+LOW_BATTERY_THRESHOLD=20
+CRITICAL_BATTERY_THRESHOLD=10
+CHECK_INTERVAL=60  # Check every 60 seconds
+
+# Track notification state to avoid spam
+LAST_NOTIFICATION=""
+
+while true; do
+  # Get battery info
+  BATTERY_PATH="/sys/class/power_supply/BAT0"
+
+  # Check if battery exists (skip on desktops)
+  if [ ! -d "$BATTERY_PATH" ]; then
+    # No battery found, check less frequently
+    sleep 300
+    continue
+  fi
+
+  # Read battery percentage
+  CAPACITY=$(cat "$BATTERY_PATH/capacity" 2>/dev/null || echo "100")
+  STATUS=$(cat "$BATTERY_PATH/status" 2>/dev/null || echo "Unknown")
+
+  # Only notify when discharging
+  if [ "$STATUS" = "Discharging" ]; then
+    if [ "$CAPACITY" -le "$CRITICAL_BATTERY_THRESHOLD" ]; then
+      if [ "$LAST_NOTIFICATION" != "critical" ]; then
+        notify-send "Critical Battery" "Battery at ${CAPACITY}% - Connect charger now!" -u critical -i battery-caution
+        LAST_NOTIFICATION="critical"
+      fi
+    elif [ "$CAPACITY" -le "$LOW_BATTERY_THRESHOLD" ]; then
+      if [ "$LAST_NOTIFICATION" != "low" ]; then
+        notify-send "Low Battery" "Battery at ${CAPACITY}% - Consider charging" -u normal -i battery-low
+        LAST_NOTIFICATION="low"
+      fi
+    else
+      LAST_NOTIFICATION=""
+    fi
+  else
+    # Reset notification state when charging
+    LAST_NOTIFICATION=""
+  fi
+
+  sleep "$CHECK_INTERVAL"
+done

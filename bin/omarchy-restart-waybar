@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Restart Waybar status bar
+
+echo "Restarting Waybar..."
+
+# Kill waybar
+pkill waybar
+
+# Wait a moment
+sleep 0.5
+
+# Start waybar
+waybar &
+
+notify-send "Waybar Restarted" "Status bar has been restarted" -u low
+echo "Waybar restarted successfully"

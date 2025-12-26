@@ -38,6 +38,7 @@ in {
     (import ./zoxide.nix)
     (import ./zsh.nix)
     ./light-theme-monitor.nix
+    ./battery-monitor.nix
   ];
 
   home.file = {
@@ -62,6 +63,18 @@ in {
       name = if isLightModeEnabled then "Adwaita" else "Adwaita-dark";
       package = pkgs.gnome-themes-extra;
     };
+    cursorTheme = {
+      name = if isLightModeEnabled then "Bibata-Modern-Classic" else "Bibata-Modern-Ice";
+      package = pkgs.bibata-cursors;
+      size = 24;
+    };
+  };
+
+  home.pointerCursor = {
+    gtk.enable = true;
+    name = if isLightModeEnabled then "Bibata-Modern-Classic" else "Bibata-Modern-Ice";
+    package = pkgs.bibata-cursors;
+    size = 24;
   };
 
   # TODO: Add an actual nvim config

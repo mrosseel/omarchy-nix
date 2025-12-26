@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Restart Walker app launcher
+
+echo "Restarting Walker..."
+
+# Kill walker
+pkill walker
+
+# Walker will be started on next SUPER+SPACE press
+notify-send "Walker Restarted" "App launcher daemon has been restarted" -u low
+echo "Walker restarted successfully"
