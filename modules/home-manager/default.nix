@@ -25,6 +25,8 @@ in {
     (import ./swaybg.nix)
     (import ./hypridle.nix)
     (import ./ghostty.nix)
+    (import ./alacritty.nix)
+    (import ./kitty.nix)
     (import ./btop.nix)
     (import ./direnv.nix)
     (import ./git.nix)

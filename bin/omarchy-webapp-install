@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Install a webapp as a desktop application
+
+if [ "$#" -lt 3 ]; then
+  echo "Usage: omarchy-webapp-install <name> <url> <icon-url> [custom-exec] [mime-types]"
+  echo ""
+  echo "Examples:"
+  echo "  omarchy-webapp-install Gmail https://mail.google.com https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+  echo "  omarchy-webapp-install Notion https://notion.so https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png"
+  echo ""
+  echo "Icons:"
+  echo "  - Use PNG format (required)"
+  echo "  - Find icons at https://dashboardicons.com"
+  echo "  - Or use direct URLs to PNG icons"
+  exit 1
+fi
+
+APP_NAME="$1"
+APP_URL="$2"
+ICON_REF="$3"
+CUSTOM_EXEC="$4"  # Optional custom exec command
+MIME_TYPES="$5"   # Optional mime types
+
+# Ensure valid inputs
+if [[ -z "$APP_NAME" || -z "$APP_URL" || -z "$ICON_REF" ]]; then
+  echo "Error: App name, URL, and icon URL are required!"
+  exit 1
+fi
+
+# Create icon directory
+ICON_DIR="$HOME/.local/share/applications/icons"
+mkdir -p "$ICON_DIR"
+
+# Download icon if it's a URL, otherwise use local path
+if [[ $ICON_REF =~ ^https?:// ]]; then
+  ICON_PATH="$ICON_DIR/$APP_NAME.png"
+  echo "Downloading icon..."
+  if curl -sL -o "$ICON_PATH" "$ICON_REF"; then
+    echo "Icon downloaded successfully"
+  else
+    echo "Error: Failed to download icon from $ICON_REF"
+    exit 1
+  fi
+else
+  ICON_PATH="$ICON_DIR/$ICON_REF"
+fi
+
+# Determine exec command
+if [[ -n $CUSTOM_EXEC ]]; then
+  EXEC_COMMAND="$CUSTOM_EXEC"
+else
+  # Use the configured browser with --app flag
+  BROWSER="${OMARCHY_BROWSER:-chromium}"
+  EXEC_COMMAND="$BROWSER --app=$APP_URL --ozone-platform=wayland"
+fi
+
+# Create desktop entry
+DESKTOP_FILE="$HOME/.local/share/applications/$APP_NAME.desktop"
+
+cat >"$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Version=1.0
+Name=$APP_NAME
+Comment=$APP_NAME
+Exec=$EXEC_COMMAND
+Terminal=false
+Type=Application
+Icon=$ICON_PATH
+StartupNotify=true
+Categories=Network;WebApp;
+EOF
+
+# Add mime types if provided
+if [[ -n $MIME_TYPES ]]; then
+  echo "MimeType=$MIME_TYPES" >>"$DESKTOP_FILE"
+fi
+
+chmod +x "$DESKTOP_FILE"
+
+echo ""
+echo "✓ Webapp installed: $APP_NAME"
+echo "  Launch with: SUPER + SPACE, then search for '$APP_NAME'"
+echo "  Desktop file: $DESKTOP_FILE"
