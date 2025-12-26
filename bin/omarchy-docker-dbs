@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Quick setup for development databases using Docker
+
+if [[ "$#" -eq 0 ]]; then
+  echo "Usage: omarchy-docker-dbs <mysql|postgres|redis|mongodb|mariadb|mssql> [...]"
+  echo ""
+  echo "Examples:"
+  echo "  omarchy-docker-dbs postgres redis    # Install PostgreSQL and Redis"
+  echo "  omarchy-docker-dbs mysql             # Install MySQL"
+  echo ""
+  echo "Available databases:"
+  echo "  mysql      - MySQL 8.4 on port 3306 (root, no password)"
+  echo "  postgres   - PostgreSQL 17 on port 5432 (trust auth)"
+  echo "  mariadb    - MariaDB 11.8 on port 3306 (root, no password)"
+  echo "  redis      - Redis 7 on port 6379"
+  echo "  mongodb    - MongoDB on port 27017 (admin/admin123)"
+  echo "  mssql      - SQL Server 2022 on port 1433 (sa/@dmin123)"
+  exit 1
+fi
+
+for db in "$@"; do
+  case $db in
+    mysql)
+      echo "Installing MySQL 8.4..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:3306:3306" \
+        --name=mysql8 -e MYSQL_ROOT_PASSWORD= -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+        mysql:8.4
+      ;;
+    postgres|postgresql)
+      echo "Installing PostgreSQL 17..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:5432:5432" \
+        --name=postgres17 -e POSTGRES_HOST_AUTH_METHOD=trust \
+        postgres:17
+      ;;
+    mariadb)
+      echo "Installing MariaDB 11.8..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:3306:3306" \
+        --name=mariadb11 -e MARIADB_ROOT_PASSWORD= -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true \
+        mariadb:11.8
+      ;;
+    redis)
+      echo "Installing Redis 7..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:6379:6379" \
+        --name=redis \
+        redis:7
+      ;;
+    mongodb|mongo)
+      echo "Installing MongoDB..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:27017:27017" \
+        --name=mongodb -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=admin123 \
+        mongo:noble
+      ;;
+    mssql|sqlserver)
+      echo "Installing SQL Server 2022..."
+      docker run -d --restart unless-stopped -p "127.0.0.1:1433:1433" \
+        --name=mssql -e MSSQL_PID=Developer -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=@dmin123" \
+        mcr.microsoft.com/mssql/server:2022-CU12-ubuntu-22.04
+      ;;
+    *)
+      echo "Unknown database: $db"
+      echo "Use: mysql, postgres, redis, mongodb, mariadb, or mssql"
+      ;;
+  esac
+done
+
+echo ""
+echo "Done! Use 'docker ps' to see running containers."

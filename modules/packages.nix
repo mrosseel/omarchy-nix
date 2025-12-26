@@ -1,4 +1,4 @@
-{pkgs, config}: let
+{pkgs, config, lib}: let
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
   cfg = config.omarchy;
 in {
@@ -70,7 +70,11 @@ in {
     evince
     loupe
     krita
-
+  ]
+  ++ lib.optionals cfg.office_suite.enable [
+    libreoffice-fresh
+  ]
+  ++ [
     # Can't find this in nixpkgs!
     # Might have to make it ourselves
     # asdcontrol

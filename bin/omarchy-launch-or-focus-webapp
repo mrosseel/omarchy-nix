@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Launch a webapp or focus it if already running
+
+if (($# == 0)); then
+  echo "Usage: omarchy-launch-or-focus-webapp [window-pattern] [url]"
+  exit 1
+fi
+
+WINDOW_PATTERN="$1"
+URL="$2"
+
+# Determine browser based on config
+BROWSER="${OMARCHY_BROWSER:-chromium}"
+BROWSER_CMD="$BROWSER --app=\"$URL\" --ozone-platform=wayland"
+
+# Use our launch-or-focus script
+exec ~/.local/share/omarchy/bin/omarchy-launch-or-focus "$WINDOW_PATTERN" "$BROWSER_CMD"

@@ -54,17 +54,30 @@ lib: {
       default = "ghostty";
       description = "Terminal emulator to use";
     };
+    office_suite = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable LibreOffice office suite";
+          };
+        };
+      };
+      default = {};
+      description = "Office suite configuration";
+    };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";
       default = [
-        "SUPER, A, exec, $webapp=https://chatgpt.com"
-        "SUPER SHIFT, A, exec, $webapp=https://grok.com"
-        "SUPER, C, exec, $webapp=https://app.hey.com/calendar/weeks/"
-        "SUPER, E, exec, $webapp=https://app.hey.com"
-        "SUPER, Y, exec, $webapp=https://youtube.com/"
-        "SUPER SHIFT, G, exec, $webapp=https://web.whatsapp.com/"
-        "SUPER, X, exec, $webapp=https://x.com/"
+        "SUPER, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
+        "SUPER SHIFT, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
+        "SUPER, C, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
+        "SUPER, E, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
+        "SUPER, Y, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
+        "SUPER SHIFT, G, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
+        "SUPER, X, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
         "SUPER SHIFT, X, exec, $webapp=https://x.com/compose/post"
 
         "SUPER, return, exec, $terminal"
