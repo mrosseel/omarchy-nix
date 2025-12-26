@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# omarchy-theme-set: Set a theme for omarchy-nix (systemd will handle the rebuild)
+# Usage: omarchy-theme-set <theme-name>
+
+if [[ -z "$1" ]]; then
+  echo "Usage: omarchy-theme-set <theme-name>" >&2
+  echo "Available themes: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, nord, gruvbox, gruvbox-light, rose-pine, matte-black" >&2
+  exit 1
+fi
+
+THEME_NAME="$1"
+THEME_FILE="$HOME/.config/omarchy/current-theme"
+
+# Validate theme exists in our themes.nix
+AVAILABLE_THEMES=("tokyo-night" "kanagawa" "everforest" "catppuccin" "catppuccin-latte" "nord" "gruvbox" "gruvbox-light" "rose-pine" "matte-black")
+if [[ ! " ${AVAILABLE_THEMES[@]} " =~ " ${THEME_NAME} " ]]; then
+  echo "Theme '$THEME_NAME' is not available." >&2
+  echo "Available themes: ${AVAILABLE_THEMES[*]}" >&2
+  exit 2
+fi
+
+# Check if current theme is already set
+if [[ -f "$THEME_FILE" ]] && [[ "$(cat "$THEME_FILE")" == "$THEME_NAME" ]]; then
+  echo "Theme '$THEME_NAME' is already active"
+  exit 0
+fi
+
+# Store current theme preference (this will trigger systemd path unit)
+mkdir -p "$(dirname "$THEME_FILE")"
+echo "$THEME_NAME" > "$THEME_FILE"
+
+echo "Theme change requested: $THEME_NAME"
+echo "Systemd will handle the rebuild automatically..."
+
+# Give systemd a moment to pick up the change
+sleep 1
+
+# Check if the systemd service is running
+if systemctl --user is-active omarchy-theme-switcher.service >/dev/null 2>&1; then
+  echo "Theme switching service is active"
+else
+  echo "Note: You can monitor the theme switch with: journalctl --user -f -u omarchy-theme-switcher.service"
+fi

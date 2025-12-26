@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+THEME_FILE="$HOME/.config/omarchy/current-theme"
+AVAILABLE_THEMES=("tokyo-night" "kanagawa" "everforest" "catppuccin" "catppuccin-latte" "nord" "gruvbox" "gruvbox-light" "rose-pine" "matte-black")
+TOTAL=${#AVAILABLE_THEMES[@]}
+
+# Get current theme from file
+if [[ -f "$THEME_FILE" ]]; then
+  CURRENT_THEME=$(cat "$THEME_FILE")
+else
+  # Default to first theme if no file exists
+  CURRENT_THEME="${AVAILABLE_THEMES[0]}"
+fi
+
+# Find current theme index
+INDEX=0
+for i in "${!AVAILABLE_THEMES[@]}"; do
+  if [[ "${AVAILABLE_THEMES[$i]}" == "$CURRENT_THEME" ]]; then
+    INDEX=$i
+    break
+  fi
+done
+
+# Get next theme (wrap around)
+NEXT_INDEX=$(((INDEX + 1) % TOTAL))
+NEW_THEME="${AVAILABLE_THEMES[$NEXT_INDEX]}"
+
+"$HOME/.local/share/omarchy/bin/omarchy-theme-set" "$NEW_THEME"

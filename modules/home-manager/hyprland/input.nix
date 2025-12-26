@@ -22,10 +22,5 @@
         natural_scroll = false;
       };
     };
-
-    # https://wiki.hyprland.org/Configuring/Variables/#gestures
-    gestures = lib.mkDefault {
-      workspace_swipe = false;
-    };
   };
 }

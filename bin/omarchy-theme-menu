@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+THEME_FILE="$HOME/.config/omarchy/current-theme"
+AVAILABLE_THEMES=("tokyo-night" "kanagawa" "everforest" "catppuccin" "catppuccin-latte" "nord" "gruvbox" "gruvbox-light" "rose-pine" "matte-black")
+
+# Get current theme
+if [[ -f "$THEME_FILE" ]]; then
+  CURRENT_THEME=$(cat "$THEME_FILE")
+else
+  CURRENT_THEME="tokyo-night"
+fi
+
+# Build themes list with pretty display names
+themes=()
+for theme in "${AVAILABLE_THEMES[@]}"; do
+  display_name=$(echo "$theme" | sed -E 's/(^|-)([a-z])/\1\u\2/g; s/-/ /g')
+  
+  if [[ "$theme" == "$CURRENT_THEME" ]]; then
+    themes+=("<i>$display_name</i>")
+  else
+    themes+=("$display_name")
+  fi
+done
+
+# Show Walker menu
+selection=$(printf '%s\n' "${themes[@]}" | walker --dmenu --theme dmenu_250 2>/dev/null)
+
+# Remove any Pango markup before converting back to filename
+clean_selection=$(echo "$selection" | sed -E 's/<[^>]+>//g')
+
+# Convert to lowercase and dash-separated: "Tokyo Night" -> "tokyo-night"
+selected_theme=$(echo "$clean_selection" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+
+# Apply the selected theme
+"$HOME/.local/share/omarchy/bin/omarchy-theme-set" "$selected_theme"

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(nix flake show:*)",
+      "Bash(nix search:*)",
+      "Bash(nix flake info:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(nix flake update:*)",
+      "Bash(nix flake lock:*)",
+      "Bash(chmod:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}
