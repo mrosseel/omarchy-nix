@@ -80,6 +80,19 @@ lib: {
       default = {};
       description = "Gaming configuration";
     };
+    nvidia = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable NVIDIA GPU support with proprietary drivers";
+          };
+        };
+      };
+      default = {};
+      description = "NVIDIA GPU configuration";
+    };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";

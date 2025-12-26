@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Install and setup Tailscale VPN
+
+echo "Setting up Tailscale..."
+
+# Check if Tailscale is already in configuration
+if systemctl is-enabled tailscaled &>/dev/null; then
+  echo "Tailscale is already configured in your NixOS configuration."
+  echo ""
+  echo "If not running, add this to your configuration.nix:"
+  echo "  services.tailscale.enable = true;"
+  echo ""
+  echo "Then rebuild: sudo nixos-rebuild switch"
+else
+  echo "Tailscale needs to be enabled in your NixOS configuration."
+  echo ""
+  echo "Add this to your configuration.nix:"
+  echo ""
+  echo "  services.tailscale = {"
+  echo "    enable = true;"
+  echo "    useRoutingFeatures = \"client\";  # or \"server\" for subnet routing"
+  echo "  };"
+  echo ""
+  echo "Then rebuild: sudo nixos-rebuild switch"
+  exit 1
+fi
+
+# Check if already authenticated
+if tailscale status &>/dev/null; then
+  echo "Tailscale is already running:"
+  tailscale status
+  exit 0
+fi
+
+# Start Tailscale and authenticate
+echo "Starting Tailscale authentication..."
+sudo tailscale up
+
+echo ""
+echo "Tailscale setup complete!"
+echo ""
+echo "Useful commands:"
+echo "  tailscale status       # Check connection status"
+echo "  tailscale ip           # Show your Tailscale IP"
+echo "  tailscale ping <host>  # Ping another device"
+echo "  tailscale down         # Disconnect"

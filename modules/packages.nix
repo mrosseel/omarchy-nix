@@ -61,6 +61,9 @@ in {
     btop
     powertop
     fastfetch
+    gum
+    bluetui
+    inxi
 
     # GUIs
     ${cfg.browser}
@@ -71,6 +74,11 @@ in {
     loupe
     krita
     xournalpp
+    localsend
+
+    # Video production
+    obs-studio
+    kdenlive
   ]
   ++ lib.optionals cfg.office_suite.enable [
     libreoffice-fresh

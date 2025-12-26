@@ -14,5 +14,6 @@ in {
     ./fido2.nix
     ./firewall.nix
     ./gaming.nix
+    ./nvidia.nix
   ];
 }

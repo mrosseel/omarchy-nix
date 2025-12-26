@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Interactive timezone selector
+
+echo "Timezone Selector"
+echo "================="
+echo ""
+echo "Current timezone: $(timedatectl show -p Timezone --value)"
+echo ""
+
+# Get list of common timezones
+echo "Common timezones:"
+echo "  1. America/New_York (Eastern)"
+echo "  2. America/Chicago (Central)"
+echo "  3. America/Denver (Mountain)"
+echo "  4. America/Los_Angeles (Pacific)"
+echo "  5. America/Phoenix (Arizona)"
+echo "  6. Europe/London (GMT/BST)"
+echo "  7. Europe/Paris (CET/CEST)"
+echo "  8. Asia/Tokyo (JST)"
+echo "  9. Australia/Sydney (AEST/AEDT)"
+echo " 10. Custom (enter full timezone name)"
+echo ""
+
+read -p "Select timezone (1-10): " choice
+
+case $choice in
+  1) TZ="America/New_York" ;;
+  2) TZ="America/Chicago" ;;
+  3) TZ="America/Denver" ;;
+  4) TZ="America/Los_Angeles" ;;
+  5) TZ="America/Phoenix" ;;
+  6) TZ="Europe/London" ;;
+  7) TZ="Europe/Paris" ;;
+  8) TZ="Asia/Tokyo" ;;
+  9) TZ="Australia/Sydney" ;;
+  10)
+    echo ""
+    echo "Available timezones can be found at: /usr/share/zoneinfo/"
+    echo "Or search at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+    echo ""
+    read -p "Enter timezone (e.g., America/New_York): " TZ
+    ;;
+  *)
+    echo "Invalid choice"
+    exit 1
+    ;;
+esac
+
+# Validate timezone
+if [ ! -f "/usr/share/zoneinfo/$TZ" ] && [ ! -f "/etc/zoneinfo/$TZ" ]; then
+  echo "Error: Invalid timezone '$TZ'"
+  exit 1
+fi
+
+echo ""
+echo "Setting timezone to: $TZ"
+echo ""
+echo "This requires adding to your NixOS configuration:"
+echo ""
+echo "  time.timeZone = \"$TZ\";"
+echo ""
+echo "Then rebuild: sudo nixos-rebuild switch"
+echo ""
+echo "Alternatively, set temporarily:"
+echo "  sudo timedatectl set-timezone $TZ"
+echo ""
+
+read -p "Set timezone temporarily now? (y/n): " confirm
+
+if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+  sudo timedatectl set-timezone "$TZ"
+  echo ""
+  echo "Timezone set! Current time: $(date)"
+  echo ""
+  echo "Don't forget to add to your NixOS config for persistence!"
+else
+  echo "Timezone not changed. Add to your NixOS config when ready."
+fi

@@ -43,6 +43,27 @@ in {
 
       # Controller support
       steam-run  # Run non-Steam games with Steam runtime
+
+      # Xbox/PlayStation controller support
+      xboxdrv
+      linuxConsoleTools  # jstest, jscal for controller testing
     ];
+
+    # Enable Xbox controller support
+    hardware.xone.enable = lib.mkDefault true;  # Xbox One controller support
+    hardware.xpadneo.enable = lib.mkDefault true;  # Xbox One Bluetooth controller support
+
+    # Kernel modules for controller support
+    boot.kernelModules = [ "uinput" ];
+
+    # Allow users to access controllers
+    services.udev.extraRules = ''
+      # Xbox controllers
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="045e", MODE="0660", TAG+="uaccess"
+      # PlayStation controllers
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="054c", MODE="0660", TAG+="uaccess"
+      # Nintendo controllers
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="057e", MODE="0660", TAG+="uaccess"
+    '';
   };
 }
