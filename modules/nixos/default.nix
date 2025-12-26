@@ -11,5 +11,7 @@ in {
     (import ./system.nix)
     (import ./1password.nix)
     (import ./containers.nix)
+    ./fido2.nix
+    ./firewall.nix
   ];
 }

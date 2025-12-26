@@ -15,6 +15,9 @@ lib: {
         "everforest"
         "catppuccin"
         "catppuccin-latte"
+        "rose-pine"
+        "rose-pine-dawn"
+        "rose-pine-moon"
         "nord"
         "gruvbox"
         "gruvbox-light"
@@ -65,8 +68,9 @@ lib: {
         "SUPER, T, exec, $terminal -e btop"
         "SUPER, D, exec, $terminal -e lazydocker"
         "SUPER, G, exec, $messenger"
-        "SUPER, O, exec, obsidian -disable-gpu"
+        "SUPER, O, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
         "SUPER, slash, exec, $passwordManager"
+        "SUPER, R, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
       ];
     };
     seamless_boot = lib.mkOption {
@@ -96,6 +100,99 @@ lib: {
       };
       default = {};
       description = "Seamless boot configuration options";
+    };
+    light_theme_detection = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable automatic light/dark theme switching based on theme/light.mode file";
+          };
+          light_theme_mappings = lib.mkOption {
+            type = lib.types.attrsOf lib.types.str;
+            default = {
+              "tokyo-night" = "catppuccin-latte";
+              "kanagawa" = "rose-pine-dawn";
+              "everforest" = "gruvbox-light";
+              "catppuccin" = "catppuccin-latte";
+              "rose-pine" = "rose-pine-dawn";
+              "rose-pine-moon" = "rose-pine-dawn";
+              "nord" = "gruvbox-light";
+              "gruvbox" = "gruvbox-light";
+            };
+            description = "Mapping of dark themes to their light counterparts";
+          };
+        };
+      };
+      default = {};
+      description = "Light theme detection configuration";
+    };
+    fido2_auth = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable FIDO2/WebAuthn authentication support";
+          };
+          sudo_auth = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable FIDO2 authentication for sudo commands";
+          };
+          fingerprint_support = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable fingerprint authentication support";
+          };
+        };
+      };
+      default = {};
+      description = "FIDO2 and biometric authentication configuration";
+    };
+    firewall = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable firewall protection";
+          };
+          use_ufw = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Use UFW for easier firewall management";
+          };
+          docker_protection = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Enable Docker container firewall protection";
+          };
+          allow_ssh = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Allow SSH connections";
+          };
+          allow_dev_ports = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Allow common development ports (3000, 4000, 5000, 8000, 8080, 9000)";
+          };
+          allowed_tcp_ports = lib.mkOption {
+            type = lib.types.listOf lib.types.port;
+            default = [];
+            description = "Additional TCP ports to allow";
+          };
+          allowed_udp_ports = lib.mkOption {
+            type = lib.types.listOf lib.types.port;
+            default = [];
+            description = "Additional UDP ports to allow";
+          };
+        };
+      };
+      default = {};
+      description = "Firewall and security configuration";
     };
   };
 }

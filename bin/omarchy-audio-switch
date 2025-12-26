@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Switch between available audio output devices
+
+# Get all available sinks (audio outputs)
+sinks=$(wpctl status | awk '/Sinks:/{flag=1; next} /Sources:/{flag=0} flag && /^\s+[0-9]+\./ {print}' | grep -v "Dummy")
+
+# Get the current default sink ID
+current_id=$(wpctl status | awk '/Sinks:/{flag=1; next} /Sources:/{flag=0} flag && /\*/ {match($0, /[0-9]+/); print substr($0, RSTART, RLENGTH); exit}')
+
+# Get list of sink IDs
+sink_ids=($(echo "$sinks" | awk '{match($0, /[0-9]+/); print substr($0, RSTART, RLENGTH)}'))
+
+if [ ${#sink_ids[@]} -eq 0 ]; then
+  notify-send "Audio Switch" "No audio devices found" -u normal
+  exit 1
+fi
+
+# Find current sink index
+current_index=-1
+for i in "${!sink_ids[@]}"; do
+  if [ "${sink_ids[$i]}" = "$current_id" ]; then
+    current_index=$i
+    break
+  fi
+done
+
+# Get next sink (cycle through available sinks)
+if [ $current_index -eq -1 ]; then
+  next_index=0
+else
+  next_index=$(((current_index + 1) % ${#sink_ids[@]}))
+fi
+
+next_id="${sink_ids[$next_index]}"
+
+# Get the name of the next sink for notification
+next_name=$(echo "$sinks" | awk -v id="$next_id" '$0 ~ id {sub(/^[^0-9]*[0-9]+\.\s*/, ""); sub(/\s*\[.*\]$/, ""); print; exit}')
+
+# Set the new default sink
+wpctl set-default "$next_id"
+
+# Show notification
+notify-send "Audio Output" "$next_name" -u low -i audio-volume-high

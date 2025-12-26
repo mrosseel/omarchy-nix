@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+LIGHT_MODE_FILE="$HOME/.config/omarchy/theme/light.mode"
+THEME_DIR="$(dirname "$LIGHT_MODE_FILE")"
+
+# Ensure theme directory exists
+mkdir -p "$THEME_DIR"
+
+if [[ -f "$LIGHT_MODE_FILE" ]]; then
+    echo "Switching to dark mode..."
+    rm "$LIGHT_MODE_FILE"
+    echo "Dark mode activated"
+else
+    echo "Switching to light mode..."
+    touch "$LIGHT_MODE_FILE"
+    echo "Light mode activated"
+fi
+
+echo "Theme switch will take effect shortly..."

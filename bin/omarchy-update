@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_NAME="$(basename "$0")"
+FLAKE_DIR="${FLAKE_DIR:-$(pwd)}"
+
+usage() {
+    echo "Usage: $SCRIPT_NAME [all|flake|system] [--force] [--help]"
+    echo ""
+    echo "Update Omarchy configuration with git stash protection"
+    echo ""
+    echo "Commands:"
+    echo "  all     Update flake inputs and rebuild system (default)"
+    echo "  flake   Update flake inputs only"
+    echo "  system  Rebuild system configuration only"
+    echo ""
+    echo "Options:"
+    echo "  --force Skip confirmation prompts"
+    echo "  --help  Show this help message"
+    echo ""
+    echo "Environment variables:"
+    echo "  FLAKE_DIR  Directory containing the flake (default: current directory)"
+}
+
+check_git_repo() {
+    if ! git -C "$FLAKE_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+        echo "❌ Not a git repository: $FLAKE_DIR"
+        exit 1
+    fi
+}
+
+check_uncommitted_changes() {
+    if ! git -C "$FLAKE_DIR" diff-index --quiet HEAD --; then
+        return 0  # Has uncommitted changes
+    else
+        return 1  # No uncommitted changes
+    fi
+}
+
+stash_changes() {
+    local stash_message="omarchy-update: $(date '+%Y-%m-%d %H:%M:%S')"
+    
+    echo "📦 Stashing uncommitted changes..."
+    if git -C "$FLAKE_DIR" stash push -m "$stash_message"; then
+        echo "✅ Changes stashed successfully"
+        return 0
+    else
+        echo "❌ Failed to stash changes"
+        exit 1
+    fi
+}
+
+pop_changes() {
+    echo "📦 Restoring stashed changes..."
+    if git -C "$FLAKE_DIR" stash pop; then
+        echo "✅ Changes restored successfully"
+    else
+        echo "⚠️  Warning: Failed to restore stashed changes"
+        echo "   You may need to manually resolve: git stash pop"
+    fi
+}
+
+update_flake() {
+    echo "🔄 Updating flake inputs..."
+    
+    cd "$FLAKE_DIR"
+    
+    if nix flake update; then
+        echo "✅ Flake inputs updated"
+    else
+        echo "❌ Failed to update flake inputs"
+        return 1
+    fi
+}
+
+rebuild_system() {
+    local rebuild_type="switch"
+    
+    echo "🏗️  Rebuilding system configuration..."
+    
+    cd "$FLAKE_DIR"
+    
+    # Check if we're on NixOS or using home-manager standalone
+    if [[ -f /etc/nixos/configuration.nix ]] || command -v nixos-rebuild >/dev/null 2>&1; then
+        echo "Using nixos-rebuild..."
+        if nixos-rebuild "$rebuild_type" --flake .; then
+            echo "✅ System rebuilt successfully"
+        else
+            echo "❌ Failed to rebuild system"
+            return 1
+        fi
+    elif command -v home-manager >/dev/null 2>&1; then
+        echo "Using home-manager..."
+        if home-manager switch --flake .; then
+            echo "✅ Home configuration rebuilt successfully"  
+        else
+            echo "❌ Failed to rebuild home configuration"
+            return 1
+        fi
+    else
+        echo "❌ Neither nixos-rebuild nor home-manager found"
+        echo "   Please install one of these tools or run manually:"
+        echo "   - nixos-rebuild switch --flake ."
+        echo "   - home-manager switch --flake ."
+        return 1
+    fi
+}
+
+confirm_action() {
+    local message="$1"
+    local force="${2:-false}"
+    
+    if [[ "$force" == "true" ]]; then
+        return 0
+    fi
+    
+    echo "$message"
+    read -p "Continue? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        echo "Operation cancelled"
+        exit 0
+    fi
+}
+
+main() {
+    local command="${1:-all}"
+    local force="false"
+    local stashed="false"
+    
+    # Parse arguments
+    for arg in "$@"; do
+        case "$arg" in
+            --force)
+                force="true"
+                ;;
+            --help)
+                usage
+                exit 0
+                ;;
+        esac
+    done
+    
+    case "$command" in
+        --*)
+            # Skip flag arguments
+            command="all"
+            ;;
+    esac
+    
+    echo "🚀 Omarchy Update Manager"
+    echo "========================"
+    echo "Flake directory: $FLAKE_DIR"
+    echo ""
+    
+    check_git_repo
+    
+    # Handle uncommitted changes
+    if check_uncommitted_changes; then
+        echo "⚠️  Uncommitted changes detected"
+        confirm_action "Stash changes before updating?" "$force"
+        stash_changes
+        stashed="true"
+    fi
+    
+    # Trap to restore changes on exit
+    if [[ "$stashed" == "true" ]]; then
+        trap 'pop_changes' EXIT
+    fi
+    
+    case "$command" in
+        all)
+            confirm_action "🔄 Update flake inputs AND rebuild system?" "$force"
+            update_flake
+            rebuild_system
+            ;;
+        flake)
+            confirm_action "🔄 Update flake inputs only?" "$force"
+            update_flake
+            ;;
+        system)
+            confirm_action "🏗️  Rebuild system configuration?" "$force"
+            rebuild_system
+            ;;
+        *)
+            echo "❌ Unknown command: $command"
+            usage
+            exit 1
+            ;;
+    esac
+    
+    echo ""
+    echo "🎉 Update completed successfully!"
+    
+    if [[ "$stashed" == "true" ]]; then
+        echo "📦 Your changes have been restored"
+    fi
+}
+
+main "$@"

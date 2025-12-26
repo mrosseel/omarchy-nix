@@ -15,18 +15,18 @@ in {
     ./windows.nix
   ];
   wayland.windowManager.hyprland.settings = {
-    # Default applications
+    # Default applications with launch-or-focus
     "$terminal" = lib.mkDefault "ghostty";
-    "$fileManager" = lib.mkDefault "nautilus --new-window";
+    "$fileManager" = lib.mkDefault "~/.local/share/omarchy/bin/omarchy-launch-or-focus nautilus 'nautilus --new-window'";
     "$browser" = lib.mkDefault (
       if cfg.browser == "brave" then
-        "brave --new-window --ozone-platform=wayland"
+        "~/.local/share/omarchy/bin/omarchy-launch-or-focus brave 'brave --new-window --ozone-platform=wayland'"
       else
-        "chromium --new-window --ozone-platform=wayland"
+        "~/.local/share/omarchy/bin/omarchy-launch-or-focus chromium 'chromium --new-window --ozone-platform=wayland'"
     );
-    "$music" = lib.mkDefault "spotify";
-    "$passwordManager" = lib.mkDefault "1password";
-    "$messenger" = lib.mkDefault "signal-desktop";
+    "$music" = lib.mkDefault "~/.local/share/omarchy/bin/omarchy-launch-or-focus spotify spotify";
+    "$passwordManager" = lib.mkDefault "~/.local/share/omarchy/bin/omarchy-launch-or-focus 1password 1password";
+    "$messenger" = lib.mkDefault "~/.local/share/omarchy/bin/omarchy-launch-or-focus signal 'signal-desktop'";
     "$webapp" = lib.mkDefault "$browser --app";
 
     monitor = cfg.monitors;

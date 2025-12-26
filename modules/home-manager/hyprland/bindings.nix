@@ -102,9 +102,10 @@ in {
 
         # Clipse
         "CTRL SUPER, V, exec, ghostty --class clipse -e clipse"
-        
+
         # Audio management
         "SUPER SHIFT, M, exec, ghostty --class wiremix -e wiremix"
+        "SUPER, semicolon, exec, ~/.local/share/omarchy/bin/omarchy-audio-switch"
       ];
 
     bindm = [

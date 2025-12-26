@@ -43,6 +43,7 @@ in {
     ripgrep
     eza
     fd
+    jq
     curl
     unzip
     wget
@@ -59,6 +60,9 @@ in {
     ${cfg.browser}
     obsidian
     vlc
+    gnome-calculator
+    evince
+    loupe
 
     # Can't find this in nixpkgs!
     # Might have to make it ourselves

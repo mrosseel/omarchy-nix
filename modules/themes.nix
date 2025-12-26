@@ -12,6 +12,21 @@
     vscode-theme = "Catppuccin Latte";
   };
 
+  "rose-pine" = {
+    base16-theme = "rose-pine";
+    vscode-theme = "Rosé Pine";
+  };
+
+  "rose-pine-dawn" = {
+    base16-theme = "rose-pine-dawn";
+    vscode-theme = "Rosé Pine Dawn";
+  };
+
+  "rose-pine-moon" = {
+    base16-theme = "rose-pine-moon";
+    vscode-theme = "Rosé Pine Moon";
+  };
+
   "kanagawa" = {
     base16-theme = "kanagawa";
     vscode-theme = "Kanagawa";

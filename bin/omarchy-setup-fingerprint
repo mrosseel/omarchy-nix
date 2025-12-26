@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_NAME="$(basename "$0")"
+U2F_KEYS_FILE="$HOME/.config/Yubico/u2f_keys"
+
+usage() {
+    echo "Usage: $SCRIPT_NAME [--remove] [--help]"
+    echo ""
+    echo "Setup FIDO2/U2F authentication for the current user"
+    echo ""
+    echo "Options:"
+    echo "  --remove    Remove all registered FIDO2 keys"
+    echo "  --help      Show this help message"
+    echo ""
+    echo "This script helps configure FIDO2 devices (like YubiKey) for authentication."
+}
+
+remove_keys() {
+    if [[ -f "$U2F_KEYS_FILE" ]]; then
+        echo "Removing FIDO2 keys..."
+        rm "$U2F_KEYS_FILE"
+        echo "FIDO2 keys removed successfully"
+    else
+        echo "No FIDO2 keys found to remove"
+    fi
+}
+
+setup_fido2() {
+    echo "Setting up FIDO2 authentication..."
+    echo ""
+    echo "Please insert your FIDO2 device (e.g., YubiKey) and press Enter to continue..."
+    read -r
+
+    # Create directory if it doesn't exist
+    mkdir -p "$(dirname "$U2F_KEYS_FILE")"
+
+    echo "Please touch your FIDO2 device when it lights up..."
+    
+    if pamu2fcfg > "$U2F_KEYS_FILE"; then
+        echo ""
+        echo "✅ FIDO2 device registered successfully!"
+        echo "Configuration saved to: $U2F_KEYS_FILE"
+        echo ""
+        echo "You can now use your FIDO2 device for authentication."
+        echo "Try running 'sudo ls' to test FIDO2 authentication."
+    else
+        echo "❌ Failed to register FIDO2 device"
+        echo "Make sure your device is connected and supported."
+        exit 1
+    fi
+}
+
+setup_fingerprint() {
+    if command -v fprintd-enroll >/dev/null 2>&1; then
+        echo ""
+        echo "Setting up fingerprint authentication..."
+        echo "Please follow the prompts to enroll your fingerprint:"
+        echo ""
+        
+        if fprintd-enroll; then
+            echo "✅ Fingerprint enrolled successfully!"
+        else
+            echo "❌ Failed to enroll fingerprint"
+            echo "Make sure your device supports fingerprint authentication."
+        fi
+    else
+        echo "Fingerprint authentication is not enabled in the system configuration."
+        echo "Add 'omarchy.fido2_auth.fingerprint_support = true;' to enable it."
+    fi
+}
+
+main() {
+    case "${1:-}" in
+        --remove)
+            remove_keys
+            ;;
+        --help)
+            usage
+            ;;
+        "")
+            setup_fido2
+            setup_fingerprint
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
