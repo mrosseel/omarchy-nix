@@ -269,6 +269,7 @@ omarchy.quick_app_bindings = [
 - `SUPER + CTRL + ESCAPE` - Reboot
 - `SUPER + SHIFT + CTRL + ESCAPE` - Shutdown
 - `SUPER + K` - Show keybindings
+- `SUPER + SHIFT + K` - Open documentation
 - `SUPER + CTRL + SPACE` - Next background
 - `SUPER + SHIFT + SPACE` - Toggle waybar
 
@@ -355,6 +356,9 @@ omarchy-install-tailscale
 
 # FIDO2 fingerprint setup
 omarchy-setup-fingerprint
+
+# Open documentation in browser
+omarchy-launch-docs
 ```
 
 ---

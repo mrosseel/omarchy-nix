@@ -23,6 +23,7 @@ in {
         "SUPER CTRL, ESCAPE, exec, reboot"
         "SUPER SHIFT CTRL, ESCAPE, exec, systemctl poweroff"
         "SUPER, K, exec, ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+        "SUPER SHIFT, K, exec, ~/.local/share/omarchy/bin/omarchy-launch-docs"
 
         # Control tiling
         "SUPER, J, togglesplit, # dwindle"

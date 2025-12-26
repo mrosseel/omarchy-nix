@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Launch Omarchy-nix documentation in browser
+
+DOCS_URL="https://github.com/henrysipp/omarchy-nix#readme"
+
+# Get the configured browser
+BROWSER="${BROWSER:-chromium}"
+
+echo "Opening Omarchy-nix documentation..."
+$BROWSER --app="$DOCS_URL" &
