@@ -207,11 +207,6 @@ lib: {
             default = true;
             description = "Enable firewall protection";
           };
-          use_ufw = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            description = "Use UFW for easier firewall management";
-          };
           docker_protection = lib.mkOption {
             type = lib.types.bool;
             default = true;

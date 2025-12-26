@@ -8,10 +8,11 @@ let
     # Ensure the theme directory exists
     mkdir -p "${config.home.homeDirectory}/.config/omarchy/theme"
     
-    # Function to trigger home-manager switch
+    # Function to log theme changes
     trigger_theme_switch() {
-      echo "Theme mode change detected, triggering home-manager switch..."
-      ${config.home.homeManagerConfiguration.activationPackage}/bin/activate-home
+      echo "Theme mode change detected. Run 'home-manager switch' to apply theme changes."
+      # Note: Automatic home-manager switching is disabled to avoid infinite loops
+      # Users should manually run 'home-manager switch' after toggling theme mode
     }
     
     # Watch for file creation/deletion events

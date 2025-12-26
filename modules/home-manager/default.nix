@@ -1,6 +1,7 @@
 inputs: {
   config,
   pkgs,
+  lib,
   ...
 }: let
   packages = import ../packages.nix {inherit pkgs config lib;};

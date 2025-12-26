@@ -7,11 +7,6 @@ in {
     # Enable the firewall
     networking.firewall.enable = true;
 
-    # Install ufw for easier firewall management
-    environment.systemPackages = with pkgs; [
-      ufw
-    ];
-
     # Basic firewall configuration
     networking.firewall = {
       # Combine all allowed TCP ports
@@ -68,45 +63,6 @@ in {
           ${pkgs.iptables}/bin/iptables -I DOCKER-USER -s 172.16.0.0/12 -d 172.17.0.1 -j ACCEPT
           
           echo "Docker firewall rules applied successfully"
-        '';
-      };
-    };
-
-    # UFW configuration via systemd service
-    systemd.services.ufw-setup = lib.mkIf (cfg.firewall.use_ufw) {
-      description = "Configure UFW firewall";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = pkgs.writeScript "setup-ufw" ''
-          #!${pkgs.bash}/bin/bash
-          set -euo pipefail
-          
-          # Enable UFW if not already enabled
-          ${pkgs.ufw}/bin/ufw --force enable
-          
-          # Set default policies
-          ${pkgs.ufw}/bin/ufw default deny incoming
-          ${pkgs.ufw}/bin/ufw default allow outgoing
-          
-          # Allow SSH if configured
-          ${lib.optionalString (cfg.firewall.allow_ssh) "${pkgs.ufw}/bin/ufw allow ssh"}
-          
-          # Allow development ports if configured
-          ${lib.optionalString (cfg.firewall.allow_dev_ports) ''
-            ${pkgs.ufw}/bin/ufw allow 3000/tcp
-            ${pkgs.ufw}/bin/ufw allow 3001/tcp
-            ${pkgs.ufw}/bin/ufw allow 4000/tcp
-            ${pkgs.ufw}/bin/ufw allow 5000/tcp
-            ${pkgs.ufw}/bin/ufw allow 8000/tcp
-            ${pkgs.ufw}/bin/ufw allow 8080/tcp
-            ${pkgs.ufw}/bin/ufw allow 9000/tcp
-          ''}
-          
-          echo "UFW configuration completed successfully"
         '';
       };
     };
