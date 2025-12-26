@@ -21,6 +21,8 @@ lib: {
         "nord"
         "gruvbox"
         "gruvbox-light"
+        "flexoki-light"
+        "matte-black"
       ];
       default = "tokyo-night";
       description = "Theme to use for Omarchy configuration";
@@ -46,6 +48,11 @@ lib: {
       type = lib.types.enum ["chromium" "brave"];
       default = "chromium";
       description = "Browser to use for web browsing";
+    };
+    terminal = lib.mkOption {
+      type = lib.types.enum ["ghostty" "alacritty" "kitty"];
+      default = "ghostty";
+      description = "Terminal emulator to use";
     };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;

@@ -92,10 +92,10 @@ in {
         "SHIFT, PRINT, exec, hyprshot -m window --clipboard-only && satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png"
         "CTRL, PRINT, exec, hyprshot -m output --clipboard-only && satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date '+%Y%m%d-%H%M%S').png"
         
-        # Screen recording
-        "SUPER, PRINT, exec, wf-recorder -g \"$(slurp)\" -f ~/Videos/recording-$(date '+%Y%m%d-%H%M%S').mp4"
-        "SUPER SHIFT, PRINT, exec, wf-recorder -f ~/Videos/recording-$(date '+%Y%m%d-%H%M%S').mp4"
-        "SUPER CTRL, PRINT, exec, pkill -SIGINT wf-recorder"
+        # Screen recording (gpu-screen-recorder with portal selection)
+        "SUPER, PRINT, exec, ~/.local/share/omarchy/bin/omarchy-screenrecord"
+        "SUPER SHIFT, PRINT, exec, ~/.local/share/omarchy/bin/omarchy-screenrecord"
+        "SUPER CTRL, PRINT, exec, ~/.local/share/omarchy/bin/omarchy-screenrecord"
 
         # Color picker
         "ALT, PRINT, exec, hyprpicker -a"

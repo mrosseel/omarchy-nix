@@ -22,6 +22,11 @@ in {
     gnome-themes-extra
     blueberry
     clipse
+
+    # Terminal emulators
+    ghostty
+    alacritty
+    kitty
     
     # App launcher and productivity
     walker
@@ -29,6 +34,7 @@ in {
     # Screenshot and recording
     satty
     wf-recorder
+    gpu-screen-recorder
     slurp
     
     # Audio management
@@ -63,6 +69,7 @@ in {
     gnome-calculator
     evince
     loupe
+    krita
 
     # Can't find this in nixpkgs!
     # Might have to make it ourselves

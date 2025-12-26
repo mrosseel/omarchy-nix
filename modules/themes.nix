@@ -49,5 +49,13 @@
     base16-theme = "gruvbox-light-medium";
     vscode-theme = "Gruvbox Light Medium";
   };
+  "flexoki-light" = {
+    base16-theme = "flexoki-light";
+    vscode-theme = "flexoki-light";
+  };
+  "matte-black" = {
+    base16-theme = "black-metal";
+    vscode-theme = "Matte Black";
+  };
   # Add more themes here
 }

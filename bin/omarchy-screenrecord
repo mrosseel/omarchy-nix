@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Simple screen recording wrapper using gpu-screen-recorder
+
+OUTPUT_DIR="${XDG_VIDEOS_DIR:-$HOME/Videos}"
+mkdir -p "$OUTPUT_DIR"
+
+# Check if recording is active
+if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+  # Stop recording
+  pkill -SIGINT -f "^gpu-screen-recorder"
+
+  # Wait for process to finish (max 5 seconds)
+  count=0
+  while pgrep -f "^gpu-screen-recorder" >/dev/null && [ $count -lt 50 ]; do
+    sleep 0.1
+    count=$((count + 1))
+  done
+
+  if pgrep -f "^gpu-screen-recorder" >/dev/null; then
+    pkill -9 -f "^gpu-screen-recorder"
+    notify-send "Screen Recording" "Recording stopped (process killed)" -u normal
+  else
+    notify-send "Screen Recording" "Recording saved to $OUTPUT_DIR" -u low
+  fi
+else
+  # Start recording
+  filename="$OUTPUT_DIR/recording-$(date +'%Y%m%d-%H%M%S').mp4"
+
+  # Record with portal selection, 60fps, with audio
+  gpu-screen-recorder -w portal -f 60 -a default_output -ac aac -o "$filename" &
+
+  notify-send "Screen Recording" "Recording started" -u low -i media-record
+fi

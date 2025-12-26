@@ -16,7 +16,7 @@ in {
   ];
   wayland.windowManager.hyprland.settings = {
     # Default applications with launch-or-focus
-    "$terminal" = lib.mkDefault "ghostty";
+    "$terminal" = lib.mkDefault cfg.terminal;
     "$fileManager" = lib.mkDefault "~/.local/share/omarchy/bin/omarchy-launch-or-focus nautilus 'nautilus --new-window'";
     "$browser" = lib.mkDefault (
       if cfg.browser == "brave" then
