@@ -21,6 +21,10 @@ The flake provides two main modules:
 - `system.nix`: Core system packages and services
 - `1password.nix`: 1Password integration
 - `containers.nix`: Docker/container support
+- `fido2.nix`: FIDO2 authentication support
+- `firewall.nix`: Firewall configuration with UFW
+- `gaming.nix`: Steam, Proton, GameMode, controller support
+- `nvidia.nix`: NVIDIA GPU support with Wayland optimizations
 
 **Home Manager Modules** (`modules/home-manager/`):
 - Application configurations for: btop, ghostty, git, hyprland, hyprlock, hyprpaper, hypridle, mako, vscode, waybar, wofi, zoxide, zsh
@@ -41,7 +45,8 @@ The flake provides two main modules:
 **Package Management** (`modules/packages.nix`):
 - Separates system packages from home packages
 - Includes development tools, shell utilities, GUI applications
-- **NEW v1.6.0**: walker (app launcher), satty (screenshot editor), wf-recorder (screen recording), wiremix (audio TUI), swaybg (dynamic backgrounds)
+- **v1.6.0**: walker (app launcher), satty (screenshot editor), wf-recorder (screen recording), wiremix (audio TUI), swaybg (dynamic backgrounds)
+- **v1.7.0**: obs-studio, kdenlive (video production), inxi (system info), localsend (file sharing), gum (shell TUI), bluetui (bluetooth TUI)
 
 ## Common Development Tasks
 
@@ -114,8 +119,14 @@ Hyprland config is split across multiple files in `modules/home-manager/hyprland
 
 ### Utility Scripts
 
-The `bin/` directory contains utility scripts that get installed to user's PATH:
-- `omarchy-show-keybindings`: Interactive keybinding reference using walker
+The `bin/` directory contains 20+ utility scripts that get installed to user's PATH:
+- **Restart utilities**: omarchy-restart-wifi, -bluetooth, -pipewire, -waybar, -walker
+- **Webapp management**: omarchy-webapp-install, -remove, omarchy-launch-or-focus-webapp
+- **Development**: omarchy-docker-dbs (quick database setup)
+- **System utilities**: omarchy-audio-switch, omarchy-battery-monitor, omarchy-launch-or-focus
+- **Theme & display**: omarchy-bg-next, omarchy-theme-picker, omarchy-toggle-light-mode, omarchy-theme-set-browser
+- **Setup & config**: omarchy-tz-select (timezone), omarchy-install-tailscale, omarchy-setup-fingerprint
+- **Reference**: omarchy-show-keybindings, omarchy-update
 
 ### Key Files for Common Modifications
 

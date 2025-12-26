@@ -7,9 +7,10 @@ Omarchy-nix is an opinionated NixOS flake for a beautiful, modern Hyprland deskt
 - 🎨 **13 beautiful themes** with automatic light/dark mode switching
 - 🚀 **Smart app launching** with focus-or-launch behavior
 - 🖥️ **3 terminal emulators** (ghostty, alacritty, kitty) - all fully themed
-- 🎮 **Gaming support** with Steam, Proton, and GameMode (optional)
+- 🎮 **Gaming support** with Steam, Proton, GameMode, and controller support (optional)
+- 🖥️ **NVIDIA GPU support** with Wayland optimizations (optional)
 - 📱 **Webapp desktop integration** - turn websites into apps
-- 🔧 **16 utility scripts** for common tasks
+- 🔧 **20+ utility scripts** for common tasks
 - 🔋 **Battery monitoring** with low battery alerts
 - 🎯 **Launch-or-focus** for all major apps
 - 📦 **Docker database helpers** for quick dev setup
@@ -159,6 +160,21 @@ Includes:
 - GameMode for performance optimizations
 - MangoHud for FPS overlay
 - 32-bit library support
+- Xbox, PlayStation, and Nintendo controller support
+
+#### NVIDIA GPU Support
+```nix
+omarchy.nvidia.enable = true;  # Enables NVIDIA proprietary drivers
+```
+
+Includes:
+- NVIDIA proprietary drivers (stable branch)
+- Wayland + Hyprland optimizations
+- Hardware cursor fixes for Wayland
+- VA-API video acceleration support
+- GPU monitoring with nvtop
+
+**Note**: Only enable if you have an NVIDIA GPU. Disabled by default.
 
 #### Seamless Boot
 ```nix
@@ -322,8 +338,23 @@ omarchy-theme-picker
 # Light/dark mode toggle
 omarchy-toggle-light-mode
 
+# Apply current theme to browser
+omarchy-theme-set-browser
+
 # Show keybindings
 omarchy-show-keybindings
+```
+
+### Setup & Configuration
+```bash
+# Interactive timezone selector
+omarchy-tz-select
+
+# Tailscale VPN setup helper
+omarchy-install-tailscale
+
+# FIDO2 fingerprint setup
+omarchy-setup-fingerprint
 ```
 
 ---
@@ -441,22 +472,28 @@ rm ~/.config/omarchy/theme/light.mode
 - **Containers**: Docker, docker-compose, lazydocker
 - **Shell**: zsh with starship prompt, fzf, zoxide
 
-### Media
+### Media & Production
 - **Music**: Spotify
 - **Video**: VLC, mpv
-- **Screen Recording**: gpu-screen-recorder, satty
+- **Screen Recording**: OBS Studio, gpu-screen-recorder
+- **Video Editing**: Kdenlive
+- **Screenshot Editing**: satty
 
 ### Communication
 - **Password Manager**: 1Password
 - **Messaging**: Signal Desktop
+- **File Sharing**: LocalSend (local network file transfer)
 - **Webapps**: Custom installation support
 
-### System Monitoring
+### System Monitoring & Utilities
 - **Process Monitor**: btop
 - **Audio Mixer**: wiremix, pavucontrol
+- **Bluetooth**: bluetui
+- **System Info**: inxi
 - **Clipboard**: clipse
 - **Status Bar**: waybar
 - **App Launcher**: walker
+- **Shell Prompts**: gum (interactive TUI components)
 
 ---
 
