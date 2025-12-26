@@ -66,7 +66,7 @@ in {
     inxi
 
     # GUIs
-    ${cfg.browser}
+    (if cfg.browser == "brave" then brave else chromium)
     obsidian
     vlc
     gnome-calculator

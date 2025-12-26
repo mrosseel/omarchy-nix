@@ -5,7 +5,7 @@
   ...
 }: let
   cfg = config.omarchy;
-  packages = import ../packages.nix {inherit pkgs;};
+  packages = import ../packages.nix {inherit pkgs config lib;};
 in {
   security.rtkit.enable = true;
   services.pulseaudio.enable = false;

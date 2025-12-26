@@ -1,10 +1,11 @@
 inputs: {
   config,
   pkgs,
+  lib,
   ...
 }: let
   cfg = config.omarchy;
-  packages = import ../packages.nix {inherit pkgs;};
+  packages = import ../packages.nix {inherit pkgs config lib;};
 in {
   imports = [
     (import ./hyprland.nix inputs)

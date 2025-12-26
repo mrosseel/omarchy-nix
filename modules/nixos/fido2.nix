@@ -30,28 +30,32 @@ in {
     # Enable smart card services (needed for some FIDO2 devices)
     services.pcscd.enable = true;
 
-    # Configure PAM for sudo with FIDO2
-    security.pam.services = lib.mkIf (cfg.fido2_auth.sudo_auth) {
-      sudo = {
-        u2fAuth = true;
-        # Try FIDO2 first, then fall back to password
-        text = lib.mkOrder 100 ''
-          auth sufficient pam_u2f.so cue
-          auth include system-auth
-        '';
-      };
-    };
-
     # Add fingerprint support if enabled
     services.fprintd = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
       enable = true;
     };
 
-    # Configure PAM for fingerprint authentication
-    security.pam.services = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
-      login.fprintAuth = true;
-      sudo.fprintAuth = cfg.fido2_auth.sudo_auth;
-      hyprlock.fprintAuth = true;
+    # Configure PAM for FIDO2 and fingerprint authentication
+    security.pam.services = {
+      sudo = lib.mkMerge [
+        (lib.mkIf (cfg.fido2_auth.sudo_auth) {
+          u2fAuth = true;
+          # Try FIDO2 first, then fall back to password
+          text = lib.mkOrder 100 ''
+            auth sufficient pam_u2f.so cue
+            auth include system-auth
+          '';
+        })
+        (lib.mkIf (cfg.fido2_auth.fingerprint_support) {
+          fprintAuth = true;
+        })
+      ];
+      login = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
+        fprintAuth = true;
+      };
+      hyprlock = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
+        fprintAuth = true;
+      };
     };
   };
 }

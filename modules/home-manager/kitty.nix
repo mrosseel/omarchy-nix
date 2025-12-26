@@ -7,14 +7,14 @@
   cfg = config.omarchy;
 in {
   programs.kitty = {
-    enable = true;
+    enable = lib.mkDefault true;
 
     font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 12;
+      name = lib.mkDefault "JetBrainsMono Nerd Font";
+      size = lib.mkDefault 12;
     };
 
-    settings = {
+    settings = lib.mkDefault {
       # Window appearance
       window_padding_width = 10;
       background_opacity = "0.95";

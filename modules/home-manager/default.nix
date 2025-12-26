@@ -3,7 +3,7 @@ inputs: {
   pkgs,
   ...
 }: let
-  packages = import ../packages.nix {inherit pkgs;};
+  packages = import ../packages.nix {inherit pkgs config lib;};
 
   themes = import ../themes.nix;
 
