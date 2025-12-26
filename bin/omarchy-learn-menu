@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Interactive learning menu - quick access to documentation
+
+BROWSER="${BROWSER:-chromium}"
+
+# Define documentation links with icons
+DOCS=(
+  "  Keybindings|keybindings"
+  "  Omarchy-nix Manual|https://github.com/henrysipp/omarchy-nix#readme"
+  "  Hyprland Wiki|https://wiki.hypr.land/"
+  "  NixOS Manual|https://nixos.org/manual/nixos/stable/"
+  "  Home Manager|https://nix-community.github.io/home-manager/"
+  "  VSCode Shortcuts|https://code.visualstudio.com/docs/getstarted/keybindings"
+  "󱆃  Bash Cheatsheet|https://devhints.io/bash"
+  "  Nix Language|https://nixos.org/manual/nix/stable/language/"
+)
+
+# Build menu options
+OPTIONS=""
+for entry in "${DOCS[@]}"; do
+  label="${entry%%|*}"
+  OPTIONS+="$label\n"
+done
+
+# Show menu and get selection
+SELECTION=$(echo -e "$OPTIONS" | walker --dmenu -p "Learn…" --width 400 --height 350)
+
+# Handle selection
+for entry in "${DOCS[@]}"; do
+  label="${entry%%|*}"
+  url="${entry##*|}"
+
+  if [[ "$SELECTION" == "$label" ]]; then
+    case "$url" in
+      keybindings)
+        exec ~/.local/share/omarchy/bin/omarchy-show-keybindings
+        ;;
+      *)
+        exec $BROWSER --app="$url" &
+        ;;
+    esac
+    exit 0
+  fi
+done

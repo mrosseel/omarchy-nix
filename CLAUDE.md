@@ -126,7 +126,7 @@ The `bin/` directory contains 20+ utility scripts that get installed to user's P
 - **System utilities**: omarchy-audio-switch, omarchy-battery-monitor, omarchy-launch-or-focus
 - **Theme & display**: omarchy-bg-next, omarchy-theme-picker, omarchy-toggle-light-mode, omarchy-theme-set-browser
 - **Setup & config**: omarchy-tz-select (timezone), omarchy-install-tailscale, omarchy-setup-fingerprint
-- **Reference**: omarchy-show-keybindings, omarchy-launch-docs, omarchy-update
+- **Reference**: omarchy-show-keybindings, omarchy-launch-docs, omarchy-learn-menu, omarchy-update
 
 ### Key Files for Common Modifications
 

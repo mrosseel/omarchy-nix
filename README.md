@@ -270,6 +270,7 @@ omarchy.quick_app_bindings = [
 - `SUPER + SHIFT + CTRL + ESCAPE` - Shutdown
 - `SUPER + K` - Show keybindings
 - `SUPER + SHIFT + K` - Open documentation
+- `SUPER + L` - Learn menu (quick docs access)
 - `SUPER + CTRL + SPACE` - Next background
 - `SUPER + SHIFT + SPACE` - Toggle waybar
 
@@ -359,6 +360,24 @@ omarchy-setup-fingerprint
 
 # Open documentation in browser
 omarchy-launch-docs
+
+# Interactive learning menu
+omarchy-learn-menu  # Quick access to all docs (Hyprland, NixOS, VSCode, etc.)
+```
+
+### Learning & Help
+
+The **Learn menu** (`SUPER + L`) provides quick access to documentation for the entire stack:
+- **Keybindings** - Interactive searchable keybinding reference
+- **Omarchy-nix Manual** - This README with full configuration guide
+- **Hyprland Wiki** - Window manager documentation
+- **NixOS Manual** - NixOS system configuration
+- **Home Manager** - User environment management
+- **VSCode Shortcuts** - Editor keybindings
+- **Bash Cheatsheet** - Shell scripting reference
+- **Nix Language** - Nix expression language guide
+
+All documentation opens as webapps in your browser for easy reference while working.
 ```
 
 ---
