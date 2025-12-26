@@ -78,7 +78,10 @@ in {
 
     # Video production
     obs-studio
-    kdenlive
+  ]
+  ++ lib.optionals (pkgs ? kdenlive) [ kdenlive ]
+  ++ lib.optionals (pkgs ? libsForQt5.kdenlive) [ libsForQt5.kdenlive ]
+  ++ [
   ]
   ++ lib.optionals cfg.office_suite.enable [
     libreoffice-fresh
