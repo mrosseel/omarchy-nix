@@ -13,5 +13,6 @@ in {
     (import ./containers.nix)
     ./fido2.nix
     ./firewall.nix
+    ./gaming.nix
   ];
 }

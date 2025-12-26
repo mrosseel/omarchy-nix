@@ -67,6 +67,19 @@ lib: {
       default = {};
       description = "Office suite configuration";
     };
+    gaming = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable gaming support (Steam, game optimizations)";
+          };
+        };
+      };
+      default = {};
+      description = "Gaming configuration";
+    };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";
@@ -91,6 +104,8 @@ lib: {
         "SUPER, O, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
         "SUPER, slash, exec, $passwordManager"
         "SUPER, R, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
+        # Uncomment if gaming.enable = true:
+        # "SUPER, S, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
       ];
     };
     seamless_boot = lib.mkOption {
