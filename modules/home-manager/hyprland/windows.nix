@@ -41,6 +41,9 @@
       "noblur,class:^(org.omarchy.screensaver)$"
       "noshadow,class:^(org.omarchy.screensaver)$"
       "noborder,class:^(org.omarchy.screensaver)$"
+
+      # Prevent idle/sleep for tagged windows (e.g., during updates)
+      "idleinhibit always,tag:noidle"
     ];
   };
 }
