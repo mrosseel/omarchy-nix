@@ -63,6 +63,7 @@
         
         # Restart components that need reload
         ${pkgs.procps}/bin/pkill -SIGUSR2 waybar 2>/dev/null || true
+        ${pkgs.procps}/bin/pkill -SIGUSR2 ghostty 2>/dev/null || true
         ${pkgs.procps}/bin/pkill swayosd-server 2>/dev/null || true
         ${pkgs.util-linux}/bin/setsid swayosd-server &>/dev/null &
         ${pkgs.mako}/bin/makoctl reload 2>/dev/null || true

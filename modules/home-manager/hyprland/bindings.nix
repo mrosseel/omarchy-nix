@@ -17,15 +17,18 @@ in {
         "SUPER, W, killactive,"
         "SUPER, Backspace, killactive,"
 
-        # End active session
-        "SUPER, ESCAPE, exec, hyprlock"
-        "SUPER SHIFT, ESCAPE, exit,"
-        "SUPER CTRL, ESCAPE, exec, reboot"
+        # End active session and system menu
+        "SUPER, ESCAPE, exec, ~/.local/share/omarchy/bin/omarchy-menu system"
+        "SUPER SHIFT, ESCAPE, exec, hyprlock"
+        "SUPER CTRL, ESCAPE, exit,"
+        "SUPER ALT, ESCAPE, exec, reboot"
         "SUPER SHIFT CTRL, ESCAPE, exec, systemctl poweroff"
+
+        # Documentation and help
         "SUPER, K, exec, ~/.local/share/omarchy/bin/omarchy-show-keybindings"
         "SUPER SHIFT, K, exec, ~/.local/share/omarchy/bin/omarchy-launch-docs"
         "SUPER, L, exec, ~/.local/share/omarchy/bin/omarchy-learn-menu"
-        "SUPER, M, exec, ~/.local/share/omarchy/bin/omarchy-menu"
+        "SUPER ALT, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-menu"
 
         # Control tiling
         "SUPER, J, togglesplit, # dwindle"
