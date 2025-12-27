@@ -38,6 +38,7 @@
 
       # Screensaver window rules
       "fullscreen,class:^(org.omarchy.screensaver)$"
+      "float,class:^(org.omarchy.screensaver)$"
       "noblur,class:^(org.omarchy.screensaver)$"
       "noshadow,class:^(org.omarchy.screensaver)$"
       "noborder,class:^(org.omarchy.screensaver)$"
