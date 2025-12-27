@@ -23,7 +23,7 @@ for theme in "${AVAILABLE_THEMES[@]}"; do
 done
 
 # Show Walker menu
-selection=$(printf '%s\n' "${themes[@]}" | walker --dmenu --theme dmenu_250 2>/dev/null)
+selection=$(printf '%s\n' "${themes[@]}" | ~/.local/share/omarchy/bin/omarchy-launch-walker --dmenu 2>/dev/null)
 
 # Remove any Pango markup before converting back to filename
 clean_selection=$(echo "$selection" | sed -E 's/<[^>]+>//g')

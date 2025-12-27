@@ -23,7 +23,7 @@ for entry in "${DOCS[@]}"; do
 done
 
 # Show menu and get selection
-SELECTION=$(echo -e "$OPTIONS" | walker --dmenu -p "Learn…" --width 400 --height 350)
+SELECTION=$(echo -e "$OPTIONS" | ~/.local/share/omarchy/bin/omarchy-launch-walker --dmenu -p "Learn…" --width 400 --height 350)
 
 # Handle selection
 for entry in "${DOCS[@]}"; do

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Omarchy main menu - unified access to all system utilities
+
+BIN_DIR="$HOME/.local/share/omarchy/bin"
+
+# Define menu items with categories, icons, labels, and commands
+MENU_ITEMS=(
+  "🎨|Theme & Appearance|Switch Theme|$BIN_DIR/omarchy-theme-menu"
+  "🎨|Theme & Appearance|Toggle Light/Dark Mode|$BIN_DIR/omarchy-toggle-light-mode"
+  "🎨|Theme & Appearance|Next Background|$BIN_DIR/omarchy-bg-next"
+  "🎨|Theme & Appearance|Next Theme|$BIN_DIR/omarchy-theme-next"
+
+  "🔄|Restart Services|Restart WiFi|$BIN_DIR/omarchy-restart-wifi"
+  "🔄|Restart Services|Restart Bluetooth|$BIN_DIR/omarchy-restart-bluetooth"
+  "🔄|Restart Services|Restart Pipewire|$BIN_DIR/omarchy-restart-pipewire"
+  "🔄|Restart Services|Restart Waybar|$BIN_DIR/omarchy-restart-waybar"
+  "🔄|Restart Services|Restart Walker|$BIN_DIR/omarchy-restart-walker"
+
+  "📚|Documentation|Show Keybindings|$BIN_DIR/omarchy-show-keybindings"
+  "📚|Documentation|Launch Docs|$BIN_DIR/omarchy-launch-docs"
+  "📚|Documentation|Learn Menu|$BIN_DIR/omarchy-learn-menu"
+
+  "⚙️|System Setup|Setup Fingerprint|$BIN_DIR/omarchy-setup-fingerprint"
+  "⚙️|System Setup|Select Timezone|$BIN_DIR/omarchy-tz-select"
+  "⚙️|System Setup|Install Tailscale|$BIN_DIR/omarchy-install-tailscale"
+  "⚙️|System Setup|System Update|$BIN_DIR/omarchy-update"
+
+  "🔧|Utilities|Audio Switch|$BIN_DIR/omarchy-audio-switch"
+  "🔧|Utilities|Battery Monitor|$BIN_DIR/omarchy-battery-monitor"
+  "🔧|Utilities|Screen Record|$BIN_DIR/omarchy-screenrecord"
+  "🔧|Utilities|Docker Databases|$BIN_DIR/omarchy-docker-dbs"
+
+  "🌐|Web Apps|Install Web App|$BIN_DIR/omarchy-webapp-install"
+  "🌐|Web Apps|Remove Web App|$BIN_DIR/omarchy-webapp-remove"
+)
+
+# Build menu options with formatting
+OPTIONS=""
+for entry in "${MENU_ITEMS[@]}"; do
+  IFS='|' read -r icon category label command <<< "$entry"
+  OPTIONS+="$icon  $label\n"
+done
+
+# Show menu and get selection
+SELECTION=$(echo -e "$OPTIONS" | ~/.local/share/omarchy/bin/omarchy-launch-walker --dmenu -p "Omarchy Menu" --width 500 --height 600)
+
+# Handle selection
+if [[ -n "$SELECTION" ]]; then
+  for entry in "${MENU_ITEMS[@]}"; do
+    IFS='|' read -r icon category label command <<< "$entry"
+    menu_label="$icon  $label"
+
+    if [[ "$SELECTION" == "$menu_label" ]]; then
+      exec $command
+      exit 0
+    fi
+  done
+fi

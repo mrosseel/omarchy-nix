@@ -5,6 +5,16 @@ inputs: {
   ...
 }: let
   cfg = config.omarchy;
+
+  # Custom desktop file that uses start-hyprland wrapper instead of Hyprland directly
+  hyprland-uwsm-fixed = pkgs.makeDesktopItem {
+    name = "hyprland-uwsm";
+    desktopName = "Hyprland (UWSM)";
+    comment = "Hyprland compositor managed by UWSM";
+    exec = "${pkgs.uwsm}/bin/uwsm start -F -- start-hyprland";
+    type = "Application";
+    categories = [ ];
+  };
 in {
   programs.hyprland = {
     enable = true;
@@ -13,6 +23,20 @@ in {
     portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
     withUWSM = cfg.seamless_boot.enable;
   };
+
+  # Override the auto-generated desktop file with our fixed version
+  environment.systemPackages = lib.mkIf cfg.seamless_boot.enable [
+    (pkgs.runCommand "hyprland-uwsm-override" {} ''
+      mkdir -p $out/share/wayland-sessions
+      cat > $out/share/wayland-sessions/hyprland-uwsm.desktop <<EOF
+[Desktop Entry]
+Name=Hyprland (UWSM)
+Comment=Hyprland compositor managed by UWSM
+Exec=${pkgs.uwsm}/bin/uwsm start -F -- start-hyprland
+Type=Application
+EOF
+    '')
+  ];
 
   services.dbus.enable = true;
   xdg.portal = {

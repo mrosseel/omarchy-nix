@@ -9,7 +9,7 @@ in {
     bind =
       cfg.quick_app_bindings
       ++ [
-        "SUPER, space, exec, walker"
+        "SUPER, space, exec, ~/.local/share/omarchy/bin/omarchy-launch-walker"
         "SUPER SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
         "SUPER CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-bg-next"
         "SUPER SHIFT CTRL, SPACE, exec, ~/.local/share/omarchy/bin/omarchy-theme-next"
@@ -25,6 +25,7 @@ in {
         "SUPER, K, exec, ~/.local/share/omarchy/bin/omarchy-show-keybindings"
         "SUPER SHIFT, K, exec, ~/.local/share/omarchy/bin/omarchy-launch-docs"
         "SUPER, L, exec, ~/.local/share/omarchy/bin/omarchy-learn-menu"
+        "SUPER, M, exec, ~/.local/share/omarchy/bin/omarchy-menu"
 
         # Control tiling
         "SUPER, J, togglesplit, # dwindle"
