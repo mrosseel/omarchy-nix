@@ -17,8 +17,7 @@ in {
     enable = true;
     settings = {
       general = {
-        disable_loading_bar = true;
-        no_fade_in = false;
+        # disable_loading_bar and no_fade_in removed in newer hyprlock versions
       };
       auth = {
         fingerprint.enabled = true;
@@ -42,10 +41,10 @@ in {
         outline_thickness = 4;
 
         font_family = "CaskaydiaMono Nerd Font";
-        font_size = 32;
+        # font_size removed in newer hyprlock - using default
         font_color = foregroundRgb;
 
-        placeholder_color = foregroundMutedRgb;
+        # placeholder_color removed in newer hyprlock - using default
         placeholder_text = "  Enter Password 󰈷 ";
         check_color = "rgba(131, 192, 146, 1.0)";
         fail_text = "Wrong";

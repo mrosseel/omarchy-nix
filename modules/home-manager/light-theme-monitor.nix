@@ -45,6 +45,12 @@ in {
         ExecStart = "${themeMonitorScript}";
         Restart = "always";
         RestartSec = "5";
+        Environment = [
+          "PATH=${lib.makeBinPath [
+            pkgs.coreutils
+            pkgs.inotify-tools
+          ]}"
+        ];
       };
       Install = {
         WantedBy = [ "default.target" ];

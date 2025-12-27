@@ -49,11 +49,11 @@ in {
       # Seamless auto-login when enabled
       (lib.mkIf cfg.seamless_boot.enable {
         initial_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start hyprland.desktop";
+          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
           user = cfg.seamless_boot.username;
         };
         default_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start hyprland.desktop";
+          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
           user = cfg.seamless_boot.username;
         };
       })
@@ -78,7 +78,7 @@ in {
 
   fonts.packages = with pkgs; [
     noto-fonts
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     nerd-fonts.caskaydia-mono
   ];
 }
