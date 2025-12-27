@@ -78,6 +78,7 @@ in {
           interval = 5;
           format = "󰍛";
           on-click = "ghostty -e btop";
+          on-click-right = "alacritty";
         };
         clock = {
           format = "{:%A %I:%M %p}";

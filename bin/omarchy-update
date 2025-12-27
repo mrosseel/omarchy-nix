@@ -76,11 +76,16 @@ update_flake() {
 
 rebuild_system() {
     local rebuild_type="switch"
-    
+
     echo "🏗️  Rebuilding system configuration..."
-    
+
+    # Prevent idle during rebuild
+    if command -v omarchy-update-without-idle >/dev/null 2>&1; then
+        omarchy-update-without-idle
+    fi
+
     cd "$FLAKE_DIR"
-    
+
     # Check if we're on NixOS or using home-manager standalone
     if [[ -f /etc/nixos/configuration.nix ]] || command -v nixos-rebuild >/dev/null 2>&1; then
         echo "Using nixos-rebuild..."

@@ -65,6 +65,9 @@ in {
     bluetui
     inxi
 
+    # Screensaver
+    python3Packages.terminaltexteffects
+
     # GUIs
     (if cfg.browser == "brave" then brave else chromium)
     obsidian

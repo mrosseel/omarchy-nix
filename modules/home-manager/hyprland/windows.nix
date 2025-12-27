@@ -35,6 +35,12 @@
       "float,class:(clipse)"
       "size 622 652,class:(clipse)"
       "stayfocused,class:(clipse)"
+
+      # Screensaver window rules
+      "fullscreen,class:^(org.omarchy.screensaver)$"
+      "noblur,class:^(org.omarchy.screensaver)$"
+      "noshadow,class:^(org.omarchy.screensaver)$"
+      "noborder,class:^(org.omarchy.screensaver)$"
     ];
   };
 }

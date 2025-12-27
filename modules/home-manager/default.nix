@@ -47,6 +47,14 @@ in {
       source = ../../bin;
       recursive = true;
     };
+    ".config/omarchy/branding" = {
+      source = ../../config/branding;
+      recursive = true;
+    };
+    ".config/omarchy/screensaver" = {
+      source = ../../config/screensaver;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 
