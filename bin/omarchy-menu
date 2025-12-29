@@ -132,7 +132,6 @@ show_style_menu() {
 
 show_theme_menu() {
   omarchy-launch-walker -m menus:omarchythemes --width 800 --height 400
-  back_to show_style_menu
 }
 
 show_font_menu() {
