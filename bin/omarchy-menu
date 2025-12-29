@@ -34,7 +34,7 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --height 630 -p "$prompt…" "${args[@]}" 2>/dev/null
+  echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --height 630 -p "$prompt…" "${args[@]}"
 }
 
 terminal() {
