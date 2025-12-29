@@ -5,13 +5,14 @@ if [ "$#" -lt 3 ]; then
   echo "Usage: omarchy-webapp-install <name> <url> <icon-url> [custom-exec] [mime-types]"
   echo ""
   echo "Examples:"
+  echo "  omarchy-webapp-install ChatGPT https://chat.openai.com ChatGPT"
   echo "  omarchy-webapp-install Gmail https://mail.google.com https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
   echo "  omarchy-webapp-install Notion https://notion.so https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png"
   echo ""
   echo "Icons:"
-  echo "  - Use PNG format (required)"
-  echo "  - Find icons at https://dashboardicons.com"
-  echo "  - Or use direct URLs to PNG icons"
+  echo "  - Use pre-installed icon names (ChatGPT, Discord, GitHub, HEY, WhatsApp, YouTube, Zoom, etc.)"
+  echo "  - Or use PNG URLs from https://dashboardicons.com"
+  echo "  - Or use local file paths to PNG files"
   exit 1
 fi
 
@@ -31,8 +32,9 @@ fi
 ICON_DIR="$HOME/.local/share/applications/icons"
 mkdir -p "$ICON_DIR"
 
-# Download icon if it's a URL, otherwise use local path
+# Check if icon is a URL, pre-installed icon name, or local path
 if [[ $ICON_REF =~ ^https?:// ]]; then
+  # Download icon from URL
   ICON_PATH="$ICON_DIR/$APP_NAME.png"
   echo "Downloading icon..."
   if curl -sL -o "$ICON_PATH" "$ICON_REF"; then
@@ -41,8 +43,19 @@ if [[ $ICON_REF =~ ^https?:// ]]; then
     echo "Error: Failed to download icon from $ICON_REF"
     exit 1
   fi
+elif [[ -f "$HOME/.config/omarchy/webapp-icons/$ICON_REF.png" ]]; then
+  # Use pre-installed icon from webapp-icons directory
+  ICON_PATH="$HOME/.config/omarchy/webapp-icons/$ICON_REF.png"
+  echo "Using pre-installed icon: $ICON_REF"
+elif [[ -f "$ICON_REF" ]]; then
+  # Use local file path
+  ICON_PATH="$ICON_REF"
 else
-  ICON_PATH="$ICON_DIR/$ICON_REF"
+  echo "Error: Icon not found: $ICON_REF"
+  echo "  - Not found as URL"
+  echo "  - Not found in ~/.config/omarchy/webapp-icons/"
+  echo "  - Not found as local file"
+  exit 1
 fi
 
 # Determine exec command

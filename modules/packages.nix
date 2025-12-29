@@ -36,6 +36,7 @@ in {
     wf-recorder
     gpu-screen-recorder
     slurp
+    hyprland-preview-share-picker
     
     # Audio management
     wiremix

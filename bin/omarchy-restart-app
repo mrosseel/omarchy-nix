@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#
+# omarchy-restart-app - Restart a systemd user service or application
+#
+
+pkill -x "$1"
+systemctl --user restart "$1" 2>/dev/null || setsid "$1" >/dev/null 2>&1 &

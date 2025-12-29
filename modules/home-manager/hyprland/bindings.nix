@@ -106,12 +106,25 @@ in {
         # Color picker
         "ALT, PRINT, exec, hyprpicker -a"
 
-        # Clipse
+        # Universal copy/paste/cut
+        "SUPER, C, sendshortcut, CTRL, Insert"
+        "SUPER, V, sendshortcut, SHIFT, Insert"
+        "SUPER, X, sendshortcut, CTRL, X"
+
+        # Clipboard manager
         "CTRL SUPER, V, exec, ghostty --class clipse -e clipse"
 
         # Audio management
         "SUPER SHIFT, M, exec, ghostty --class wiremix -e wiremix"
         "SUPER, semicolon, exec, ~/.local/share/omarchy/bin/omarchy-audio-switch"
+
+        # Control panels
+        "SUPER CTRL, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-audio"
+        "SUPER CTRL, B, exec, ~/.local/share/omarchy/bin/omarchy-launch-bluetooth"
+        # "SUPER CTRL, W, exec, ~/.local/share/omarchy/bin/omarchy-launch-wifi"  # Requires impala package
+
+        # Nightlight toggle
+        "SUPER CTRL, N, exec, ~/.local/share/omarchy/bin/omarchy-toggle-nightlight"
       ];
 
     bindm = [

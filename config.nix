@@ -23,6 +23,10 @@ lib: {
         "gruvbox-light"
         "flexoki-light"
         "matte-black"
+        "ethereal"
+        "hackerman"
+        "osaka-jade"
+        "ristretto"
       ];
       default = "tokyo-night";
       description = "Theme to use for Omarchy configuration";

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#
+# omarchy-restart-swayosd - Restart swayosd-server
+#
+
+omarchy-restart-app swayosd-server

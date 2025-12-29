@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# omarchy-restart-terminal - Reload terminal emulator configurations
+#
+
+# Alacritty - touch config to trigger reload
+if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
+  touch ~/.config/alacritty/alacritty.toml
+fi
+
+# Kitty - send SIGUSR1 to reload config
+if pgrep -x kitty >/dev/null; then
+  killall -SIGUSR1 kitty
+fi
+
+# Ghostty - send SIGUSR2 to reload config
+if pgrep -x ghostty >/dev/null; then
+  killall -SIGUSR2 ghostty
+fi

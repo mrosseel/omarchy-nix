@@ -7,6 +7,7 @@ inputs: {
   packages = import ../packages.nix {inherit pkgs config lib;};
 
   themes = import ../themes.nix;
+  customSchemes = import ../custom-base16-schemes.nix;
 
   # Light theme detection logic
   lightModeFilePath = "${config.home.homeDirectory}/.config/omarchy/theme/light.mode";
@@ -19,6 +20,12 @@ inputs: {
     else config.omarchy.theme;
 
   selectedTheme = themes.${effectiveTheme};
+
+  # Get color scheme - use custom scheme if marked, otherwise use nix-colors
+  selectedColorScheme =
+    if selectedTheme ? custom-scheme && selectedTheme.custom-scheme
+    then customSchemes.${selectedTheme.base16-theme}
+    else inputs.nix-colors.colorSchemes.${selectedTheme.base16-theme};
 in {
   imports = [
     (import ./hyprland.nix inputs)
@@ -38,6 +45,12 @@ in {
     (import ./walker.nix)
     (import ./zoxide.nix)
     (import ./zsh.nix)
+    ./chromium.nix
+    ./brave.nix
+    ./xdph.nix
+    ./hyprland-preview-share-picker.nix
+    ./hyprsunset.nix
+    ./desktop-entries.nix
     ./light-theme-monitor.nix
     ./battery-monitor.nix
   ];
@@ -55,10 +68,14 @@ in {
       source = ../../config/screensaver;
       recursive = true;
     };
+    ".config/omarchy/webapp-icons" = {
+      source = ../../config/webapp-icons;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 
-  colorScheme = inputs.nix-colors.colorSchemes.${selectedTheme.base16-theme};
+  colorScheme = selectedColorScheme;
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {

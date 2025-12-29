@@ -1,58 +1,274 @@
 #!/usr/bin/env bash
-# Omarchy main menu - unified access to all system utilities
+# Omarchy main menu - hierarchical menu system (ported from Omarchy)
 
-BIN_DIR="$HOME/.local/share/omarchy/bin"
+export PATH="$HOME/.local/share/omarchy/bin:$PATH"
 
-# Define menu items with categories, icons, labels, and commands
-MENU_ITEMS=(
-  "🎨|Theme & Appearance|Switch Theme|$BIN_DIR/omarchy-theme-menu"
-  "🎨|Theme & Appearance|Toggle Light/Dark Mode|$BIN_DIR/omarchy-toggle-light-mode"
-  "🎨|Theme & Appearance|Next Background|$BIN_DIR/omarchy-bg-next"
-  "🎨|Theme & Appearance|Next Theme|$BIN_DIR/omarchy-theme-next"
+# Set to true when going directly to a submenu, so we can exit directly
+BACK_TO_EXIT=false
 
-  "🔄|Restart Services|Restart WiFi|$BIN_DIR/omarchy-restart-wifi"
-  "🔄|Restart Services|Restart Bluetooth|$BIN_DIR/omarchy-restart-bluetooth"
-  "🔄|Restart Services|Restart Pipewire|$BIN_DIR/omarchy-restart-pipewire"
-  "🔄|Restart Services|Restart Waybar|$BIN_DIR/omarchy-restart-waybar"
-  "🔄|Restart Services|Restart Walker|$BIN_DIR/omarchy-restart-walker"
+back_to() {
+  local parent_menu="$1"
 
-  "📚|Documentation|Show Keybindings|$BIN_DIR/omarchy-show-keybindings"
-  "📚|Documentation|Launch Docs|$BIN_DIR/omarchy-launch-docs"
-  "📚|Documentation|Learn Menu|$BIN_DIR/omarchy-learn-menu"
+  if [[ "$BACK_TO_EXIT" == "true" ]]; then
+    exit 0
+  elif [[ -n "$parent_menu" ]]; then
+    "$parent_menu"
+  else
+    show_main_menu
+  fi
+}
 
-  "⚙️|System Setup|Setup Fingerprint|$BIN_DIR/omarchy-setup-fingerprint"
-  "⚙️|System Setup|Select Timezone|$BIN_DIR/omarchy-tz-select"
-  "⚙️|System Setup|Install Tailscale|$BIN_DIR/omarchy-install-tailscale"
-  "⚙️|System Setup|System Update|$BIN_DIR/omarchy-update"
+menu() {
+  local prompt="$1"
+  local options="$2"
+  local extra="$3"
+  local preselect="$4"
 
-  "🔧|Utilities|Audio Switch|$BIN_DIR/omarchy-audio-switch"
-  "🔧|Utilities|Battery Monitor|$BIN_DIR/omarchy-battery-monitor"
-  "🔧|Utilities|Screen Record|$BIN_DIR/omarchy-screenrecord"
-  "🔧|Utilities|Docker Databases|$BIN_DIR/omarchy-docker-dbs"
+  read -r -a args <<<"$extra"
 
-  "🌐|Web Apps|Install Web App|$BIN_DIR/omarchy-webapp-install"
-  "🌐|Web Apps|Remove Web App|$BIN_DIR/omarchy-webapp-remove"
-)
-
-# Build menu options with formatting
-OPTIONS=""
-for entry in "${MENU_ITEMS[@]}"; do
-  IFS='|' read -r icon category label command <<< "$entry"
-  OPTIONS+="$icon  $label\n"
-done
-
-# Show menu and get selection
-SELECTION=$(echo -e "$OPTIONS" | ~/.local/share/omarchy/bin/omarchy-launch-walker --dmenu -p "Omarchy Menu" --width 500 --height 600)
-
-# Handle selection
-if [[ -n "$SELECTION" ]]; then
-  for entry in "${MENU_ITEMS[@]}"; do
-    IFS='|' read -r icon category label command <<< "$entry"
-    menu_label="$icon  $label"
-
-    if [[ "$SELECTION" == "$menu_label" ]]; then
-      exec $command
-      exit 0
+  if [[ -n "$preselect" ]]; then
+    local index
+    index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
+    if [[ -n "$index" ]]; then
+      args+=("-c" "$index")
     fi
-  done
+  fi
+
+  echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --height 630 -p "$prompt…" "${args[@]}" 2>/dev/null
+}
+
+terminal() {
+  xdg-terminal-exec --app-id=org.omarchy.terminal "$@"
+}
+
+present_terminal() {
+  omarchy-launch-floating-terminal-with-presentation $1
+}
+
+open_in_editor() {
+  notify-send "Editing config file" "$1"
+  omarchy-launch-editor "$1"
+}
+
+show_learn_menu() {
+  case $(menu "Learn" "  Keybindings\n  Omarchy\n  Hyprland\n  NixOS\n  Neovim\n󱆃  Bash") in
+  *Keybindings*) omarchy-show-keybindings ;;
+  *Omarchy*) omarchy-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
+  *Hyprland*) omarchy-launch-webapp "https://wiki.hypr.land/" ;;
+  *NixOS*) omarchy-launch-webapp "https://nixos.org/manual/nixos/stable/" ;;
+  *Bash*) omarchy-launch-webapp "https://devhints.io/bash" ;;
+  *Neovim*) omarchy-launch-webapp "https://www.lazyvim.org/keymaps" ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_trigger_menu() {
+  case $(menu "Trigger" "  Capture\n  Share\n󰔎  Toggle") in
+  *Capture*) show_capture_menu ;;
+  *Share*) show_share_menu ;;
+  *Toggle*) show_toggle_menu ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_capture_menu() {
+  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
+  *Screenshot*) show_screenshot_menu ;;
+  *Screenrecord*) show_screenrecord_menu ;;
+  *Color*) pkill hyprpicker || hyprpicker -a ;;
+  *) show_trigger_menu ;;
+  esac
+}
+
+show_screenshot_menu() {
+  case $(menu "Screenshot" "  Snap with Editing\n  Straight to Clipboard") in
+  *Editing*) omarchy-cmd-screenshot smart ;;
+  *Clipboard*) omarchy-cmd-screenshot smart clipboard ;;
+  *) show_capture_menu ;;
+  esac
+}
+
+show_screenrecord_menu() {
+  omarchy-cmd-screenrecord --stop-recording && exit 0
+
+  case $(menu "Screenrecord" "  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
+  *"With desktop audio") omarchy-cmd-screenrecord --with-desktop-audio ;;
+  *"With desktop + microphone audio") omarchy-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
+  *"With desktop + microphone audio + webcam") omarchy-cmd-screenrecord --with-desktop-audio --with-microphone-audio --with-webcam ;;
+  *) back_to show_capture_menu ;;
+  esac
+}
+
+show_share_menu() {
+  case $(menu "Share" "  Clipboard\n  File \n  Folder") in
+  *Clipboard*) omarchy-cmd-share clipboard ;;
+  *File*) terminal bash -c "omarchy-cmd-share file" ;;
+  *Folder*) terminal bash -c "omarchy-cmd-share folder" ;;
+  *) back_to show_trigger_menu ;;
+  esac
+}
+
+show_toggle_menu() {
+  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar") in
+  *Screensaver*) omarchy-toggle-screensaver ;;
+  *Nightlight*) omarchy-toggle-nightlight ;;
+  *Idle*) omarchy-toggle-idle ;;
+  *Bar*) omarchy-toggle-waybar ;;
+  *) show_trigger_menu ;;
+  esac
+}
+
+show_style_menu() {
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n󱄄  Screensaver\n  About") in
+  *Theme*) show_theme_menu ;;
+  *Font*) show_font_menu ;;
+  *Background*) omarchy-theme-bg-next ;;
+  *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
+  *Screensaver*) open_in_editor ~/.config/omarchy/branding/screensaver.txt ;;
+  *About*) open_in_editor ~/.config/omarchy/branding/about.txt ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_theme_menu() {
+  omarchy-launch-walker -m menus:omarchythemes --width 800 --height 400
+  back_to show_style_menu
+}
+
+show_font_menu() {
+  theme=$(menu "Font" "$(omarchy-font-list)" "--width 350" "$(omarchy-font-current)")
+  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+    back_to show_style_menu
+  else
+    omarchy-font-set "$theme"
+  fi
+}
+
+show_setup_menu() {
+  local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
+  [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
+  [ -f ~/.config/hypr/input.conf ] && options="$options\n  Input"
+  options="$options\n  Defaults\n󰱔  DNS\n  Security\n  Config"
+
+  case $(menu "Setup" "$options") in
+  *Audio*) omarchy-launch-or-focus-tui wiremix ;;
+  *Wifi*) omarchy-launch-wifi ;;
+  *Bluetooth*) omarchy-launch-bluetooth ;;
+  *Power*) show_setup_power_menu ;;
+  *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
+  *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
+  *Input*) open_in_editor ~/.config/hypr/input.conf ;;
+  *Defaults*) open_in_editor ~/.config/uwsm/default ;;
+  *DNS*) present_terminal omarchy-setup-dns ;;
+  *Security*) show_setup_security_menu ;;
+  *Config*) show_setup_config_menu ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_setup_power_menu() {
+  profile=$(menu "Power Profile" "$(omarchy-powerprofiles-list)" "" "$(powerprofilesctl get)")
+
+  if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
+    back_to show_setup_menu
+  else
+    powerprofilesctl set "$profile"
+  fi
+}
+
+show_setup_config_menu() {
+  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
+  *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && omarchy-restart-hypridle ;;
+  *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
+  *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && omarchy-restart-hyprsunset ;;
+  *Swayosd*) open_in_editor ~/.config/swayosd/config.toml && omarchy-restart-swayosd ;;
+  *Walker*) open_in_editor ~/.config/walker/config.toml && omarchy-restart-walker ;;
+  *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && omarchy-restart-waybar ;;
+  *XCompose*) open_in_editor ~/.XCompose && omarchy-restart-xcompose ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_setup_security_menu() {
+  case $(menu "Setup" "󰈷  Fingerprint\n  Fido2\n  Timezone") in
+  *Fingerprint*) present_terminal omarchy-setup-fingerprint ;;
+  *Fido2*) present_terminal omarchy-setup-fido2 ;;
+  *Timezone*) present_terminal omarchy-tz-select ;;
+  *) show_setup_menu ;;
+  esac
+}
+
+show_restart_menu() {
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n  Audio\n󱚾  Wi-Fi\n󰂯  Bluetooth") in
+  *Hypridle*) omarchy-restart-hypridle ;;
+  *Hyprsunset*) omarchy-restart-hyprsunset ;;
+  *Swayosd*) omarchy-restart-swayosd ;;
+  *Walker*) omarchy-restart-walker ;;
+  *Waybar*) omarchy-restart-waybar ;;
+  *Audio*) omarchy-restart-pipewire ;;
+  *Wi-Fi*) omarchy-restart-wifi ;;
+  *Bluetooth*) omarchy-restart-bluetooth ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_utilities_menu() {
+  case $(menu "Utilities" "  Audio Switch\n  Battery Monitor\n  Screen Record\n  Docker Databases\n  System Update") in
+  *Audio*) omarchy-audio-switch ;;
+  *Battery*) omarchy-battery-monitor ;;
+  *Screen*) omarchy-screenrecord ;;
+  *Docker*) omarchy-docker-dbs ;;
+  *Update*) present_terminal omarchy-update ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_webapps_menu() {
+  case $(menu "Web Apps" "  Install Web App\n  Remove Web App") in
+  *Install*) present_terminal omarchy-webapp-install ;;
+  *Remove*) present_terminal omarchy-webapp-remove ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_system_menu() {
+  case $(menu "System" "  Lock\n󱄄  Screensaver\n󰜉  Restart\n󰐥  Shutdown") in
+  *Lock*) omarchy-lock-screen ;;
+  *Screensaver*) omarchy-launch-screensaver force ;;
+  *Restart*) omarchy-cmd-reboot ;;
+  *Shutdown*) omarchy-cmd-shutdown ;;
+  *) back_to show_main_menu ;;
+  esac
+}
+
+show_main_menu() {
+  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n  Restart\n󰔧  Utilities\n🌐  Web Apps\n  About\n  System")"
+}
+
+go_to_menu() {
+  case "${1,,}" in
+  *apps*) walker -p "Launch…" ;;
+  *learn*) show_learn_menu ;;
+  *trigger*) show_trigger_menu ;;
+  *share*) show_share_menu ;;
+  *style*) show_style_menu ;;
+  *theme*) show_theme_menu ;;
+  *screenshot*) show_screenshot_menu ;;
+  *screenrecord*) show_screenrecord_menu ;;
+  *setup*) show_setup_menu ;;
+  *power*) show_setup_power_menu ;;
+  *restart*) show_restart_menu ;;
+  *utilities*) show_utilities_menu ;;
+  *web*) show_webapps_menu ;;
+  *about*) omarchy-launch-about ;;
+  *system*) show_system_menu ;;
+  esac
+}
+
+if [[ -n "$1" ]]; then
+  BACK_TO_EXIT=true
+  go_to_menu "$1"
+else
+  show_main_menu
 fi

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#
+# omarchy-restart-hypridle - Restart hypridle service
+#
+
+omarchy-restart-app hypridle

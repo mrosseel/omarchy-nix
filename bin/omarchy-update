@@ -76,6 +76,7 @@ update_flake() {
 
 rebuild_system() {
     local rebuild_type="switch"
+    local rebuild_success=0
 
     echo "🏗️  Rebuilding system configuration..."
 
@@ -91,23 +92,34 @@ rebuild_system() {
         echo "Using nixos-rebuild..."
         if nixos-rebuild "$rebuild_type" --flake .; then
             echo "✅ System rebuilt successfully"
+            rebuild_success=1
         else
             echo "❌ Failed to rebuild system"
-            return 1
+            rebuild_success=0
         fi
     elif command -v home-manager >/dev/null 2>&1; then
         echo "Using home-manager..."
         if home-manager switch --flake .; then
-            echo "✅ Home configuration rebuilt successfully"  
+            echo "✅ Home configuration rebuilt successfully"
+            rebuild_success=1
         else
             echo "❌ Failed to rebuild home configuration"
-            return 1
+            rebuild_success=0
         fi
     else
         echo "❌ Neither nixos-rebuild nor home-manager found"
         echo "   Please install one of these tools or run manually:"
         echo "   - nixos-rebuild switch --flake ."
         echo "   - home-manager switch --flake ."
+        rebuild_success=0
+    fi
+
+    # Re-enable screensaver/sleep after updates (remove noidle tag)
+    if command -v hyprctl >/dev/null 2>&1; then
+        hyprctl dispatch tagwindow -- -noidle &> /dev/null || true
+    fi
+
+    if [[ $rebuild_success -eq 0 ]]; then
         return 1
     fi
 }

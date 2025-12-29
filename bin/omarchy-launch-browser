@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# omarchy-launch-browser - Launch default browser with private window support
+#
+# Usage:
+#   omarchy-launch-browser [URL]         # Normal browsing
+#   omarchy-launch-browser --private URL # Private/incognito mode
+#
+
+# Get default browser from xdg-settings
+default_browser=$(xdg-settings get default-web-browser)
+browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
+
+# Determine private window flag based on browser
+if [[ $browser_exec =~ (firefox|zen|librewolf|mullvad) ]]; then
+  private_flag="--private-window"
+elif [[ $browser_exec =~ edge ]]; then
+  private_flag="--inprivate"
+else
+  # Chrome, Chromium, Brave, and most others
+  private_flag="--incognito"
+fi
+
+# Replace --private with browser-specific flag
+exec "$browser_exec" "${@/--private/$private_flag}"
