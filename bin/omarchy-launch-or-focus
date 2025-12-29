@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Launch an application or focus it if already running
 
 if (($# == 0)); then

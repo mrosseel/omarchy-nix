@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
-# omarchy-restart-app - Restart a systemd user service or application
+# omarchy-restart-app - Restart a Wayland application with UWSM wrapper
 #
 
 pkill -x "$1"
-systemctl --user restart "$1" 2>/dev/null || setsid "$1" >/dev/null 2>&1 &
+setsid uwsm-app -- "$1" >/dev/null 2>&1 &

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Restart Bluetooth service
 
 echo "Restarting Bluetooth..."

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Switch between available audio output devices
 
 # Get all available sinks (audio outputs)

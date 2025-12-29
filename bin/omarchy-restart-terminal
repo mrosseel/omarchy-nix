@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # omarchy-restart-terminal - Reload terminal emulator configurations
 #

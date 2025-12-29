@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec setsid $1 "${@:2}"

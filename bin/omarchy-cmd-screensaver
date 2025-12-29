@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 screensaver_in_focus() {
   hyprctl activewindow -j | jq -e '.class == "org.omarchy.screensaver"' >/dev/null 2>&1

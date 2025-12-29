@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Exit early if we don't have the tte show
 if ! command -v tte &>/dev/null; then

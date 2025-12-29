@@ -1,44 +1,41 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# omarchy-theme-set: Set a theme for omarchy-nix (systemd will handle the rebuild)
-# Usage: omarchy-theme-set <theme-name>
-
-if [[ -z "$1" ]]; then
-  echo "Usage: omarchy-theme-set <theme-name>" >&2
-  echo "Available themes: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, nord, gruvbox, gruvbox-light, rose-pine, matte-black" >&2
+if [[ -z $1 ]]; then
+  echo "Usage: omarchy-theme-set <theme-name>"
   exit 1
 fi
 
-THEME_NAME="$1"
-THEME_FILE="$HOME/.config/omarchy/current-theme"
+THEMES_DIR="$HOME/.config/omarchy/themes/"
+CURRENT_THEME_DIR="$HOME/.config/omarchy/current/theme"
 
-# Validate theme exists in our themes.nix
-AVAILABLE_THEMES=("tokyo-night" "kanagawa" "everforest" "catppuccin" "catppuccin-latte" "nord" "gruvbox" "gruvbox-light" "rose-pine" "matte-black")
-if [[ ! " ${AVAILABLE_THEMES[@]} " =~ " ${THEME_NAME} " ]]; then
-  echo "Theme '$THEME_NAME' is not available." >&2
-  echo "Available themes: ${AVAILABLE_THEMES[*]}" >&2
-  exit 2
+THEME_NAME=$(echo "$1" | sed -E 's/<[^>]+>//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+THEME_PATH="$THEMES_DIR/$THEME_NAME"
+
+# Check if the theme entered exists
+if [[ ! -d "$THEME_PATH" ]]; then
+  echo "Theme '$THEME_NAME' does not exist in $THEMES_DIR"
+  exit 1
 fi
 
-# Check if current theme is already set
-if [[ -f "$THEME_FILE" ]] && [[ "$(cat "$THEME_FILE")" == "$THEME_NAME" ]]; then
-  echo "Theme '$THEME_NAME' is already active"
-  exit 0
+# Update theme symlinks
+ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
+
+# Change background with theme
+omarchy-theme-bg-next
+
+# Restart components to apply new theme
+if pgrep -x waybar >/dev/null; then
+  omarchy-restart-waybar
 fi
+omarchy-restart-swayosd
+pkill -SIGUSR2 ghostty 2>/dev/null || true
+hyprctl reload
+pkill -SIGUSR2 btop 2>/dev/null || true
+makoctl reload
 
-# Store current theme preference (this will trigger systemd path unit)
-mkdir -p "$(dirname "$THEME_FILE")"
-echo "$THEME_NAME" > "$THEME_FILE"
+# Change gnome, browser, vscode, cursor themes
+omarchy-theme-set-gnome
+omarchy-theme-set-browser
+omarchy-theme-set-vscode
 
-echo "Theme change requested: $THEME_NAME"
-echo "Systemd will handle the rebuild automatically..."
-
-# Give systemd a moment to pick up the change
-sleep 1
-
-# Check if the systemd service is running
-if systemctl --user is-active omarchy-theme-switcher.service >/dev/null 2>&1; then
-  echo "Theme switching service is active"
-else
-  echo "Note: You can monitor the theme switch with: journalctl --user -f -u omarchy-theme-switcher.service"
-fi
+echo "Theme switched to $THEME_NAME"

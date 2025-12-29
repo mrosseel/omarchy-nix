@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Interactive learning menu - quick access to documentation
 
 BROWSER="${BROWSER:-chromium}"

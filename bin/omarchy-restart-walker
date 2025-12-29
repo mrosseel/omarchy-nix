@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Restart Walker app launcher
 
 echo "Restarting Walker..."

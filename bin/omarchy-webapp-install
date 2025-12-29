@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Install a webapp as a desktop application
 
 if [ "$#" -lt 3 ]; then

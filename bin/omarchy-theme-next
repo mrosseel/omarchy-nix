@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 THEME_FILE="$HOME/.config/omarchy/current-theme"
 AVAILABLE_THEMES=("tokyo-night" "kanagawa" "everforest" "catppuccin" "catppuccin-latte" "nord" "gruvbox" "gruvbox-light" "rose-pine" "matte-black")

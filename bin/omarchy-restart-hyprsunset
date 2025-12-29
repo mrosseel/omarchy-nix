@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # omarchy-restart-hyprsunset - Restart hyprsunset service
 #

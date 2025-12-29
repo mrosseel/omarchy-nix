@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Quick setup for development databases using Docker
 
 if [[ "$#" -eq 0 ]]; then

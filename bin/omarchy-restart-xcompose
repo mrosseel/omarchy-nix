@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # omarchy-restart-xcompose - Restart fcitx5 (if enabled)
 #

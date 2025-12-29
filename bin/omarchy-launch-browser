@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # omarchy-launch-browser - Launch default browser with private window support
 #

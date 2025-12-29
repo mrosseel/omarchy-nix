@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Remove installed webapps
 
 ICON_DIR="$HOME/.local/share/applications/icons"

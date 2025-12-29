@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Apply current theme to browser (Chromium/Brave)
 
 # Get current theme from colorScheme

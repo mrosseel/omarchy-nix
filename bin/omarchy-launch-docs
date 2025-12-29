@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Launch Omarchy-nix documentation in browser
 
 DOCS_URL="https://github.com/henrysipp/omarchy-nix#readme"

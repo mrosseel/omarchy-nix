@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Omarchy main menu - hierarchical menu system (ported from Omarchy)
 
 export PATH="$HOME/.local/share/omarchy/bin:$PATH"

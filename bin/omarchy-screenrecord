@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Simple screen recording wrapper using gpu-screen-recorder
 
 OUTPUT_DIR="${XDG_VIDEOS_DIR:-$HOME/Videos}"

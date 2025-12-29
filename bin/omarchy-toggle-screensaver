@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 STATE_FILE=~/.local/state/omarchy/toggles/screensaver-off
 

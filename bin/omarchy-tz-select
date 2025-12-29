@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Interactive timezone selector
 
 echo "Timezone Selector"

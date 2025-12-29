@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # A script to display Hyprland keybindings defined in your configuration
 # using walker for an interactive search menu.
 USER_HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"

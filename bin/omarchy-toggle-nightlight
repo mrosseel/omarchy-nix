@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # omarchy-toggle-nightlight - Toggle nightlight mode (blue light filter)
 #

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Check if omarchy-nix has updates available
+# This checks the local flake repo for new commits
+
+OMARCHY_NIX_PATH="${HOME}/dev/omarchy-nix"
+
+if [[ ! -d "$OMARCHY_NIX_PATH" ]]; then
+  exit 1
+fi
+
+cd "$OMARCHY_NIX_PATH" || exit 1
+
+# Fetch latest from remote
+git fetch origin --quiet 2>/dev/null
+
+# Get local and remote commits
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u} 2>/dev/null)
+
+if [[ -z "$REMOTE" ]]; then
+  exit 1
+fi
+
+if [[ "$LOCAL" != "$REMOTE" ]]; then
+  echo "Update available"
+  exit 0
+else
+  exit 1
+fi
