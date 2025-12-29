@@ -24,6 +24,9 @@ menu() {
   local extra="$3"
   local preselect="$4"
 
+  # Small delay to allow previous walker instance to fully close
+  sleep 0.1
+
   read -r -a args <<<"$extra"
 
   if [[ -n "$preselect" ]]; then
