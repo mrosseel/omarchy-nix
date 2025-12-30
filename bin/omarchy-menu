@@ -34,7 +34,10 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --height 630 -p "$prompt…" "${args[@]}"
+  local result
+  result=$(echo -e "$options" | omarchy-launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "$prompt…" "${args[@]}" 2>/dev/null)
+  echo "DEBUG: menu returned [$result]" >> /tmp/omarchy-menu-debug.log
+  echo "$result"
 }
 
 terminal() {
@@ -131,7 +134,7 @@ show_style_menu() {
 }
 
 show_theme_menu() {
-  omarchy-launch-walker -m menus:omarchythemes --width 800 --height 400
+  omarchy-launch-walker -m menus:omarchythemes --width 800 --minheight 400
 }
 
 show_font_menu() {
