@@ -136,6 +136,9 @@ in {
       Restart = "on-failure";
       RestartSec = 3;
     };
+    environment = {
+      ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
+    };
   };
 
   # Networking
