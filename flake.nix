@@ -8,7 +8,7 @@
     # Fork with state handler nil pointer fix applied
     elephant.url = "git+file:///home/mike/dev/elephant-patched?ref=fix-state-handler";
     walker = {
-      url = "github:abenz1267/walker/v2.12.2";
+      url = "github:abenz1267/walker/v2.11.3";
       inputs.elephant.follows = "elephant";
     };
     home-manager = {
