@@ -55,27 +55,27 @@
     # Update the theme in the config file
     if ${pkgs.gnused}/bin/sed -i "s/theme = \"[^\"]*\"/theme = \"$THEME_NAME\"/g" "$CONFIG_FILE"; then
       echo "Configuration updated successfully"
-      
-      # Rebuild system configuration
-      echo "Rebuilding system configuration..."
-      if /run/wrappers/bin/sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake .; then
+
+      # Rebuild home-manager configuration
+      echo "Rebuilding home-manager configuration..."
+      if /run/wrappers/bin/sudo -n /run/current-system/sw/bin/nixos-rebuild switch --flake .; then
         echo "Theme switched to $THEME_NAME successfully!"
-        
+
         # Restart components that need reload
         ${pkgs.procps}/bin/pkill -SIGUSR2 waybar 2>/dev/null || true
         ${pkgs.procps}/bin/pkill -SIGUSR2 ghostty 2>/dev/null || true
         ${pkgs.procps}/bin/pkill swayosd-server 2>/dev/null || true
-        ${pkgs.util-linux}/bin/setsid swayosd-server &>/dev/null &
+        ${pkgs.util-linux}/bin/setsid uwsm-app -- swayosd-server &>/dev/null &
         ${pkgs.mako}/bin/makoctl reload 2>/dev/null || true
         ${pkgs.hyprland}/bin/hyprctl reload 2>/dev/null || true
-        
+
         # Update wallpaper
         "$HOME/.local/share/omarchy/bin/omarchy-bg-next" 2>/dev/null || true
-        
+
         # Send notification
         ${pkgs.libnotify}/bin/notify-send "Theme changed to $THEME_NAME" -t 3000 2>/dev/null || true
       else
-        echo "Failed to rebuild system configuration"
+        echo "Failed to rebuild configuration"
         # Restore backup
         ${pkgs.coreutils}/bin/mv "$CONFIG_FILE.backup."* "$CONFIG_FILE" 2>/dev/null || true
         exit 1
@@ -96,8 +96,7 @@ in {
         Type = "oneshot";
         ExecStart = "${themeUpdateScript}";
         Environment = [
-          "PATH=${lib.makeBinPath [
-            pkgs.nixos-rebuild
+          "PATH=/run/wrappers/bin:/run/current-system/sw/bin:${lib.makeBinPath [
             pkgs.gnugrep
             pkgs.gnused
             pkgs.coreutils
@@ -106,6 +105,7 @@ in {
             pkgs.mako
             pkgs.hyprland
             pkgs.libnotify
+            pkgs.swayosd
           ]}"
         ];
       };

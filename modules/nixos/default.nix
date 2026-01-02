@@ -9,12 +9,13 @@ inputs: {
 in {
   imports = [
     (import ./hyprland.nix inputs)
-    (import ./system.nix)
+    (import ./system.nix inputs)
     (import ./1password.nix)
     (import ./containers.nix)
     ./fido2.nix
     ./firewall.nix
     ./gaming.nix
     ./nvidia.nix
+    ./theme-switcher-sudo.nix
   ];
 }

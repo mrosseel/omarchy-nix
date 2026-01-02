@@ -3,15 +3,22 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  cfg = config.omarchy;
+  # Use seamless_boot.username if set, otherwise use main username
+  username = if cfg.seamless_boot.username != null
+             then cfg.seamless_boot.username
+             else cfg.username;
+in {
   # Allow the user to run nixos-rebuild without a password for theme switching
+  # Use wildcard to allow any nix store path version
   security.sudo.extraRules = [
     {
-      users = [ config.omarchy.seamless_boot.username or "mike" ];
+      users = [ username ];
       commands = [
         {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake /home/${config.omarchy.seamless_boot.username or "mike"}/nixos-config";
-          options = [ "NOPASSWD" ];
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = [ "NOPASSWD" "SETENV" ];
         }
       ];
     }

@@ -1,5 +1,6 @@
 {pkgs, config, lib}: let
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
+  hyprland-preview-share-picker = pkgs.callPackage ../packages/hyprland-preview-share-picker.nix {};
   cfg = config.omarchy;
 in {
   # Regular packages
@@ -22,25 +23,26 @@ in {
     gnome-themes-extra
     blueberry
     clipse
+    xdg-utils
 
     # Terminal emulators
     ghostty
     alacritty
     kitty
-    
-    # App launcher and productivity
-    walker
-    
+
     # Screenshot and recording
     satty
     wf-recorder
     gpu-screen-recorder
     slurp
-    hyprland-preview-share-picker
+    hyprland-preview-share-picker  # Custom package
     
     # Audio management
     wiremix
-    
+
+    # OSD (On-Screen Display)
+    swayosd
+
     # Background management
     swaybg
 

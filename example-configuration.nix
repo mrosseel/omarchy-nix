@@ -21,14 +21,15 @@
         {
           # Configure omarchy with seamless boot
           omarchy = {
+            username = "your-username";
             full_name = "Your Name";
             email_address = "your.email@example.com";
             theme = "tokyo-night";
-            
+
             # NEW: Seamless boot configuration
             seamless_boot = {
               enable = true;
-              username = "your-username";  # Required for auto-login
+              # username defaults to omarchy.username (can override if needed)
               plymouth_theme = "omarchy";  # Default
               silent_boot = true;          # Default
             };

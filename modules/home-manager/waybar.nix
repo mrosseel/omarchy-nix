@@ -12,44 +12,41 @@ in {
       source = ../../config/waybar;
       recursive = true;
     };
-    ".config/waybar/theme.css" = {
-      text = ''
-        @define-color background ${backgroundRgb};
-        * {
-          color: white; 
-        }
-
-        window#waybar {
-          background-color: ${backgroundRgb};
-        }
-      '';
-    };
   };
+
+  # Waybar reads theme from symlinked theme directory
+  xdg.configFile."waybar/theme.css".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/omarchy/current/theme/waybar.css";
 
   programs.waybar = {
     enable = true;
     settings = [
       {
+        reload_style_on_change = true;
         layer = "top";
         position = "top";
         spacing = 0;
         height = 26;
+
         modules-left = [
+          "custom/omarchy"
           "hyprland/workspaces"
         ];
+
         modules-center = [
           "clock"
+          "custom/update"
+          "custom/screenrecording-indicator"
         ];
+
         modules-right = [
-          # "custom/dropbox"
-          "tray"
+          "group/tray-expander"
           "bluetooth"
           "network"
-          "wireplumber"
+          "pulseaudio"
           "cpu"
-          "power-profiles-daemon"
           "battery"
         ];
+
         "hyprland/workspaces" = {
           on-click = "activate";
           format = "{icon}";
@@ -64,6 +61,7 @@ in {
             "7" = "7";
             "8" = "8";
             "9" = "9";
+            "10" = "0";
             active = "󱓻";
           };
           persistent-workspaces = {
@@ -74,107 +72,117 @@ in {
             "5" = [];
           };
         };
+
+        "custom/omarchy" = {
+          format = "<span font='omarchy'>\\ue900</span>";
+          on-click = "omarchy-menu";
+          on-click-right = "xdg-terminal-exec";
+          tooltip-format = "Omarchy Menu\n\nSuper + Alt + Space";
+        };
+
+        "custom/update" = {
+          format = "";
+          exec = "omarchy-update-available";
+          on-click = "omarchy-launch-floating-terminal-with-presentation omarchy-update";
+          tooltip-format = "Omarchy update available";
+          signal = 7;
+          interval = 21600; # Check every 6 hours
+        };
+
+        "custom/screenrecording-indicator" = {
+          on-click = "omarchy-cmd-screenrecord";
+          exec = "$HOME/.config/waybar/indicators/screen-recording.sh";
+          signal = 8;
+          return-type = "json";
+        };
+
         cpu = {
           interval = 5;
           format = "󰍛";
-          on-click = "ghostty -e btop";
+          on-click = "omarchy-launch-or-focus-tui btop";
           on-click-right = "alacritty";
         };
+
         clock = {
-          format = "{:%A %I:%M %p}";
+          format = "{:%A %H:%M}";
           format-alt = "{:%d %B W%V %Y}";
           tooltip = false;
+          on-click-right = "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select";
         };
+
         network = {
           format-icons = ["󰤯" "󰤟" "󰤢" "󰤥" "󰤨"];
           format = "{icon}";
           format-wifi = "{icon}";
           format-ethernet = "󰀂";
-          format-disconnected = "󰖪";
+          format-disconnected = "󰤮";
           tooltip-format-wifi = "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
           tooltip-format-ethernet = "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}";
           tooltip-format-disconnected = "Disconnected";
           interval = 3;
-          nospacing = 1;
-          on-click = "ghostty -e nmcli";
+          spacing = 1;
+          on-click = "omarchy-launch-wifi";
         };
+
         battery = {
-          interval = 5;
           format = "{capacity}% {icon}";
           format-discharging = "{icon}";
           format-charging = "{icon}";
           format-plugged = "";
           format-icons = {
-            charging = [
-              "󰢜"
-              "󰂆"
-              "󰂇"
-              "󰂈"
-              "󰢝"
-              "󰂉"
-              "󰢞"
-              "󰂊"
-              "󰂋"
-              "󰂅"
-            ];
-            default = [
-              "󰁺"
-              "󰁻"
-              "󰁼"
-              "󰁽"
-              "󰁾"
-              "󰁿"
-              "󰂀"
-              "󰂁"
-              "󰂂"
-              "󰁹"
-            ];
+            charging = ["󰢜" "󰂆" "󰂇" "󰂈" "󰢝" "󰂉" "󰢞" "󰂊" "󰂋" "󰂅"];
+            default = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
           };
-          format-full = "Charged ";
+          format-full = "󰂅";
           tooltip-format-discharging = "{power:>1.0f}W↓ {capacity}%";
           tooltip-format-charging = "{power:>1.0f}W↑ {capacity}%";
+          interval = 5;
+          on-click = "omarchy-menu power";
           states = {
             warning = 20;
             critical = 10;
           };
         };
+
         bluetooth = {
-          format = "󰂯";
+          format = "";
           format-disabled = "󰂲";
-          format-connected = "";
+          format-connected = "󰂱";
+          format-no-controller = "";
           tooltip-format = "Devices connected: {num_connections}";
-          on-click = "GTK_THEME=Adwaita-dark blueberry";
+          on-click = "omarchy-launch-bluetooth";
         };
-        wireplumber = {
-          # Changed from "pulseaudio"
-          "format" = "";
-          format-muted = "󰝟";
-          scroll-step = 5;
-          on-click = "GTK_THEME=Adwaita-dark pavucontrol";
-          tooltip-format = "Playing at {volume}%";
-          on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; # Updated command
-          max-volume = 150; # Optional: allow volume over 100%
-        };
-        tray = {spacing = 13;};
-        power-profiles-daemon = {
+
+        pulseaudio = {
           format = "{icon}";
-          tooltip-format = "Power profile: {profile}";
-          tooltip = true;
+          on-click = "omarchy-launch-or-focus-tui wiremix";
+          on-click-right = "pamixer -t";
+          tooltip-format = "Playing at {volume}%";
+          scroll-step = 5;
+          format-muted = "";
           format-icons = {
-            power-saver = "󰡳";
-            balanced = "󰊚";
-            performance = "󰡴";
+            default = ["" "" ""];
           };
         };
-        # "custom/dropbox" = {
-        #   format = "";
-        #   on-click = "nautilus ~/Dropbox";
-        #   exec = "dropbox-cli status";
-        #   return-type = "text";
-        #   interval = 5;
-        #   tooltip = true;
-        #   tooltip-format = "{}";
-        # };
+
+        "group/tray-expander" = {
+          orientation = "inherit";
+          drawer = {
+            transition-duration = 600;
+            children-class = "tray-group-item";
+          };
+          modules = ["custom/expand-icon" "tray"];
+        };
+
+        "custom/expand-icon" = {
+          format = "";
+          tooltip = false;
+        };
+
+        tray = {
+          icon-size = 12;
+          spacing = 17;
+        };
       }
     ];
   };

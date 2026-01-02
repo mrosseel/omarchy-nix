@@ -31,6 +31,7 @@ in {
     (import ./hyprland.nix inputs)
     (import ./hyprlock.nix inputs)
     (import ./swaybg.nix)
+    (import ./swayosd.nix)
     (import ./hypridle.nix)
     (import ./ghostty.nix)
     (import ./alacritty.nix)
@@ -53,6 +54,7 @@ in {
     ./desktop-entries.nix
     ./light-theme-monitor.nix
     ./battery-monitor.nix
+    (import ./theme-generator.nix inputs)
   ];
 
   home.file = {
@@ -72,8 +74,30 @@ in {
       source = ../../config/webapp-icons;
       recursive = true;
     };
+    ".config/elephant/menus" = {
+      source = ../../default/elephant;
+      recursive = true;
+    };
+    ".local/share/omarchy/default/walker/themes" = {
+      source = ../../default/walker/themes;
+      recursive = true;
+    };
+    ".config/walker/config.toml" = {
+      source = ../../config/walker/config.toml;
+    };
+    ".config/elephant/calc.toml" = {
+      source = ../../config/elephant/calc.toml;
+    };
+    ".config/elephant/desktopapplications.toml" = {
+      source = ../../config/elephant/desktopapplications.toml;
+    };
   };
   home.packages = packages.homePackages;
+
+  # Add omarchy bin directory to PATH
+  home.sessionPath = [
+    "$HOME/.local/share/omarchy/bin"
+  ];
 
   colorScheme = selectedColorScheme;
 

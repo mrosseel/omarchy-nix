@@ -35,12 +35,10 @@
       genericName = "Multimedia player";
       comment = "Play movies and songs";
       exec = "mpv --player-operation-mode=pseudo-gui -- %U";
-      tryExec = "mpv";
       icon = "mpv";
       type = "Application";
       terminal = false;
       categories = ["AudioVideo" "Audio" "Video" "Player" "TV"];
-      startupWMClass = "mpv";
       mimeType = [
         # Audio formats
         "audio/aac" "audio/x-aac" "audio/mp3" "audio/x-mp3" "audio/mpeg"
@@ -62,7 +60,6 @@
       exec = "typora --enable-wayland-ime %U";
       icon = "typora";
       type = "Application";
-      startupNotify = true;
       categories = ["Office" "WordProcessor"];
       mimeType = ["text/markdown" "text/x-markdown"];
     };

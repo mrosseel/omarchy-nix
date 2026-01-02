@@ -54,6 +54,7 @@ Add this flake to your NixOS configuration:
         {
           # Required configuration
           omarchy = {
+            username = "your-username";
             full_name = "Your Name";
             email_address = "your.email@example.com";
             theme = "tokyo-night";
@@ -83,7 +84,8 @@ sudo nixos-rebuild switch --flake .
 
 ```nix
 omarchy = {
-  full_name = "Your Name";        # Used for git configuration
+  username = "your-username";      # Your system username (required)
+  full_name = "Your Name";         # Used for git configuration
   email_address = "you@email.com"; # Used for git configuration
   theme = "tokyo-night";           # See available themes below
 };

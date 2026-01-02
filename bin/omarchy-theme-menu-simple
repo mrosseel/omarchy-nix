@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Simple theme menu without elephant
+# Lists all themes and lets user select one
+
+THEME_DIR="$HOME/.config/omarchy/themes"
+
+# Get all theme directories and format them nicely
+themes=$(find "$THEME_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | while read d; do basename "$d"; done | sort | sed 's/-/ /g; s/_/ /g; s/\b\(.\)/\u\1/g')
+
+# Show menu and get selection
+selected=$(echo "$themes" | omarchy-launch-walker --dmenu -p "Select Theme" --width 400)
+
+# Convert display name back to directory name
+if [[ -n "$selected" ]]; then
+  # Convert back to lowercase with hyphens
+  theme_name=$(echo "$selected" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+  omarchy-theme-set "$theme_name"
+fi

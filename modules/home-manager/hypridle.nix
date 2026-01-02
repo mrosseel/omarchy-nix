@@ -6,6 +6,7 @@
         lock_cmd = "omarchy-lock-screen";
         before_sleep_cmd = "loginctl lock-session";
         after_sleep_cmd = "hyprctl dispatch dpms on";
+        ignore_dbus_inhibit = false;
       };
       listener = [
         {

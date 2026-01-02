@@ -124,6 +124,11 @@ in {
   ];
   programs.direnv.enable = true;
 
+  # Set ELEPHANT_PROVIDER_DIR globally so walker can find providers when running elephant listproviders
+  environment.sessionVariables = {
+    ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
+  };
+
   # Elephant systemd service
   systemd.user.services.elephant = {
     description = "Elephant launcher backend";

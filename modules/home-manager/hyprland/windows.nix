@@ -108,8 +108,8 @@
 
     # Layer rules
     layerrule = [
-      # Remove 1px border around hyprshot screenshots
-      "noanim,selection"
+      # Disable animations for selection layer (screenshot tool)
+      "noanim, selection"
     ];
   };
 }

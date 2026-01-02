@@ -7,10 +7,7 @@
     nix-colors.url = "github:misterio77/nix-colors";
     # Fork with state handler nil pointer fix applied
     elephant.url = "git+file:///home/mike/dev/elephant-patched?ref=fix-state-handler";
-    walker = {
-      url = "github:abenz1267/walker/v2.10.0";
-      inputs.elephant.follows = "elephant";
-    };
+    walker.url = "github:abenz1267/walker/v2.12.2";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

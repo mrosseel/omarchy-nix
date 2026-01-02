@@ -1,5 +1,10 @@
 lib: {
   omarchyOptions = {
+    username = lib.mkOption {
+      type = lib.types.str;
+      description = "Main user's username (system login name)";
+      example = "alice";
+    };
     full_name = lib.mkOption {
       type = lib.types.str;
       description = "Main user's full name";
@@ -101,28 +106,30 @@ lib: {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";
       default = [
-        "SUPER, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
-        "SUPER SHIFT, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
-        "SUPER, C, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
-        "SUPER, E, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
-        "SUPER, Y, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
-        "SUPER SHIFT, G, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
-        "SUPER, X, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
-        "SUPER SHIFT, X, exec, $webapp=https://x.com/compose/post"
+        # Web apps - using plain SUPER for frequently used apps
+        "SUPER, A, ChatGPT, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
+        "SUPER SHIFT, A, Grok, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
+        "SUPER, C, Calendar, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
+        "SUPER, E, HEY Email, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
+        "SUPER, Y, YouTube, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
+        "SUPER SHIFT, G, WhatsApp, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
+        "SUPER, X, X (Twitter), exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
+        "SUPER SHIFT, X, Compose post on X, exec, $webapp=https://x.com/compose/post"
 
-        "SUPER, return, exec, $terminal"
-        "SUPER, F, exec, $fileManager"
-        "SUPER, B, exec, $browser"
-        "SUPER, M, exec, $music"
-        "SUPER, N, exec, $terminal -e nvim"
-        "SUPER, T, exec, $terminal -e btop"
-        "SUPER, D, exec, $terminal -e lazydocker"
-        "SUPER, G, exec, $messenger"
-        "SUPER, O, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
-        "SUPER, slash, exec, $passwordManager"
-        "SUPER, R, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
-        # Uncomment if gaming.enable = true:
-        # "SUPER, S, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
+        # Core apps - using SUPER SHIFT to avoid conflicts with tiling keys
+        "SUPER, RETURN, Terminal, exec, $terminal"
+        "SUPER SHIFT, F, File manager, exec, $fileManager"
+        "SUPER SHIFT, B, Web browser, exec, $browser"
+        "SUPER SHIFT, M, Music player, exec, $music"
+        "SUPER SHIFT, N, Neovim, exec, $terminal -e nvim"
+        "SUPER SHIFT, T, Top, exec, $terminal -e btop"
+        "SUPER SHIFT, D, Lazy Docker, exec, $terminal -e lazydocker"
+        "SUPER SHIFT, I, Messenger, exec, $messenger"
+        "SUPER SHIFT, O, Obsidian, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
+        "SUPER, SLASH, Password manager, exec, $passwordManager"
+        "SUPER, R, Calculator, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
+        # Uncomment if gaming.enable = true (changed from SUPER, S to avoid scratchpad conflict):
+        # "SUPER SHIFT, S, Steam, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
       ];
     };
     seamless_boot = lib.mkOption {
@@ -134,8 +141,9 @@ lib: {
             description = "Enable seamless boot experience with Plymouth and auto-login";
           };
           username = lib.mkOption {
-            type = lib.types.str;
-            description = "Username for auto-login. Set this when seamless_boot.enable = true.";
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "Username for auto-login. If not set, uses omarchy.username.";
             example = "dhh";
           };
           plymouth_theme = lib.mkOption {
