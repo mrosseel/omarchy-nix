@@ -1,11 +1,18 @@
 #!/bin/bash
-# Restart Walker app launcher
 
-echo "Restarting Walker..."
+# Detect if we're running as root
+if [[ $EUID -eq 0 ]]; then
+  # Get the owner of this script to determine which user to run as
+  SCRIPT_OWNER=$(stat -c '%U' "$0")
+  USER_UID=$(id -u "$SCRIPT_OWNER")
 
-# Kill walker
-pkill walker
-
-# Walker will be started on next SUPER+SPACE press
-notify-send "Walker Restarted" "App launcher daemon has been restarted" -u low
-echo "Walker restarted successfully"
+  # Restart services as the script owner
+  systemd-run --uid="$SCRIPT_OWNER" --setenv=XDG_RUNTIME_DIR="/run/user/$USER_UID" \
+    bash -c "
+      systemctl --user restart elephant.service
+      pkill -f 'walker --gapplication-service'
+    "
+else
+  systemctl --user restart elephant.service
+  pkill -f "walker --gapplication-service"
+fi
