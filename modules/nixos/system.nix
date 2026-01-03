@@ -38,6 +38,7 @@ inputs: {
     postFixup = ''
       wrapProgram $out/bin/elephant \
         --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [
+          bash  # Required for executing desktop entries (sh command)
           wl-clipboard
           libqalculate
           imagemagick
