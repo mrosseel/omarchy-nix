@@ -46,6 +46,11 @@ inputs: {
     '';
   };
 in {
+  # Create /bin/bash symlink for Omarchy script compatibility
+  systemd.tmpfiles.rules = [
+    "L+ /bin/bash - - - - ${pkgs.bash}/bin/bash"
+  ];
+
   security.rtkit.enable = true;
   services.pulseaudio.enable = false;
   services.pipewire = {
