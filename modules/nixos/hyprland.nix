@@ -6,7 +6,7 @@ inputs: {
 }: let
   cfg = config.omarchy;
 
-  # Custom desktop file that uses start-hyprland wrapper instead of Hyprland directly
+  # Custom desktop file that uses start-hyprland wrapper
   hyprland-uwsm-fixed = pkgs.makeDesktopItem {
     name = "hyprland-uwsm";
     desktopName = "Hyprland (UWSM)";

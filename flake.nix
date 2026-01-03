@@ -2,11 +2,10 @@
   description = "Omarchy - Base configuration flake";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # Pin to v0.52.2 to match Omarchy (Arch Linux stable)
-    hyprland.url = "github:hyprwm/Hyprland/v0.52.2";
+    # Use v0.53.0+ for start-hyprland script support
+    hyprland.url = "github:hyprwm/Hyprland/v0.53.0";
     nix-colors.url = "github:misterio77/nix-colors";
-    # Fork with state handler nil pointer fix applied
-    elephant.url = "git+file:///home/mike/dev/elephant-patched?ref=fix-state-handler";
+    elephant.url = "github:abenz1267/elephant";
     walker.url = "github:abenz1267/walker/v2.12.2";
     home-manager = {
       url = "github:nix-community/home-manager";

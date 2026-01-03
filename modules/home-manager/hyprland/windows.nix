@@ -109,7 +109,7 @@
     # Layer rules
     layerrule = [
       # Disable animations for selection layer (screenshot tool)
-      "noanim, selection"
+      "no_anim on, match:namespace selection"
     ];
   };
 }

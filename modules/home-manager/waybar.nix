@@ -145,7 +145,7 @@ in {
         };
 
         bluetooth = {
-          format = "";
+          format = "󰂯";
           format-disabled = "󰂲";
           format-connected = "󰂱";
           format-no-controller = "";

@@ -1,10 +1,5 @@
 #!/bin/bash
-# Restart Bluetooth service
 
-echo "Restarting Bluetooth..."
-
-# Restart bluetooth systemd service
-systemctl --user restart bluetoothd 2>/dev/null || sudo systemctl restart bluetooth
-
-notify-send "Bluetooth Restarted" "Bluetooth service has been restarted" -u low -i bluetooth
-echo "Bluetooth restarted successfully"
+echo -e "Unblocking bluetooth...\n"
+rfkill unblock bluetooth
+rfkill list bluetooth
