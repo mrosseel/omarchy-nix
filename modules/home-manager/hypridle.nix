@@ -7,6 +7,7 @@
         before_sleep_cmd = "loginctl lock-session";
         after_sleep_cmd = "hyprctl dispatch dpms on";
         ignore_dbus_inhibit = false;
+        inhibit_sleep = 3; # wait until screen is locked before sleep
       };
       listener = [
         {
@@ -14,7 +15,7 @@
           on-timeout = "pidof hyprlock || omarchy-launch-screensaver";
         }
         {
-          timeout = 300; # 5 minutes
+          timeout = 151; # just after screensaver starts
           on-timeout = "loginctl lock-session";
         }
         {
