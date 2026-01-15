@@ -35,7 +35,8 @@
 #pulseaudio,
 #custom-omarchy,
 #custom-screenrecording-indicator,
-#custom-update {
+#custom-update,
+#custom-voxtype {
   min-width: 12px;
   margin: 0 7.5px;
 }
@@ -79,5 +80,9 @@ tooltip {
 }
 
 #custom-screenrecording-indicator.active {
+  color: #a55555;
+}
+
+#custom-voxtype.recording {
   color: #a55555;
 }

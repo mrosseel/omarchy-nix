@@ -1,8 +1,10 @@
 inputs: {
   config,
   pkgs,
+  lib,
   ...
 }: let
+  cfg = config.omarchy;
   palette = config.colorScheme.palette;
   convert = inputs.nix-colors.lib.conversions.hexToRGBString;
   backgroundRgb = "rgb(${convert ", " palette.base00})";
@@ -35,6 +37,9 @@ in {
         modules-center = [
           "clock"
           "custom/update"
+        ]
+        ++ lib.optionals cfg.voxtype.enable [ "custom/voxtype" ]
+        ++ [
           "custom/screenrecording-indicator"
         ];
 
@@ -96,6 +101,20 @@ in {
           return-type = "json";
         };
 
+        "custom/voxtype" = lib.mkIf cfg.voxtype.enable {
+          exec = "omarchy-voxtype-status";
+          return-type = "json";
+          format = "{icon}";
+          format-icons = {
+            idle = "";
+            recording = "󰍬";
+            transcribing = "󰔟";
+          };
+          tooltip = true;
+          on-click = "omarchy-voxtype-model";
+          on-click-right = "omarchy-voxtype-config";
+        };
+
         cpu = {
           interval = 5;
           format = "󰍛";
@@ -104,8 +123,8 @@ in {
         };
 
         clock = {
-          format = "{:%A %H:%M}";
-          format-alt = "{:%d %B W%V %Y}";
+          format = "{:L%A %H:%M}";
+          format-alt = "{:L%d %B W%V %Y}";
           tooltip = false;
           on-click-right = "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select";
         };
@@ -145,7 +164,8 @@ in {
         };
 
         bluetooth = {
-          format = "󰂯";
+          format = "";
+          format-off = "󰂲";
           format-disabled = "󰂲";
           format-connected = "󰂱";
           format-no-controller = "";
@@ -155,12 +175,13 @@ in {
 
         pulseaudio = {
           format = "{icon}";
-          on-click = "omarchy-launch-or-focus-tui wiremix";
+          on-click = "omarchy-launch-audio";
           on-click-right = "pamixer -t";
           tooltip-format = "Playing at {volume}%";
           scroll-step = 5;
           format-muted = "";
           format-icons = {
+            headphone = "";
             default = ["" "" ""];
           };
         };
@@ -175,8 +196,12 @@ in {
         };
 
         "custom/expand-icon" = {
-          format = "";
+          format = "";
           tooltip = false;
+          on-scroll-up = "";
+          on-scroll-down = "";
+          on-scroll-left = "";
+          on-scroll-right = "";
         };
 
         tray = {
