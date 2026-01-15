@@ -249,5 +249,18 @@ lib: {
       default = {};
       description = "Firewall and security configuration";
     };
+    voxtype = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable Voxtype voice dictation support";
+          };
+        };
+      };
+      default = {};
+      description = "Voxtype voice dictation configuration";
+    };
   };
 }

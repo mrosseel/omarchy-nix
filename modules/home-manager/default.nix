@@ -54,6 +54,8 @@ in {
     ./desktop-entries.nix
     ./light-theme-monitor.nix
     ./battery-monitor.nix
+    ./voxtype.nix
+    ./fonts.nix
     (import ./theme-generator.nix inputs)
   ];
 

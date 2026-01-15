@@ -1,6 +1,7 @@
 {pkgs, config, lib}: let
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
   hyprland-preview-share-picker = pkgs.callPackage ../packages/hyprland-preview-share-picker.nix {};
+  voxtype = pkgs.callPackage ../packages/voxtype.nix {};
   cfg = config.omarchy;
 in {
   # Regular packages
@@ -66,6 +67,7 @@ in {
     fastfetch
     gum
     bluetui
+    impala
     inxi
 
     # Screensaver
@@ -91,6 +93,10 @@ in {
   ]
   ++ lib.optionals cfg.office_suite.enable [
     libreoffice-fresh
+  ]
+  ++ lib.optionals cfg.voxtype.enable [
+    voxtype
+    wtype
   ]
   ++ [
     # Can't find this in nixpkgs!

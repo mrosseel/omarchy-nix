@@ -10,9 +10,18 @@
 
   # Convert binding lists to extraConfig strings
   mkBindd = bindings: lib.concatMapStringsSep "\n" (binding: "bindd = ${binding}") bindings;
+  mkBinddr = bindings: lib.concatMapStringsSep "\n" (binding: "binddr = ${binding}") bindings;
   mkBindeld = bindings: lib.concatMapStringsSep "\n" (binding: "bindeld = ${binding}") bindings;
   mkBindld = bindings: lib.concatMapStringsSep "\n" (binding: "bindld = ${binding}") bindings;
   mkBindmd = bindings: lib.concatMapStringsSep "\n" (binding: "bindmd = ${binding}") bindings;
+
+  # Dictation bindings (only when voxtype is enabled)
+  dictationStartBindings = lib.optionals cfg.voxtype.enable [
+    "SUPER CTRL, X, Start dictation, exec, voxtype record start"
+  ];
+  dictationStopBindings = lib.optionals cfg.voxtype.enable [
+    "SUPER CTRL, X, Stop dictation, exec, voxtype record stop"
+  ];
 
   # Main descriptive bindings
   mainBindings = [
@@ -237,6 +246,10 @@ in {
 
       # Main descriptive bindings
       ${mkBindd mainBindings}
+
+      # Dictation bindings (hold to record)
+      ${mkBindd dictationStartBindings}
+      ${mkBinddr dictationStopBindings}
 
       # Mouse bindings
       ${mkBindmd mouseBindings}
