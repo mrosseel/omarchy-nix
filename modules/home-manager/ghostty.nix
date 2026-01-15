@@ -22,6 +22,9 @@ in {
       keybind = [
         "ctrl+k=reset"
       ];
+
+      # Disable "potentially unsafe paste" warning
+      clipboard-paste-protection = false;
     };
     themes = {
       omarchy = {
