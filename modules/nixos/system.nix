@@ -53,6 +53,10 @@ in {
   ];
 
   security.rtkit.enable = true;
+
+  # PAM configuration for hyprlock (required for authentication)
+  security.pam.services.hyprlock = {};
+
   services.pulseaudio.enable = false;
   services.pipewire = {
     enable = true;
@@ -166,5 +170,6 @@ in {
     noto-fonts
     noto-fonts-color-emoji
     nerd-fonts.caskaydia-mono
+    nerd-fonts.jetbrains-mono
   ];
 }
