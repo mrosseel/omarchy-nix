@@ -1,0 +1,14 @@
+#!/bin/bash
+# Launch Deskflow in XWayland mode (workaround for missing InputCapture portal support)
+# See: https://github.com/hyprwm/xdg-desktop-portal-hyprland/issues/259
+
+# Find the deskflow binary in the Nix store
+DESKFLOW_BIN=$(which deskflow 2>/dev/null || find /nix/store -path "*/bin/deskflow" -type f 2>/dev/null | grep -v wrapped | head -1)
+
+if [ -z "$DESKFLOW_BIN" ]; then
+  notify-send "Deskflow Error" "Deskflow binary not found. Is it installed?"
+  exit 1
+fi
+
+# Launch without Wayland support to avoid InputCapture portal requirement
+exec env -u WAYLAND_DISPLAY "$DESKFLOW_BIN" "$@"

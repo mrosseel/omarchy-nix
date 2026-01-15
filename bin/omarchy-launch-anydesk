@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Launch AnyDesk with X11 backend (AnyDesk doesn't support Wayland yet)
+GDK_BACKEND=x11 anydesk "$@"
