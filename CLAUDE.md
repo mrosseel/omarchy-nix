@@ -73,10 +73,16 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `2bc88ebf` (origin/dev branch)
+**Last synced Omarchy commit**: `53b8fc42` (origin/dev branch)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: December 29, 2025
-**Sync notes**: Synced with dev branch through commit 67. All critical fixes implemented:
+**Last sync date**: January 13, 2026
+**Sync notes**: Synced with Omarchy v3.3.3 (dev branch). Voxtype voice dictation ported:
+- ✅ Voxtype voice dictation feature (hold Super+Ctrl+X to dictate)
+- ✅ Custom voxtype package (v0.4.13) in packages/voxtype.nix
+- ✅ Optional feature via omarchy.voxtype.enable
+- ✅ Waybar integration with recording indicator
+- ✅ Scripts: omarchy-voxtype-status, omarchy-voxtype-config, omarchy-voxtype-model
+- ✅ Also added omarchy-cmd-present helper script
 - ✅ NoIdle cleanup after update (commit 65 - e44e9372)
 - ✅ Screensaver mouse tracking removed (commit 58 - d2ea6ad1)
 - ✅ Audio/Bluetooth keybindings added (commits 60-62 - dae89574, ca8f25fb, c59089e9)
