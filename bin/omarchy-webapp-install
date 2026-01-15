@@ -58,13 +58,11 @@ else
   exit 1
 fi
 
-# Determine exec command
+# Use custom exec if provided, otherwise default behavior
 if [[ -n $CUSTOM_EXEC ]]; then
   EXEC_COMMAND="$CUSTOM_EXEC"
 else
-  # Use the configured browser with --app flag
-  BROWSER="${OMARCHY_BROWSER:-chromium}"
-  EXEC_COMMAND="$BROWSER --app=$APP_URL --ozone-platform=wayland"
+  EXEC_COMMAND="omarchy-launch-webapp $APP_URL"
 fi
 
 # Create desktop entry
