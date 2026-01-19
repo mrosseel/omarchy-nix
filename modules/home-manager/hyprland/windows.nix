@@ -4,6 +4,14 @@
   ...
 }: {
   wayland.windowManager.hyprland.settings = {
+    # New windowrule syntax (hyprland 0.45+)
+    windowrule = [
+      # Fullscreen screensaver
+      "fullscreen on, match:class org.omarchy.screensaver"
+      "float on, match:class org.omarchy.screensaver"
+      "opacity 1 1, match:class org.omarchy.screensaver"
+    ];
+
     windowrulev2 = [
       # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
       "suppressevent maximize,class:.*"
@@ -94,13 +102,6 @@
       "float,class:(clipse)"
       "size 622 652,class:(clipse)"
       "stayfocused,class:(clipse)"
-
-      # Screensaver window rules
-      "fullscreen,class:^(org.omarchy.screensaver)$"
-      "float,class:^(org.omarchy.screensaver)$"
-      "noblur,class:^(org.omarchy.screensaver)$"
-      "noshadow,class:^(org.omarchy.screensaver)$"
-      "noborder,class:^(org.omarchy.screensaver)$"
 
       # Prevent idle/sleep for tagged windows (e.g., during updates)
       "idleinhibit always,tag:noidle"
