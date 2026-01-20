@@ -535,3 +535,8 @@ The flake expects to be used alongside a user's existing NixOS configuration wit
 - Utility scripts: `~/.local/share/omarchy/bin/`
 - Wallpapers: Deployed from `default/` directory
 - Theme detection: `~/.config/omarchy/theme/light.mode`
+
+## Design Decisions
+
+- **No blueman GUI**: Using bluetui TUI only. Re-add `services.blueman.enable = true` if needed.
+- **No waybar drawer**: Tray shows directly. Use `"group/tray-expander"` instead of `"tray"` to restore.

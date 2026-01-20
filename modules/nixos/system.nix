@@ -134,6 +134,10 @@ in {
   ];
   programs.direnv.enable = true;
 
+  # nix-ld for running unpatched binaries (e.g., Python venvs with native deps)
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [ stdenv.cc.cc ];
+
   # Set ELEPHANT_PROVIDER_DIR globally so walker can find providers when running elephant listproviders
   environment.sessionVariables = {
     ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
@@ -161,9 +165,14 @@ in {
   # Networking
   services.resolved.enable = true;
   hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
+
+  # Use iwd for wifi (required by impala TUI)
+  networking.wireless.iwd.enable = true;
   networking = {
-    networkmanager.enable = true;
+    networkmanager = {
+      enable = true;
+      wifi.backend = "iwd";  # Use iwd as wifi backend for NetworkManager
+    };
   };
 
   fonts.packages = with pkgs; [

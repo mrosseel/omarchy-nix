@@ -2,6 +2,7 @@
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
   hyprland-preview-share-picker = pkgs.callPackage ../packages/hyprland-preview-share-picker.nix {};
   voxtype = pkgs.callPackage ../packages/voxtype.nix {};
+  terminaltexteffects = pkgs.callPackage ../packages/terminaltexteffects.nix {};
   cfg = config.omarchy;
 in {
   # Regular packages
@@ -25,6 +26,7 @@ in {
     blueberry
     clipse
     xdg-utils
+    xdg-terminal-exec
 
     # Terminal emulators
     ghostty
@@ -70,8 +72,8 @@ in {
     impala
     inxi
 
-    # Screensaver
-    python3Packages.terminaltexteffects
+    # Screensaver (custom package for v0.14.2 with --random-effect support)
+    terminaltexteffects
 
     # GUIs
     (if cfg.browser == "brave" then brave else chromium)
