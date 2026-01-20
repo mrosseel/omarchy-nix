@@ -102,6 +102,12 @@ in {
       [Desktop Entry]
       Hidden=true
     '';
+    # Hide duplicate Brave entry (nixpkgs bug: NoDisplay=true is outside [Desktop Entry] section)
+    # https://github.com/NixOS/nixpkgs/issues/XXXXX
+    ".local/share/applications/com.brave.Browser.desktop".text = ''
+      [Desktop Entry]
+      Hidden=true
+    '';
     ".config/elephant/calc.toml" = {
       source = ../../config/elephant/calc.toml;
     };
