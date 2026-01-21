@@ -18,13 +18,18 @@ in {
       font-family = cfg.primary_font;
       font-size = 12;
 
-      theme = "omarchy";
+      # Load theme from runtime config (allows dynamic theme switching)
+      config-file = "?~/.config/omarchy/current/theme/ghostty.conf";
+
       keybind = [
         "ctrl+k=reset"
       ];
 
       # Disable "potentially unsafe paste" warning
       clipboard-paste-protection = false;
+
+      # Disable close confirmation dialog
+      confirm-close-surface = false;
     };
     themes = {
       omarchy = {

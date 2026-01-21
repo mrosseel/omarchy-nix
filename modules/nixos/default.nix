@@ -13,6 +13,7 @@ in {
     (import ./1password.nix)
     (import ./containers.nix)
     ./fido2.nix
+    ./browser-policies.nix
     ./firewall.nix
     ./gaming.nix
     ./nvidia.nix

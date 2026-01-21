@@ -1,0 +1,3 @@
+#!/bin/bash
+# Reload mako notification daemon configuration (used by Omarchy theme switching)
+makoctl reload

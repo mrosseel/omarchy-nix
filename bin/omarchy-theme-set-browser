@@ -1,42 +1,31 @@
 #!/bin/bash
-# Apply current theme to browser (Chromium/Brave)
+# Apply current theme color to browser (Chromium/Brave)
 
-# Get current theme from colorScheme
-THEME_NAME="${OMARCHY_THEME:-tokyo-night}"
+CHROMIUM_THEME=~/.config/omarchy/current/theme/chromium.theme
 
-echo "Applying theme to browser: $THEME_NAME"
+if omarchy-cmd-present chromium || omarchy-cmd-present helium-browser || omarchy-cmd-present brave; then
+  if [[ -f $CHROMIUM_THEME ]]; then
+    THEME_RGB_COLOR=$(<$CHROMIUM_THEME)
+    THEME_HEX_COLOR=$(printf '#%02x%02x%02x' ${THEME_RGB_COLOR//,/ })
+  else
+    # Use a default, neutral grey if theme doesn't have a color
+    THEME_RGB_COLOR="28,32,39"
+    THEME_HEX_COLOR="#1c2027"
+  fi
 
-# Determine browser config directory
-if pgrep -x "brave" >/dev/null || command -v brave >/dev/null 2>&1; then
-  BROWSER_DIR="$HOME/.config/BraveSoftware/Brave-Browser"
-  BROWSER_NAME="Brave"
-elif pgrep -x "chromium" >/dev/null || command -v chromium >/dev/null 2>&1; then
-  BROWSER_DIR="$HOME/.config/chromium"
-  BROWSER_NAME="Chromium"
-else
-  echo "No supported browser found (Chromium or Brave)"
-  exit 1
+  if omarchy-cmd-present chromium; then
+    rm -f /etc/chromium/policies/managed/color.json
+    chromium --no-startup-window --set-theme-color="$THEME_RGB_COLOR" >/dev/null
+
+    if [[ -f ~/.config/omarchy/current/theme/light.mode ]]; then
+      chromium --no-startup-window --set-color-scheme="light" >/dev/null
+    else
+      chromium --no-startup-window --set-color-scheme="dark" >/dev/null
+    fi
+  fi
+
+  if omarchy-cmd-present brave; then
+    echo "{\"BrowserThemeColor\": \"$THEME_HEX_COLOR\"}" | tee "/etc/brave/policies/managed/color.json" >/dev/null
+    brave --refresh-platform-policy --no-startup-window >/dev/null
+  fi
 fi
-
-# Create preferences directory if it doesn't exist
-PREFS_DIR="$BROWSER_DIR/Default"
-mkdir -p "$PREFS_DIR"
-
-# Determine if dark or light theme
-if [ -f "$HOME/.config/omarchy/theme/light.mode" ]; then
-  GTK_THEME="light"
-else
-  GTK_THEME="dark"
-fi
-
-echo "Setting $BROWSER_NAME to use $GTK_THEME mode"
-echo "Theme will apply on next browser restart"
-
-# The browser will automatically use GTK theme settings
-# which are already configured by the home-manager module
-
-notify-send "Browser Theme" "$BROWSER_NAME set to $GTK_THEME mode - restart browser to apply" -u low
-
-echo ""
-echo "Browser theme configured!"
-echo "Restart $BROWSER_NAME to see changes"

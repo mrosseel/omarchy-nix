@@ -28,14 +28,16 @@ if pgrep -x waybar >/dev/null; then
   omarchy-restart-waybar
 fi
 omarchy-restart-swayosd
-pkill -SIGUSR2 ghostty 2>/dev/null || true
-hyprctl reload
-pkill -SIGUSR2 btop 2>/dev/null || true
-makoctl reload
+omarchy-restart-terminal
+omarchy-restart-hyprctl
+omarchy-restart-btop
+omarchy-restart-mako
 
-# Change gnome, browser, vscode, cursor themes
+# Change app-specific themes
 omarchy-theme-set-gnome
 omarchy-theme-set-browser
 omarchy-theme-set-vscode
+omarchy-theme-set-cursor 2>/dev/null || true
+omarchy-theme-set-obsidian
 
 echo "Theme switched to $THEME_NAME"
