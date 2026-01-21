@@ -22,6 +22,9 @@ in {
       config-file = "?~/.config/omarchy/current/theme/ghostty.conf";
 
       keybind = [
+        # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)
+        "shift+insert=paste_from_clipboard"
+        "control+insert=copy_to_clipboard"
         "ctrl+k=reset"
       ];
 

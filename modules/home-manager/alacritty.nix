@@ -27,6 +27,12 @@ in {
         };
         opacity = 0.95;
       };
+
+      # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)
+      keyboard.bindings = [
+        { key = "Insert"; mods = "Shift"; action = "Paste"; }
+        { key = "Insert"; mods = "Control"; action = "Copy"; }
+      ];
     };
   };
 }

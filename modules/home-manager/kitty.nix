@@ -27,5 +27,11 @@ in {
       input_delay = 3;
       sync_to_monitor = "yes";
     };
+
+    keybindings = {
+      # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)
+      "ctrl+insert" = "copy_to_clipboard";
+      "shift+insert" = "paste_from_clipboard";
+    };
   };
 }
