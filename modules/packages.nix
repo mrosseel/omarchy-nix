@@ -80,7 +80,6 @@ in {
     obsidian
     vlc
     gnome-calculator
-    evince
     loupe
     krita
     xournalpp

@@ -57,6 +57,7 @@ in {
     ./voxtype.nix
     ./fonts.nix
     ./imv.nix
+    ./evince.nix
     (import ./theme-generator.nix inputs)
   ];
 
