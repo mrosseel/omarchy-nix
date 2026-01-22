@@ -11,7 +11,7 @@
       "hyprsunset"
       "systemctl --user start hyprpolkitagent"
       "wl-clip-persist --clipboard regular & clipse -listen"
-      "uwsm-app -- waybar"
+      "pkill -x waybar; uwsm-app -- waybar"
       "uwsm-app -- swayosd-server"
 
       # "dropbox-cli start"  # Uncomment to run Dropbox
