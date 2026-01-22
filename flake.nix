@@ -3,7 +3,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     # Use v0.53.0+ for start-hyprland script support
-    hyprland.url = "github:hyprwm/Hyprland/v0.53.0";
+    hyprland.url = "github:hyprwm/Hyprland/v0.53.1";
     nix-colors.url = "github:misterio77/nix-colors";
     elephant.url = "github:abenz1267/elephant";
     walker.url = "github:abenz1267/walker/v2.13.0";

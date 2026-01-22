@@ -1,0 +1,16 @@
+#!/bin/bash
+# Fix USB audio devices - resets card profiles to restore mic capture
+
+sleep 1
+
+# Find Elgato Wave cards and reset their profiles
+for card in $(pactl list cards short 2>/dev/null | grep -i elgato | awk '{print $2}'); do
+  pactl set-card-profile "$card" off 2>/dev/null
+  sleep 0.3
+  pactl set-card-profile "$card" output:analog-stereo+input:mono-fallback 2>/dev/null
+done
+
+sleep 0.5
+
+# Set Elgato as default source
+pactl set-default-source alsa_input.usb-Elgato_Systems_Elgato_Wave_3_BS33J1A02510-00.mono-fallback 2>/dev/null
