@@ -6,7 +6,7 @@
     hyprland.url = "github:hyprwm/Hyprland/v0.53.0";
     nix-colors.url = "github:misterio77/nix-colors";
     elephant.url = "github:abenz1267/elephant";
-    walker.url = "github:abenz1267/walker/v2.12.2";
+    walker.url = "github:abenz1267/walker/v2.13.0";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
