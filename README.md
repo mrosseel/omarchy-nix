@@ -1,20 +1,37 @@
-# Omarchy Nix
+<p align="center">
+  <img src="omanix.png" alt="Omanix" width="600">
+</p>
 
-Omarchy-nix is an opinionated NixOS flake for a beautiful, modern Hyprland desktop setup. It's a reimplementation of [DHH's Omarchy](https://github.com/basecamp/omarchy) using NixOS instead of Arch Linux, designed for modern web development and productivity.
+<h3 align="center">A faithful NixOS port of <a href="https://github.com/basecamp/omarchy">Omarchy</a></h3>
+
+---
+
+## Philosophy
+
+[Omarchy](https://omarchy.org) is DHH's beautiful, modern, and opinionated Hyprland desktop environment built for Arch Linux. Omanix brings that same experience to NixOS with one guiding principle: **stay as close to Omarchy as possible**.
+
+This is a port, not a reimagining. When Omarchy evolves, Omanix follows.
+
+- **Same look and feel** — identical themes, wallpapers, keybindings, and UI behavior
+- **Same scripts** — utility scripts ported with the same names and logic, adapted only where Nix demands it
+- **Same workflow** — if it works a certain way in Omarchy, it works the same way here
+- **Nix where it matters** — declarative configuration, reproducible builds, and atomic rollbacks without changing the user experience
+
+Deviations from Omarchy are made only when technically unavoidable and are always documented.
+
+---
 
 ## Features
 
-- 🎨 **13 beautiful themes** with automatic light/dark mode switching
-- 🚀 **Smart app launching** with focus-or-launch behavior
-- 🖥️ **3 terminal emulators** (ghostty, alacritty, kitty) - all fully themed
-- 🎮 **Gaming support** with Steam, Proton, GameMode, and controller support (optional)
-- 🖥️ **NVIDIA GPU support** with Wayland optimizations (optional)
-- 📱 **Webapp desktop integration** - turn websites into apps
-- 🔧 **20+ utility scripts** for common tasks
-- 🔋 **Battery monitoring** with low battery alerts
-- 🎯 **Launch-or-focus** for all major apps
-- 📦 **Docker database helpers** for quick dev setup
-- 🛠️ **Restart utilities** for WiFi, Bluetooth, Audio, etc.
+- 13 color themes with automatic light/dark mode switching
+- Hyprland Wayland compositor with smart focus-or-launch behavior
+- Ghostty, Alacritty, and Kitty terminal support (all fully themed)
+- Walker app launcher, waybar status bar, mako notifications
+- Neovim and VSCode integration
+- Docker, lazygit, and modern dev tooling
+- Webapp desktop integration — turn websites into apps
+- Optional NVIDIA, gaming, and FIDO2 support
+- Battery monitoring, restart utilities, and system helpers
 
 ---
 
@@ -52,7 +69,6 @@ Add this flake to your NixOS configuration:
         home-manager.nixosModules.home-manager
 
         {
-          # Required configuration
           omarchy = {
             username = "your-username";
             full_name = "Your Name";
@@ -60,7 +76,6 @@ Add this flake to your NixOS configuration:
             theme = "tokyo-night";
           };
 
-          # Home Manager integration
           home-manager.users.your-username = {
             imports = [ omarchy-nix.homeManagerModules.default ];
           };
@@ -84,10 +99,10 @@ sudo nixos-rebuild switch --flake .
 
 ```nix
 omarchy = {
-  username = "your-username";      # Your system username (required)
-  full_name = "Your Name";         # Used for git configuration
-  email_address = "you@email.com"; # Used for git configuration
-  theme = "tokyo-night";           # See available themes below
+  username = "your-username";
+  full_name = "Your Name";
+  email_address = "you@email.com";
+  theme = "tokyo-night";
 };
 ```
 
@@ -111,11 +126,10 @@ omarchy = {
 **Light theme auto-detection:**
 ```nix
 omarchy.light_theme_detection = {
-  enable = true;  # Default: true
+  enable = true;
   light_theme_mappings = {
     "tokyo-night" = "catppuccin-latte";
     "kanagawa" = "rose-pine-dawn";
-    # ... customize mappings
   };
 };
 ```
@@ -127,11 +141,11 @@ Create `~/.config/omarchy/theme/light.mode` to enable light mode temporarily.
 ```nix
 omarchy = {
   monitors = [
-    "eDP-1,preferred,auto,2"  # Laptop screen, 2x scaling
-    "HDMI-A-1,1920x1080,auto,1"  # External monitor, 1x scaling
+    "eDP-1,preferred,auto,2"
+    "HDMI-A-1,1920x1080,auto,1"
   ];
-  scale = 2;  # Default scale factor (1 or 2)
-  primary_font = "Liberation Sans 11";  # System font
+  scale = 2;
+  primary_font = "Liberation Sans 11";
 };
 ```
 
@@ -146,81 +160,51 @@ omarchy = {
 
 ### Optional Features
 
-#### Office Suite
-```nix
-omarchy.office_suite.enable = true;  # Installs LibreOffice
-```
-
 #### Gaming Support
 ```nix
-omarchy.gaming.enable = true;  # Enables Steam, Proton, GameMode
+omarchy.gaming.enable = true;
 ```
-
-Includes:
-- Steam with Proton for Windows games
-- Proton-GE for better compatibility
-- GameMode for performance optimizations
-- MangoHud for FPS overlay
-- 32-bit library support
-- Xbox, PlayStation, and Nintendo controller support
+Includes Steam, Proton-GE, GameMode, MangoHud, and controller support.
 
 #### NVIDIA GPU Support
 ```nix
-omarchy.nvidia.enable = true;  # Enables NVIDIA proprietary drivers
+omarchy.nvidia.enable = true;
 ```
-
-Includes:
-- NVIDIA proprietary drivers (stable branch)
-- Wayland + Hyprland optimizations
-- Hardware cursor fixes for Wayland
-- VA-API video acceleration support
-- GPU monitoring with nvtop
-
-**Note**: Only enable if you have an NVIDIA GPU. Disabled by default.
+Includes proprietary drivers, Wayland optimizations, and VA-API acceleration.
 
 #### Seamless Boot
 ```nix
 omarchy.seamless_boot = {
   enable = true;
-  username = "your-username";  # Required for auto-login
-  plymouth_theme = "omarchy";   # Boot splash theme
-  silent_boot = true;           # Hide kernel messages
+  username = "your-username";
+  plymouth_theme = "omarchy";
+  silent_boot = true;
 };
 ```
-
-Provides smooth boot-to-desktop with Plymouth splash screen and auto-login.
 
 #### FIDO2 Authentication
 ```nix
 omarchy.fido2_auth = {
   enable = true;
-  sudo_auth = true;           # Use FIDO2 for sudo
-  fingerprint_support = false; # Enable fingerprint reader
+  sudo_auth = true;
+  fingerprint_support = false;
 };
 ```
 
 #### Firewall Configuration
 ```nix
 omarchy.firewall = {
-  enable = true;               # Default: true
-  use_ufw = true;              # Use UFW for easier management
-  docker_protection = true;    # Protect Docker containers
-  allow_ssh = false;           # Allow SSH connections
-  allow_dev_ports = true;      # Allow ports 3000, 4000, 5000, 8000, 8080, 9000
-  allowed_tcp_ports = [];      # Additional TCP ports
-  allowed_udp_ports = [];      # Additional UDP ports
+  enable = true;
+  use_ufw = true;
+  docker_protection = true;
+  allow_ssh = false;
+  allow_dev_ports = true;
 };
 ```
 
-### Keybindings Customization
-
+#### Office Suite
 ```nix
-omarchy.quick_app_bindings = [
-  "SUPER, A, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
-  "SUPER, B, exec, $browser"
-  "SUPER, return, exec, $terminal"
-  # Add your custom bindings...
-];
+omarchy.office_suite.enable = true;
 ```
 
 ---
@@ -262,8 +246,6 @@ omarchy.quick_app_bindings = [
 - `CTRL + PRINT` - Full screen screenshot
 - `ALT + PRINT` - Color picker
 - `SUPER + PRINT` - Start/stop screen recording
-- `SUPER + SHIFT + PRINT` - Start/stop screen recording
-- `SUPER + CTRL + PRINT` - Start/stop screen recording
 
 ### System
 - `SUPER + ESCAPE` - Lock screen
@@ -271,8 +253,7 @@ omarchy.quick_app_bindings = [
 - `SUPER + CTRL + ESCAPE` - Reboot
 - `SUPER + SHIFT + CTRL + ESCAPE` - Shutdown
 - `SUPER + K` - Show keybindings
-- `SUPER + SHIFT + K` - Open documentation
-- `SUPER + L` - Learn menu (quick docs access)
+- `SUPER + L` - Learn menu
 - `SUPER + CTRL + SPACE` - Next background
 - `SUPER + SHIFT + SPACE` - Toggle waybar
 
@@ -282,326 +263,60 @@ omarchy.quick_app_bindings = [
 
 All scripts are available in `~/.local/share/omarchy/bin/`:
 
-### Restart Utilities
-Quick fixes without rebooting:
 ```bash
-omarchy-restart-wifi       # Restart WiFi connection
-omarchy-restart-bluetooth  # Restart Bluetooth
-omarchy-restart-pipewire   # Restart audio system
-omarchy-restart-waybar     # Restart status bar
-omarchy-restart-walker     # Restart app launcher
-```
+# Restart utilities
+omarchy-restart-wifi
+omarchy-restart-bluetooth
+omarchy-restart-pipewire
+omarchy-restart-waybar
+omarchy-restart-walker
 
-### Webapp Management
-```bash
-# Install a webapp as desktop app
+# Webapp management
 omarchy-webapp-install Gmail https://mail.google.com <icon-url>
-
-# Remove installed webapps
-omarchy-webapp-remove Gmail Notion
-
-# Launch webapps with focus-or-launch
+omarchy-webapp-remove Gmail
 omarchy-launch-or-focus-webapp gmail https://mail.google.com
-```
 
-### Development Tools
-```bash
-# Quick database setup with Docker
-omarchy-docker-dbs postgres redis    # Install PostgreSQL & Redis
-omarchy-docker-dbs mysql             # Install MySQL
-omarchy-docker-dbs mongodb           # Install MongoDB
+# Docker databases
+omarchy-docker-dbs postgres redis mysql mongodb
 
-# Databases available:
-# mysql, postgres, mariadb, redis, mongodb, mssql
-```
-
-### System Utilities
-```bash
-# Audio device switching
-omarchy-audio-switch  # Cycle through audio outputs
-
-# Screen recording (GPU accelerated)
-omarchy-screenrecord  # Toggle recording on/off
-
-# Battery monitoring (runs automatically)
-omarchy-battery-monitor  # Low battery notifications
-
-# Launch or focus apps
-omarchy-launch-or-focus obsidian "obsidian --disable-gpu"
-omarchy-launch-or-focus firefox firefox
-```
-
-### Theme & Display
-```bash
-# Background switcher (for current theme)
+# Theme & display
 omarchy-bg-next
-
-# Theme picker
 omarchy-theme-picker
-
-# Light/dark mode toggle
 omarchy-toggle-light-mode
-
-# Apply current theme to browser
-omarchy-theme-set-browser
-
-# Show keybindings
 omarchy-show-keybindings
 ```
-
-### Setup & Configuration
-```bash
-# Interactive timezone selector
-omarchy-tz-select
-
-# Tailscale VPN setup helper
-omarchy-install-tailscale
-
-# FIDO2 fingerprint setup
-omarchy-setup-fingerprint
-
-# Open documentation in browser
-omarchy-launch-docs
-
-# Interactive learning menu
-omarchy-learn-menu  # Quick access to all docs (Hyprland, NixOS, VSCode, etc.)
-```
-
-### Learning & Help
-
-The **Learn menu** (`SUPER + L`) provides quick access to documentation for the entire stack:
-- **Keybindings** - Interactive searchable keybinding reference
-- **Omarchy-nix Manual** - This README with full configuration guide
-- **Hyprland Wiki** - Window manager documentation
-- **NixOS Manual** - NixOS system configuration
-- **Home Manager** - User environment management
-- **VSCode Shortcuts** - Editor keybindings
-- **Bash Cheatsheet** - Shell scripting reference
-- **Nix Language** - Nix expression language guide
-
-All documentation opens as webapps in your browser for easy reference while working.
-```
-
----
-
-## Tips & Tricks
-
-### Install Custom Webapps
-
-Turn any website into a desktop app:
-
-```bash
-omarchy-webapp-install Notion https://notion.so \
-  https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png
-
-omarchy-webapp-install Figma https://figma.com \
-  https://static.figma.com/app/icon/1/favicon.png
-```
-
-Then launch with `SUPER + SPACE` → type app name.
-
-### Quick Database Setup for Development
-
-```bash
-# Start PostgreSQL and Redis for your Rails app
-omarchy-docker-dbs postgres redis
-
-# Check running databases
-docker ps
-
-# Connect to PostgreSQL
-psql -h localhost -U postgres
-```
-
-### Fix Common Issues
-
-```bash
-# WiFi not connecting?
-omarchy-restart-wifi
-
-# No audio?
-omarchy-restart-pipewire
-
-# Waybar frozen?
-omarchy-restart-waybar
-
-# Bluetooth device not pairing?
-omarchy-restart-bluetooth
-```
-
-### Gaming Setup
-
-Enable gaming support in your config:
-```nix
-omarchy.gaming.enable = true;
-```
-
-Then:
-1. Rebuild: `sudo nixos-rebuild switch --flake .`
-2. Launch Steam
-3. Enable Proton: Settings → Compatibility → Enable Steam Play for all titles
-4. Install and play games!
-
-**Pro tip**: Add MangoHud overlay to see FPS:
-```
-mangohud %command%
-# (in Steam game launch options)
-```
-
-### Battery Optimization
-
-The battery monitor runs automatically and notifies you:
-- At 20% battery (low warning)
-- At 10% battery (critical alert)
-
-Customize thresholds by editing `~/.local/share/omarchy/bin/omarchy-battery-monitor`.
-
-### Light Mode Switching
-
-Toggle between light and dark themes:
-```bash
-omarchy-toggle-light-mode
-```
-
-Or create the file manually:
-```bash
-# Enable light mode
-mkdir -p ~/.config/omarchy/theme
-touch ~/.config/omarchy/theme/light.mode
-
-# Disable light mode
-rm ~/.config/omarchy/theme/light.mode
-```
-
----
-
-## Included Applications
-
-### Essential Tools
-- **Terminals**: ghostty, alacritty, kitty
-- **Browser**: chromium or brave (configurable)
-- **File Manager**: Nautilus
-- **Calculator**: gnome-calculator
-- **PDF Viewer**: evince
-- **Image Viewer**: loupe
-
-### Creative & Productivity
-- **Image Editor**: krita
-- **PDF Annotation**: xournalpp
-- **Notes**: Obsidian
-- **Office Suite**: LibreOffice (optional)
-
-### Development
-- **Editors**: VSCode, Neovim
-- **Version Control**: git, lazygit, GitHub Desktop
-- **Containers**: Docker, docker-compose, lazydocker
-- **Shell**: zsh with starship prompt, fzf, zoxide
-
-### Media & Production
-- **Music**: Spotify
-- **Video**: VLC, mpv
-- **Screen Recording**: OBS Studio, gpu-screen-recorder
-- **Video Editing**: Kdenlive
-- **Screenshot Editing**: satty
-
-### Communication
-- **Password Manager**: 1Password
-- **Messaging**: Signal Desktop
-- **File Sharing**: LocalSend (local network file transfer)
-- **Webapps**: Custom installation support
-
-### System Monitoring & Utilities
-- **Process Monitor**: btop
-- **Audio Mixer**: wiremix, pavucontrol
-- **Bluetooth**: bluetui
-- **System Info**: inxi
-- **Clipboard**: clipse
-- **Status Bar**: waybar
-- **App Launcher**: walker
-- **Shell Prompts**: gum (interactive TUI components)
-
----
-
-## Comparison with Original Omarchy
-
-### What's Included ✅
-- All essential desktop applications
-- Complete theming system
-- Launch-or-focus behavior
-- Webapp integration
-- Battery monitoring
-- Restart utilities
-- Gaming support
-- Development tools
-
-### NixOS Advantages ✅
-- Declarative configuration
-- Atomic upgrades
-- Rollback capability
-- Reproducible builds
-- No package conflicts
-
-### Different Approach
-- **Original**: Runtime scripts modify configs
-- **Nix Port**: Declarative configuration rebuilds
-- **Original**: ~100+ utility scripts
-- **Nix Port**: 16 essential utilities (Nix handles the rest)
 
 ---
 
 ## Troubleshooting
 
-### Build Errors
-
 ```bash
 # Check flake syntax
 nix flake check
 
-# Evaluate modules
-nix eval .#nixosModules.default
-nix eval .#homeManagerModules.default
-```
+# Rebuild system
+sudo nixos-rebuild switch --flake .
 
-### Service Issues
-
-```bash
-# Check systemd services
-systemctl --user status omarchy-battery-monitor
-
-# Restart services
-systemctl --user restart omarchy-battery-monitor
-```
-
-### Theme Not Applying
-
-```bash
 # Rebuild home-manager
 home-manager switch --flake .
 
-# Check color scheme
-echo $colorScheme
+# Check systemd services
+systemctl --user status omarchy-battery-monitor
+
+# Common fixes
+omarchy-restart-wifi        # WiFi not connecting
+omarchy-restart-pipewire    # No audio
+omarchy-restart-waybar      # Waybar frozen
+omarchy-restart-bluetooth   # Bluetooth issues
 ```
-
----
-
-## Contributing
-
-This project welcomes contributions! Feel free to:
-- Report issues
-- Submit pull requests
-- Suggest new features
-- Share your configuration
 
 ---
 
 ## Credits
 
-- Original concept by [DHH's Omarchy](https://github.com/basecamp/omarchy)
+- Original [Omarchy](https://github.com/basecamp/omarchy) by [DHH](https://github.com/dhh)
 - NixOS port by [henrysipp](https://github.com/henrysipp)
-- Additional features and enhancements contributed by the community
-
----
 
 ## License
 
-MIT License - Same as the original Omarchy project.
+MIT License — same as the original Omarchy project.
