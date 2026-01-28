@@ -12,8 +12,8 @@ Omarchy-nix is a NixOS flake that provides an opinionated Hyprland desktop setup
 
 **CRITICAL**: This is an **active porting project**, not a standalone implementation. We are porting the original Omarchy (Arch Linux) to Omarchy-Nix (NixOS).
 
-**Original Omarchy location**: `/home/mike/dev/omarchy`
-**Omarchy-Nix location**: `/home/mike/dev/omarchy-nix`
+**Original Omarchy location**: `../omarchy`
+**Omarchy-Nix location**: `omarchy-nix`
 
 **Both projects must remain in scope during development work.** Always keep the original Omarchy repository accessible for reference, comparison, and asset copying.
 
@@ -65,7 +65,7 @@ These principles are **mandatory** and override general best practices when ther
 
 When implementing features:
 
-1. **Check Omarchy first**: Look at the original implementation in `/home/mike/dev/omarchy`
+1. **Check Omarchy first**: Look at the original implementation in `../omarchy`
 2. **Understand the behavior**: What does it do? How does it work?
 3. **Port faithfully**: Adapt for Nix while preserving behavior
 4. **Test against Omarchy**: Does it behave the same way?
@@ -95,7 +95,7 @@ When implementing features:
 
 **To check current Omarchy status**:
 ```bash
-cd /home/mike/dev/omarchy
+cd ../omarchy
 git log --oneline -20
 ```
 
@@ -105,7 +105,7 @@ When the user asks to **"sync with Omarchy"**, **"update from Omarchy"**, or **"
 
 1. **Check commits since last sync**:
    ```bash
-   cd /home/mike/dev/omarchy
+   cd ../omarchy
    git pull origin main
    git log --oneline <LAST_SYNCED_COMMIT>..HEAD
    ```
@@ -316,7 +316,7 @@ alejandra .
 ### Development Workflow
 
 **Porting a feature from Omarchy:**
-1. **Check Omarchy first**: Locate the feature in `/home/mike/dev/omarchy`
+1. **Check Omarchy first**: Locate the feature in `../omarchy`
    - Scripts: Check `omarchy/bin/`
    - Configs: Check `omarchy/config/`
    - Assets: Check `omarchy/default/` or `omarchy/config/`
@@ -402,10 +402,10 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
 
 ### Key Files for Common Modifications
 
-**ALWAYS check Omarchy first** at `/home/mike/dev/omarchy` before making changes.
+**ALWAYS check Omarchy first** at `../omarchy` before making changes.
 
 - **Adding/porting scripts**:
-  - Omarchy: `/home/mike/dev/omarchy/bin/omarchy-*`
+  - Omarchy: `../omarchy/bin/omarchy-*`
   - Omarchy-Nix: `bin/omarchy-*` (deployed to `~/.local/share/omarchy/bin/`)
 
 - **Adding new packages**:
@@ -413,14 +413,14 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
   - Omarchy-Nix: `modules/packages.nix` (add to `systemPackages` or `homePackages`)
 
 - **Adding/porting themes**:
-  - Omarchy: `/home/mike/dev/omarchy/config/theme/*/theme.conf`
+  - Omarchy: `../omarchy/config/theme/*/theme.conf`
   - Omarchy-Nix:
     1. Add base16 scheme to `modules/custom-base16-schemes.nix` (if not in nix-colors)
     2. Map theme name in `modules/themes.nix`
     3. Add to enum in `config.nix` (line 17-36)
 
 - **Modifying keybindings**:
-  - Omarchy: `/home/mike/dev/omarchy/config/hypr/hyprland.conf` (check `bind=` lines)
+  - Omarchy: `../omarchy/config/hypr/hyprland.conf` (check `bind=` lines)
   - Omarchy-Nix: `modules/home-manager/hyprland/bindings.nix`
 
 - **Adding quick app shortcuts**:
@@ -428,7 +428,7 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
   - Omarchy-Nix: Modify `quick_app_bindings` default in `config.nix` or override in user configuration
 
 - **Adding backgrounds/assets**:
-  - Omarchy: `/home/mike/dev/omarchy/default/` (backgrounds, icons, etc.)
+  - Omarchy: `../omarchy/default/` (backgrounds, icons, etc.)
   - Omarchy-Nix: `default/` (copy from Omarchy) or `config/` subdirectories
 
 - **Adding new applications**:

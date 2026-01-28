@@ -9,6 +9,37 @@
   inactiveBorder = hexToRgba config.colorScheme.palette.base09 "aa";
   activeBorder = hexToRgba config.colorScheme.palette.base0D "aa";
 in {
+  wayland.windowManager.hyprland.extraConfig = ''
+    group {
+      col.border_active = ${activeBorder}
+      col.border_inactive = ${inactiveBorder}
+      col.border_locked_active = -1
+      col.border_locked_inactive = -1
+
+      groupbar {
+        font_size = 12
+        font_family = monospace
+        font_weight_active = ultraheavy
+        font_weight_inactive = normal
+
+        indicator_height = 0
+        indicator_gap = 5
+        height = 22
+        gaps_in = 5
+        gaps_out = 0
+
+        text_color = rgb(ffffff)
+        text_color_inactive = rgba(ffffff90)
+        col.active = rgba(00000040)
+        col.inactive = rgba(00000020)
+
+        gradients = true
+        gradient_rounding = 0
+        gradient_round_only_edges = false
+      }
+    }
+  '';
+
   wayland.windowManager.hyprland.settings = {
     general = {
       gaps_in = 5;

@@ -1,9 +1,9 @@
-{...}: {
+{config, ...}: let
+  cfg = config.omarchy;
+in {
   programs = {
     _1password.enable = true;
     _1password-gui.enable = true;
-
-    # TODO: Dynamically get user names
-    _1password-gui.polkitPolicyOwners = ["henry"];
+    _1password-gui.polkitPolicyOwners = [cfg.username];
   };
 }

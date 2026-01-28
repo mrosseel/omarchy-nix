@@ -45,7 +45,7 @@ done
 
 Check `flake.nix` for pinned versions:
 ```bash
-grep -E "url.*v[0-9]" /home/mike/dev/omacom/omarchy-nix/flake.nix
+grep -E "url.*v[0-9]" flake.nix
 ```
 
 Current known pins:
