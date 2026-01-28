@@ -23,14 +23,14 @@ Deviations from Omarchy are made only when technically unavoidable and are alway
 
 ## Features
 
-- 13 color themes with automatic light/dark mode switching
+- 17 color themes with automatic light/dark mode switching
 - Hyprland Wayland compositor with smart focus-or-launch behavior
 - Ghostty, Alacritty, and Kitty terminal support (all fully themed)
 - Walker app launcher, waybar status bar, mako notifications
 - Neovim and VSCode integration
 - Docker, lazygit, and modern dev tooling
 - Webapp desktop integration — turn websites into apps
-- Optional NVIDIA, gaming, and FIDO2 support
+- Optional NVIDIA, gaming, FIDO2, and voxtype voice dictation support
 - Battery monitoring, restart utilities, and system helpers
 
 ---
@@ -38,7 +38,7 @@ Deviations from Omarchy are made only when technically unavoidable and are alway
 ## Quick Start
 
 ### Prerequisites
-1. Fresh [NixOS](https://nixos.org/) installation
+1. A [NixOS](https://nixos.org/) installation
 2. [Home Manager](https://github.com/nix-community/home-manager) configured
 
 ### Installation
@@ -51,7 +51,7 @@ Add this flake to your NixOS configuration:
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     omarchy-nix = {
-      url = "github:henrysipp/omarchy-nix";
+      url = "github:mrosseel/omarchy-nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
@@ -109,32 +109,42 @@ omarchy = {
 ### Theme Options
 
 **Available themes:**
-- `tokyo-night` (default) - Popular dark theme
-- `kanagawa` - Calm dark theme inspired by Japanese art
-- `everforest` - Comfortable green dark theme
-- `catppuccin` - Soothing pastel dark theme
-- `catppuccin-latte` - Light variant of Catppuccin
-- `rose-pine` - Soho vibes dark theme
-- `rose-pine-dawn` - Light variant
-- `rose-pine-moon` - Darker variant
-- `nord` - Arctic blue theme
-- `gruvbox` - Retro groove dark theme
-- `gruvbox-light` - Light variant
-- `flexoki-light` - Warm, analog-inspired light theme
-- `matte-black` - Ultra-dark minimalist theme
+- `tokyo-night` (default)
+- `kanagawa`
+- `everforest`
+- `catppuccin`
+- `catppuccin-latte` (light)
+- `rose-pine`
+- `rose-pine-dawn` (light)
+- `rose-pine-moon`
+- `nord`
+- `gruvbox`
+- `gruvbox-light` (light)
+- `flexoki-light` (light)
+- `matte-black`
+- `ethereal`
+- `hackerman`
+- `osaka-jade`
+- `ristretto`
 
 **Light theme auto-detection:**
 ```nix
 omarchy.light_theme_detection = {
-  enable = true;
+  enable = true;  # default
   light_theme_mappings = {
     "tokyo-night" = "catppuccin-latte";
     "kanagawa" = "rose-pine-dawn";
+    "everforest" = "gruvbox-light";
+    "catppuccin" = "catppuccin-latte";
+    "rose-pine" = "rose-pine-dawn";
+    "rose-pine-moon" = "rose-pine-dawn";
+    "nord" = "gruvbox-light";
+    "gruvbox" = "gruvbox-light";
   };
 };
 ```
 
-Create `~/.config/omarchy/theme/light.mode` to enable light mode temporarily.
+Create `~/.config/omarchy/theme/light.mode` to switch to light mode.
 
 ### Display Configuration
 
@@ -164,13 +174,11 @@ omarchy = {
 ```nix
 omarchy.gaming.enable = true;
 ```
-Includes Steam, Proton-GE, GameMode, MangoHud, and controller support.
 
 #### NVIDIA GPU Support
 ```nix
 omarchy.nvidia.enable = true;
 ```
-Includes proprietary drivers, Wayland optimizations, and VA-API acceleration.
 
 #### Seamless Boot
 ```nix
@@ -191,16 +199,23 @@ omarchy.fido2_auth = {
 };
 ```
 
-#### Firewall Configuration
+#### Firewall
 ```nix
 omarchy.firewall = {
-  enable = true;
-  use_ufw = true;
+  enable = true;  # default
   docker_protection = true;
   allow_ssh = false;
   allow_dev_ports = true;
+  allowed_tcp_ports = [];
+  allowed_udp_ports = [];
 };
 ```
+
+#### Voice Dictation
+```nix
+omarchy.voxtype.enable = true;
+```
+Hold `SUPER + CTRL + X` to dictate.
 
 #### Office Suite
 ```nix
@@ -211,104 +226,82 @@ omarchy.office_suite.enable = true;
 
 ## Default Keybindings
 
-### Applications
-- `SUPER + SPACE` - App launcher (walker)
-- `SUPER + RETURN` - Terminal
-- `SUPER + B` - Browser
-- `SUPER + F` - File manager (Nautilus)
-- `SUPER + M` - Music (Spotify)
-- `SUPER + O` - Obsidian
-- `SUPER + /` - Password manager (1Password)
-- `SUPER + R` - Calculator
-- `SUPER + ;` - Audio device switcher
+### Menus & Launchers
+- `SUPER + SPACE` - App launcher (Walker)
+- `SUPER + ESCAPE` - System menu
+- `SUPER ALT + SPACE` - Omarchy menu
+- `SUPER CTRL + E` - Emoji picker
+- `SUPER + K` - Show keybindings
 
 ### Webapps (Focus-or-Launch)
 - `SUPER + A` - ChatGPT
-- `SUPER + SHIFT + A` - Grok
+- `SUPER SHIFT + A` - Grok
 - `SUPER + C` - Calendar (Hey)
 - `SUPER + E` - Email (Hey)
 - `SUPER + Y` - YouTube
 - `SUPER + X` - X/Twitter
-- `SUPER + SHIFT + G` - WhatsApp Web
+- `SUPER SHIFT + X` - Compose post on X
+- `SUPER SHIFT + G` - WhatsApp
+
+### Core Apps
+- `SUPER + RETURN` - Terminal
+- `SUPER SHIFT + B` - Browser
+- `SUPER SHIFT + F` - File manager
+- `SUPER SHIFT + M` - Music player
+- `SUPER SHIFT + N` - Neovim
+- `SUPER SHIFT + O` - Obsidian
+- `SUPER SHIFT + T` - btop
+- `SUPER SHIFT + D` - Lazy Docker
+- `SUPER SHIFT + I` - Messenger
+- `SUPER + /` - Password manager
+- `SUPER + R` - Calculator
 
 ### Window Management
 - `SUPER + W` - Close window
-- `SUPER + V` - Toggle floating
+- `SUPER + T` - Toggle floating/tiling
 - `SUPER + J` - Toggle split
+- `SUPER + F` - Full screen
+- `SUPER CTRL + F` - Tiled full screen
+- `SUPER ALT + F` - Full width
+- `SUPER + O` - Pop window out (float & pin)
+- `SUPER + P` - Pseudo window
 - `SUPER + Arrow Keys` - Move focus
-- `SUPER + SHIFT + Arrow Keys` - Swap windows
-- `SUPER + 1-9` - Switch workspace
-- `SUPER + SHIFT + 1-9` - Move to workspace
+- `SUPER SHIFT + Arrow Keys` - Swap windows
+- `SUPER + 1-0` - Switch workspace
+- `SUPER SHIFT + 1-0` - Move to workspace
+- `SUPER + TAB` - Next workspace
+- `SUPER SHIFT + TAB` - Previous workspace
+- `SUPER + S` - Toggle scratchpad
+- `SUPER + G` - Toggle window grouping
+- `SUPER + BACKSPACE` - Toggle window transparency
+
+### Copy / Paste / Cut
+- `SUPER + C` - Universal copy
+- `SUPER + V` - Universal paste
+- `SUPER + X` - Universal cut
+- `SUPER CTRL + V` - Clipboard manager
 
 ### Screenshots & Recording
-- `PRINT` - Region screenshot (with satty editor)
-- `SHIFT + PRINT` - Window screenshot
-- `CTRL + PRINT` - Full screen screenshot
-- `ALT + PRINT` - Color picker
-- `SUPER + PRINT` - Start/stop screen recording
+- `PRINT` - Screenshot with editing (satty)
+- `SHIFT + PRINT` - Screenshot to clipboard
+- `ALT + PRINT` - Screen recording menu
+- `SUPER + PRINT` - Color picker
+
+### Notifications
+- `SUPER + ,` - Dismiss last notification
+- `SUPER SHIFT + ,` - Dismiss all notifications
+- `SUPER CTRL + ,` - Toggle notification silencing
+
+### Aesthetics
+- `SUPER SHIFT + SPACE` - Toggle waybar
+- `SUPER CTRL + SPACE` - Next background
+- `SUPER SHIFT CTRL + SPACE` - Theme menu
 
 ### System
-- `SUPER + ESCAPE` - Lock screen
-- `SUPER + SHIFT + ESCAPE` - Exit Hyprland
-- `SUPER + CTRL + ESCAPE` - Reboot
-- `SUPER + SHIFT + CTRL + ESCAPE` - Shutdown
-- `SUPER + K` - Show keybindings
-- `SUPER + L` - Learn menu
-- `SUPER + CTRL + SPACE` - Next background
-- `SUPER + SHIFT + SPACE` - Toggle waybar
-
----
-
-## Utility Scripts
-
-All scripts are available in `~/.local/share/omarchy/bin/`:
-
-```bash
-# Restart utilities
-omarchy-restart-wifi
-omarchy-restart-bluetooth
-omarchy-restart-pipewire
-omarchy-restart-waybar
-omarchy-restart-walker
-
-# Webapp management
-omarchy-webapp-install Gmail https://mail.google.com <icon-url>
-omarchy-webapp-remove Gmail
-omarchy-launch-or-focus-webapp gmail https://mail.google.com
-
-# Docker databases
-omarchy-docker-dbs postgres redis mysql mongodb
-
-# Theme & display
-omarchy-bg-next
-omarchy-theme-picker
-omarchy-toggle-light-mode
-omarchy-show-keybindings
-```
-
----
-
-## Troubleshooting
-
-```bash
-# Check flake syntax
-nix flake check
-
-# Rebuild system
-sudo nixos-rebuild switch --flake .
-
-# Rebuild home-manager
-home-manager switch --flake .
-
-# Check systemd services
-systemctl --user status omarchy-battery-monitor
-
-# Common fixes
-omarchy-restart-wifi        # WiFi not connecting
-omarchy-restart-pipewire    # No audio
-omarchy-restart-waybar      # Waybar frozen
-omarchy-restart-bluetooth   # Bluetooth issues
-```
+- `SUPER CTRL + A` - Audio controls
+- `SUPER CTRL + B` - Bluetooth controls
+- `SUPER CTRL + I` - Toggle idle lock
+- `SUPER CTRL + N` - Toggle nightlight
 
 ---
 
