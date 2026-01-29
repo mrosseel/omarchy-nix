@@ -7,15 +7,9 @@ inputs: {
   cfg = config.omarchy;
   packages = import ../packages.nix {inherit pkgs config lib;};
 
-  # Override elephant packages to disable PIE hardening for Go plugin compatibility
-  # See: https://github.com/NixOS/nixpkgs/issues/211951
-  elephantWithoutPie = inputs.elephant.packages.${pkgs.system}.elephant.overrideAttrs (old: {
-    hardeningDisable = (old.hardeningDisable or []) ++ [ "pie" ];
-  });
+  elephantPkg = inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant;
 
-  providersWithoutPie = inputs.elephant.packages.${pkgs.system}.elephant-providers.overrideAttrs (old: {
-    hardeningDisable = (old.hardeningDisable or []) ++ [ "pie" ];
-  });
+  providersPkg = inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant-providers;
 
   elephantCombined = pkgs.stdenv.mkDerivation {
     pname = "elephant-with-providers";
@@ -23,16 +17,16 @@ inputs: {
     dontUnpack = true;
 
     buildInputs = [
-      elephantWithoutPie
-      providersWithoutPie
+      elephantPkg
+      providersPkg
     ];
 
     nativeBuildInputs = with pkgs; [ makeWrapper ];
 
     installPhase = ''
       mkdir -p $out/bin $out/lib/elephant
-      cp ${elephantWithoutPie}/bin/elephant $out/bin/
-      cp -r ${providersWithoutPie}/lib/elephant/providers $out/lib/elephant/
+      cp ${elephantPkg}/bin/elephant $out/bin/
+      cp -r ${providersPkg}/lib/elephant/providers $out/lib/elephant/
     '';
 
     postFixup = ''
@@ -129,7 +123,7 @@ in {
 
   # Install packages
   environment.systemPackages = packages.systemPackages ++ [
-    inputs.walker.packages.${pkgs.system}.default
+    inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default
     elephantCombined
   ];
   programs.direnv.enable = true;
