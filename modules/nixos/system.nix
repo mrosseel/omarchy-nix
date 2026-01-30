@@ -156,6 +156,22 @@ in {
     };
   };
 
+  # Network service discovery and file manager network browsing
+  # (Arch provides these implicitly with most desktop setups)
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    nssmdns6 = true;
+    browseDomains = [ "local" ];
+    openFirewall = true;
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+    };
+  };
+  services.gvfs.enable = true;
+
   # Networking
   services.resolved.enable = true;
   hardware.bluetooth.enable = true;
