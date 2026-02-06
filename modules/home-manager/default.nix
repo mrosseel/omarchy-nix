@@ -58,6 +58,7 @@ in {
     ./fonts.nix
     ./imv.nix
     ./evince.nix
+    ./zellij.nix
     (import ./theme-generator.nix inputs)
   ];
 

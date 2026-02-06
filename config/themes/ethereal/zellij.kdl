@@ -1,0 +1,15 @@
+themes {
+    omarchy {
+        fg "#ffcead"
+        bg "#060B1E"
+        black "#060B1E"
+        red "#ED5B5A"
+        green "#92a593"
+        yellow "#E9BB4F"
+        blue "#7d82d9"
+        magenta "#c89dc1"
+        cyan "#a3bfd1"
+        white "#F99957"
+        orange "#E9BB4F"
+    }
+}
