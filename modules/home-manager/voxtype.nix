@@ -22,7 +22,8 @@ in {
 
       Service = {
         Type = "simple";
-        ExecStart = "${voxtype}/bin/voxtype daemon";
+        # Use /usr/lib/voxtype to respect parakeet/whisper setup via `voxtype setup parakeet`
+        ExecStart = "/usr/lib/voxtype/voxtype daemon";
         Restart = "on-failure";
         RestartSec = 5;
       };
