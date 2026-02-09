@@ -40,21 +40,21 @@ volume = 0.1
 # Options: tiny, tiny.en, base, base.en, small, small.en, medium, medium.en, large-v3, large-v3-turbo
 model = "large-v3-turbo"
 
-[parakeet]
-# Model to use for Parakeet transcription (when using parakeet binary)
-# Options: parakeet-tdt-0.6b-v3 (recommended), parakeet-tdt-0.6b-v3-int8 (smaller/faster)
-model = "parakeet-tdt-0.6b-v3"
+# Initial prompt to provide context for transcription
+# Helps with terminology, proper nouns, technical terms
+initial_prompt = "omarchy-nix, PiFinder, Hyprland, NixOS, nixpkgs, home-manager, flake, voxtype, Parakeet, Claude Code"
 
 # Language for transcription
 # Use "en" for English, "auto" for auto-detection
-# See: https://github.com/openai/whisper#available-models-and-languages
 language = "en"
 
 # Translate non-English speech to English
 translate = false
 
-# Number of CPU threads for inference (omit for auto-detection)
-# threads = 4
+[parakeet]
+# Model to use for Parakeet transcription (when using parakeet binary)
+# Options: parakeet-tdt-0.6b-v3 (recommended), parakeet-tdt-0.6b-v3-int8 (smaller/faster)
+model = "parakeet-tdt-0.6b-v3"
 
 [output]
 # Primary output mode: "type" or "clipboard"
@@ -92,11 +92,12 @@ on_recording_stop = true
 # Show notification with transcribed text after transcription completes
 on_transcription = false
 
-# [text]
+[text]
 # Text processing options (word replacements, spoken punctuation)
-#
+
 # Enable spoken punctuation conversion (e.g., say "period" to get ".")
-# spoken_punctuation = false
-#
+spoken_punctuation = false
+
 # Custom word replacements (case-insensitive)
-# replacements = { "hyperwhisper" = "hyprwhspr" }
+# Add your commonly misheard terms here
+replacements = { "omarchi" = "omarchy", "pie finder" = "PiFinder", "pi finder" = "PiFinder", "hyper land" = "Hyprland", "nix os" = "NixOS", "nick's" = "nix", "claude code" = "Claude Code" }
