@@ -22,8 +22,8 @@ in {
 
       Service = {
         Type = "simple";
-        # Use parakeet-rocm binary directly for AMD GPU acceleration
-        ExecStart = "${voxtype}/lib/voxtype/voxtype-parakeet-rocm daemon";
+        # Use parakeet-rocm binary with parakeet engine for AMD GPU acceleration
+        ExecStart = "${voxtype}/lib/voxtype/voxtype-parakeet-rocm --engine parakeet daemon";
         Restart = "on-failure";
         RestartSec = 5;
       };
