@@ -35,8 +35,13 @@ theme = "subtle"
 # Volume level (0.0 to 1.0)
 volume = 0.1
 
+[engine]
+# Transcription engine: "whisper" or "parakeet"
+# Parakeet is NVIDIA FastConformer, English-only, potentially faster with ROCm
+engine = "parakeet"
+
 [whisper]
-# Model to use for transcription
+# Model to use for transcription (when engine = "whisper")
 # Options: tiny, tiny.en, base, base.en, small, small.en, medium, medium.en, large-v3, large-v3-turbo
 # .en models are English-only but faster and more accurate for English
 # large-v3-turbo is faster than large-v3 with minimal accuracy loss (recommended for GPU)
@@ -53,6 +58,11 @@ translate = false
 
 # Number of CPU threads for inference (omit for auto-detection)
 # threads = 4
+
+[parakeet]
+# Model to use for Parakeet transcription (when engine = "parakeet")
+# Options: parakeet-tdt-0.6b-v3, parakeet-tdt-0.6b-v3-int8
+model = "parakeet-tdt-0.6b-v3"
 
 [output]
 # Primary output mode: "type" or "clipboard"
