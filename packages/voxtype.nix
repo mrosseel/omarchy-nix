@@ -11,17 +11,17 @@
 
 stdenv.mkDerivation rec {
   pname = "voxtype";
-  version = "0.4.16";
+  version = "0.5.5";
 
   srcs = [
     (fetchurl {
       url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-avx2";
-      hash = "sha256-RLXABYapYTayD3VIY64NNna5U2MVQTm1dRvzpMUtZxg=";
+      hash = "sha256-bMXyp7bR16dNFyJUU5RQe1mbANmu+2iHetpc2KLHVr4=";
       name = "voxtype-cpu";
     })
     (fetchurl {
       url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-vulkan";
-      hash = "sha256-L0jXQENosSq1yCA7iG7y6b+HF7XKg9TXVRGwLPTEC64=";
+      hash = "sha256-3OCbxYagJgAcBkcIocrrCskee73uq5aXCOUpMEHAIJY=";
       name = "voxtype-vulkan";
     })
   ];
