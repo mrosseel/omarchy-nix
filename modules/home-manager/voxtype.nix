@@ -22,8 +22,8 @@ in {
 
       Service = {
         Type = "simple";
-        # Use /usr/lib/voxtype to respect parakeet/whisper setup via `voxtype setup parakeet`
-        ExecStart = "/usr/lib/voxtype/voxtype daemon";
+        # Use parakeet-rocm binary directly for AMD GPU acceleration
+        ExecStart = "${voxtype}/lib/voxtype/voxtype-parakeet-rocm daemon";
         Restart = "on-failure";
         RestartSec = 5;
       };
