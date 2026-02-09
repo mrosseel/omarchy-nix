@@ -36,12 +36,17 @@ theme = "subtle"
 volume = 0.1
 
 [whisper]
-# Model to use for transcription (when engine = "whisper")
+# Model to use for Whisper transcription
 # Options: tiny, tiny.en, base, base.en, small, small.en, medium, medium.en, large-v3, large-v3-turbo
 # .en models are English-only but faster and more accurate for English
 # large-v3-turbo is faster than large-v3 with minimal accuracy loss (recommended for GPU)
 # Or provide absolute path to a custom .bin model file
 model = "large-v3-turbo"
+
+[parakeet]
+# Model to use for Parakeet transcription (when using parakeet binary)
+# Options: parakeet-tdt-0.6b-v3 (recommended), parakeet-tdt-0.6b-v3-int8 (smaller/faster)
+model = "parakeet-tdt-0.6b-v3"
 
 # Language for transcription
 # Use "en" for English, "auto" for auto-detection
