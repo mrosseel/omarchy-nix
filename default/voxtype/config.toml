@@ -25,15 +25,15 @@ sample_rate = 16000
 # Maximum recording duration in seconds (safety limit)
 max_duration_secs = 60
 
-# [audio.feedback]
+[audio.feedback]
 # Enable audio feedback sounds (beeps when recording starts/stops)
-# enabled = true
-#
+enabled = true
+
 # Sound theme: "default", "subtle", "mechanical", or path to custom theme directory
-# theme = "default"
-#
+theme = "subtle"
+
 # Volume level (0.0 to 1.0)
-# volume = 0.7
+volume = 0.5
 
 [whisper]
 # Model to use for transcription
