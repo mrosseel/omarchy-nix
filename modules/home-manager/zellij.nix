@@ -10,6 +10,7 @@ in {
     enable = lib.mkDefault true;
 
     settings = lib.mkDefault {
+      theme = "omarchy";
       default_shell = "nu";
       pane_frames = false;
       default_layout = "default";
@@ -24,7 +25,4 @@ in {
   xdg.configFile."zellij/themes/omarchy.kdl".source =
     config.lib.file.mkOutOfStoreSymlink
     "${config.home.homeDirectory}/.config/omarchy/current/theme/zellij.kdl";
-
-  # Set omarchy as the theme in zellij config
-  programs.zellij.settings.theme = lib.mkDefault "omarchy";
 }

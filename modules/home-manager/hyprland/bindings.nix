@@ -16,8 +16,9 @@
   mkBindmd = bindings: lib.concatMapStringsSep "\n" (binding: "bindmd = ${binding}") bindings;
 
   # Dictation bindings (only when voxtype is enabled)
+  # Uses wrapper script that resets Elgato mic profile before recording
   dictationStartBindings = lib.optionals cfg.voxtype.enable [
-    "SUPER CTRL, X, Start dictation, exec, voxtype record start"
+    "SUPER CTRL, X, Start dictation, exec, omarchy-voxtype-record start"
   ];
   dictationStopBindings = lib.optionals cfg.voxtype.enable [
     "SUPER CTRL, X, Stop dictation, exec, voxtype record stop"

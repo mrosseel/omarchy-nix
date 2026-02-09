@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Wrapper for voxtype that resets Elgato Wave:3 mic profile before recording
+# Fixes issue where PipeWire profile gets stuck and no audio is captured
+
+ACTION="$1"
+
+if [[ "$ACTION" == "start" ]]; then
+    # Reset Elgato mic profile to fix stuck audio capture
+    for card in $(pactl list cards short 2>/dev/null | grep -i elgato | awk '{print $2}'); do
+        pactl set-card-profile "$card" off 2>/dev/null
+        sleep 0.1
+        pactl set-card-profile "$card" output:analog-stereo+input:mono-fallback 2>/dev/null
+    done
+    sleep 0.1
+fi
+
+# Pass through to voxtype
+exec voxtype record "$ACTION"

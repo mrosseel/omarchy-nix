@@ -63,9 +63,12 @@ mode = "type"
 # Fall back to clipboard if typing fails
 fallback_to_clipboard = true
 
+# Delay before typing starts (ms) - ensures modifier keys are released
+pre_type_delay_ms = 100
+
 # Delay between typed characters in milliseconds
 # 0 = fastest possible, increase if characters are dropped
-type_delay_ms = 1
+type_delay_ms = 0
 
 # Post-processing command (optional)
 # Pipe transcribed text through an external command for cleanup before output.
