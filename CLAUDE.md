@@ -73,23 +73,23 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `53b8fc42` (origin/dev branch)
+**Last synced Omarchy commit**: `9a2dc684` (origin/dev branch)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: January 13, 2026
-**Sync notes**: Synced with Omarchy v3.3.3 (dev branch). Voxtype voice dictation ported:
-- ✅ Voxtype voice dictation feature (hold Super+Ctrl+X to dictate)
-- ✅ Custom voxtype package (v0.4.13) in packages/voxtype.nix
-- ✅ Optional feature via omarchy.voxtype.enable
-- ✅ Waybar integration with recording indicator
-- ✅ Scripts: omarchy-voxtype-status, omarchy-voxtype-config, omarchy-voxtype-model
-- ✅ Also added omarchy-cmd-present helper script
-- ✅ NoIdle cleanup after update (commit 65 - e44e9372)
-- ✅ Screensaver mouse tracking removed (commit 58 - d2ea6ad1)
-- ✅ Audio/Bluetooth keybindings added (commits 60-62 - dae89574, ca8f25fb, c59089e9)
-- ✅ Created omarchy-launch-tui script
-- ✅ Fixed omarchy-launch-bluetooth to use omarchy-launch-tui
-- ✅ Added SUPER+CTRL+A/B keybindings for audio/bluetooth
-- ✅ Moved time/battery notifications to SUPER+CTRL+ALT+T/B
+**Last sync date**: March 6, 2026
+**Sync notes**: Partial sync (phases 1-3 of 5). Ported:
+- ✅ Phase 1: New themes (Miasma, Vantablack, White) with full config sets
+- ✅ Phase 1: New backgrounds for Nord and Tokyo Night
+- ✅ Phase 2: New keybindings (zoom, layout toggle, toggle menu, capture menu, monitor scaling, aspect toggle, wifi/activity/lock, browser alt)
+- ✅ Phase 2: Updated brightness keys to use omarchy-brightness-display/keyboard
+- ✅ Phase 2: Added keyboard brightness keys (XF86KbdBrightness)
+- ✅ Phase 2: Ported 16 new scripts (monitor-scaling-cycle, window-gaps-toggle, etc.)
+- ✅ Phase 2: Updated menu toggle section with 8 toggles
+- ✅ Phase 3: Full tmux integration (module, config, vim-tmux-navigator, bash functions)
+- ✅ Phase 3: Tmux dev layout functions (tdl, tdlm, tsl)
+- ✅ Phase 3: Super+Alt+Return keybinding for tmux
+Still pending:
+- Phase 4: Screen capture overhaul, waybar indicators, background selector
+- Phase 5: Terminal config updates, bash functions/aliases, misc configs
 
 **Branch tracking**: We track the **`dev`** branch (not `master`), as it contains the latest development work
 
