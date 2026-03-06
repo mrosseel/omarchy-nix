@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Display brightness OSD via swayosd
+
+MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
+BRIGHTNESS=$(brightnessctl info -m 2>/dev/null | cut -d, -f4 | tr -d '%')
+
+if [[ -z "$BRIGHTNESS" ]]; then
+  BRIGHTNESS=0
+fi
+
+PROGRESS=$(echo "scale=2; $BRIGHTNESS / 100" | bc)
+[[ "$PROGRESS" == "0" ]] && PROGRESS="0.01"
+
+swayosd-client --monitor "$MONITOR" --custom-icon "display-brightness" --custom-message "Display Brightness ${BRIGHTNESS}%" --progress "$PROGRESS"

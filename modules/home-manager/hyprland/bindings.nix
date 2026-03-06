@@ -16,11 +16,8 @@
   mkBindmd = bindings: lib.concatMapStringsSep "\n" (binding: "bindmd = ${binding}") bindings;
 
   # Dictation bindings (only when voxtype is enabled)
-  dictationStartBindings = lib.optionals cfg.voxtype.enable [
-    "SUPER CTRL, X, Start dictation, exec, voxtype record start"
-  ];
-  dictationStopBindings = lib.optionals cfg.voxtype.enable [
-    "SUPER CTRL, X, Stop dictation, exec, voxtype record stop"
+  dictationBindings = lib.optionals cfg.voxtype.enable [
+    "SUPER CTRL, X, Toggle dictation, exec, voxtype record toggle"
   ];
 
   # Main descriptive bindings
@@ -28,64 +25,74 @@
     # Menus
     "SUPER, SPACE, Launch apps, exec, omarchy-launch-walker"
     "SUPER CTRL, E, Emoji picker, exec, omarchy-launch-walker -m symbols"
+    "SUPER CTRL, C, Capture menu, exec, omarchy-menu capture"
+    "SUPER CTRL, O, Toggle menu, exec, omarchy-menu toggle"
     "SUPER ALT, SPACE, Omarchy menu, exec, omarchy-menu"
     "SUPER, ESCAPE, System menu, exec, omarchy-menu system"
     "SUPER, K, Show key bindings, exec, omarchy-show-keybindings"
 
     # Aesthetics
     "SUPER SHIFT, SPACE, Toggle top bar, exec, omarchy-toggle-waybar"
-    "SUPER CTRL, SPACE, Next background in theme, exec, omarchy-theme-bg-next"
+    "SUPER CTRL, SPACE, Theme background menu, exec, omarchy-menu background"
     "SUPER SHIFT CTRL, SPACE, Theme menu, exec, omarchy-menu theme"
     "SUPER, BACKSPACE, Toggle window transparency, exec, hyprctl dispatch setprop \"address:$(hyprctl activewindow -j | jq -r '.address')\" opaque toggle"
-    "SUPER SHIFT, BACKSPACE, Toggle workspace gaps, exec, omarchy-hyprland-workspace-toggle-gaps"
+    "SUPER SHIFT, BACKSPACE, Toggle window gaps, exec, omarchy-hyprland-window-gaps-toggle"
+    "SUPER CTRL, BACKSPACE, Toggle single-window square aspect, exec, omarchy-hyprland-window-single-square-aspect-toggle"
 
     # Notifications
     "SUPER, COMMA, Dismiss last notification, exec, makoctl dismiss"
     "SUPER SHIFT, COMMA, Dismiss all notifications, exec, makoctl dismiss --all"
-    "SUPER CTRL, COMMA, Toggle silencing notifications, exec, makoctl mode -t do-not-disturb && makoctl mode | grep -q 'do-not-disturb' && notify-send \"Silenced notifications\" || notify-send \"Enabled notifications\""
+    "SUPER CTRL, COMMA, Toggle silencing notifications, exec, omarchy-toggle-notification-silencing"
     "SUPER ALT, COMMA, Invoke last notification, exec, makoctl invoke"
     "SUPER SHIFT ALT, COMMA, Restore last notification, exec, makoctl restore"
 
-    # Toggle idling
+    # Toggles
     "SUPER CTRL, I, Toggle locking on idle, exec, omarchy-toggle-idle"
-
-    # Nightlight toggle
     "SUPER CTRL, N, Toggle nightlight, exec, omarchy-toggle-nightlight"
 
     # Control Apple Display brightness
-    "CTRL, F1, Apple Display brightness down, exec, omarchy-cmd-apple-display-brightness -5000"
-    "CTRL, F2, Apple Display brightness up, exec, omarchy-cmd-apple-display-brightness +5000"
-    "SHIFT CTRL, F2, Apple Display full brightness, exec, omarchy-cmd-apple-display-brightness +60000"
+    "CTRL, F1, Apple Display brightness down, exec, omarchy-brightness-display -5000"
+    "CTRL, F2, Apple Display brightness up, exec, omarchy-brightness-display +5000"
+    "SHIFT CTRL, F2, Apple Display full brightness, exec, omarchy-brightness-display +60000"
 
     # Captures
-    ", PRINT, Screenshot with editing, exec, omarchy-cmd-screenshot"
-    "SHIFT, PRINT, Screenshot to clipboard, exec, omarchy-cmd-screenshot smart clipboard"
+    ", PRINT, Screenshot, exec, omarchy-cmd-screenshot"
     "ALT, PRINT, Screenrecording, exec, omarchy-menu screenrecord"
     "SUPER, PRINT, Color picker, exec, pkill hyprpicker || hyprpicker -a"
 
     # File sharing
     "SUPER CTRL, S, Share, exec, omarchy-menu share"
 
-    # Control panels
-    "SUPER CTRL, A, Audio controls, exec, ~/.local/share/omarchy/bin/omarchy-launch-audio"
-    "SUPER CTRL, B, Bluetooth controls, exec, ~/.local/share/omarchy/bin/omarchy-launch-bluetooth"
-
     # Waybar-less information
     "SUPER CTRL ALT, T, Show time, exec, notify-send \"    $(date +\"%A %H:%M  —  %d %B W%V %Y\")\""
     "SUPER CTRL ALT, B, Show battery remaining, exec, notify-send \"󰁹    Battery is at $(omarchy-battery-remaining)%\""
+
+    # Control panels
+    "SUPER CTRL, A, Audio controls, exec, omarchy-launch-audio"
+    "SUPER CTRL, B, Bluetooth controls, exec, omarchy-launch-bluetooth"
+    "SUPER CTRL, W, Wifi controls, exec, omarchy-launch-wifi"
+    "SUPER CTRL, T, Activity, exec, omarchy-launch-tui btop"
+
+    # Zoom
+    "SUPER CTRL, Z, Zoom in, exec, hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor -j | jq '.float + 1')"
+    "SUPER CTRL ALT, Z, Reset zoom, exec, hyprctl keyword cursor:zoom_factor 1"
+
+    # Lock system
+    "SUPER CTRL, L, Lock system, exec, omarchy-lock-screen"
 
     # Close windows
     "SUPER, W, Close window, killactive,"
     "CTRL ALT, DELETE, Close all windows, exec, omarchy-hyprland-window-close-all"
 
     # Control tiling
-    "SUPER, J, Toggle window split, togglesplit, # dwindle"
+    "SUPER, J, Toggle window split, layoutmsg, togglesplit"
     "SUPER, P, Pseudo window, pseudo, # dwindle"
     "SUPER, T, Toggle window floating/tiling, togglefloating,"
     "SUPER, F, Full screen, fullscreen, 0"
     "SUPER CTRL, F, Tiled full screen, fullscreenstate, 0 2"
     "SUPER ALT, F, Full width, fullscreen, 1"
     "SUPER, O, Pop window out (float & pin), exec, omarchy-hyprland-window-pop"
+    "SUPER, L, Toggle workspace layout, exec, omarchy-hyprland-workspace-layout-toggle"
 
     # Move focus with SUPER + arrow keys
     "SUPER, LEFT, Move window focus left, movefocus, l"
@@ -141,6 +148,8 @@
     # Move workspaces to other monitors
     "SUPER SHIFT ALT, LEFT, Move workspace to left monitor, movecurrentworkspacetomonitor, l"
     "SUPER SHIFT ALT, RIGHT, Move workspace to right monitor, movecurrentworkspacetomonitor, r"
+    "SUPER SHIFT ALT, UP, Move workspace to up monitor, movecurrentworkspacetomonitor, u"
+    "SUPER SHIFT ALT, DOWN, Move workspace to down monitor, movecurrentworkspacetomonitor, d"
 
     # Swap active window with the one next to it with SUPER + SHIFT + arrow keys
     "SUPER SHIFT, LEFT, Swap window to the left, swapwindow, l"
@@ -193,6 +202,9 @@
     "SUPER ALT, code:13, Switch to group window 4, changegroupactive, 4"
     "SUPER ALT, code:14, Switch to group window 5, changegroupactive, 5"
 
+    # Cycle monitor scaling
+    "SUPER, Slash, Cycle monitor scaling, exec, omarchy-hyprland-monitor-scaling-cycle"
+
     # Copy / Paste / Cut
     "SUPER, C, Universal copy, sendshortcut, CTRL, Insert,"
     "SUPER, V, Universal paste, sendshortcut, SHIFT, Insert,"
@@ -212,14 +224,21 @@
     ",XF86AudioLowerVolume, Volume down, exec, ${osdclient} --output-volume lower"
     ",XF86AudioMute, Mute, exec, ${osdclient} --output-volume mute-toggle"
     ",XF86AudioMicMute, Mute microphone, exec, ${osdclient} --input-volume mute-toggle"
-    ",XF86MonBrightnessUp, Brightness up, exec, ${osdclient} --brightness raise"
-    ",XF86MonBrightnessDown, Brightness down, exec, ${osdclient} --brightness lower"
+    ",XF86MonBrightnessUp, Brightness up, exec, omarchy-brightness-display +5%"
+    ",XF86MonBrightnessDown, Brightness down, exec, omarchy-brightness-display 5%-"
+    ",XF86KbdBrightnessUp, Keyboard brightness up, exec, omarchy-brightness-keyboard up"
+    ",XF86KbdBrightnessDown, Keyboard brightness down, exec, omarchy-brightness-keyboard down"
 
     # Precise 1% multimedia adjustments with Alt modifier
     "ALT, XF86AudioRaiseVolume, Volume up precise, exec, ${osdclient} --output-volume +1"
     "ALT, XF86AudioLowerVolume, Volume down precise, exec, ${osdclient} --output-volume -1"
-    "ALT, XF86MonBrightnessUp, Brightness up precise, exec, ${osdclient} --brightness +1"
-    "ALT, XF86MonBrightnessDown, Brightness down precise, exec, ${osdclient} --brightness -1"
+    "ALT, XF86MonBrightnessUp, Brightness up precise, exec, omarchy-brightness-display +1%"
+    "ALT, XF86MonBrightnessDown, Brightness down precise, exec, omarchy-brightness-display 1%-"
+  ];
+
+  # Keyboard backlight cycle (bindld - works when locked)
+  kbdBacklightBindings = [
+    ",XF86KbdLightOnOff, Keyboard backlight cycle, exec, omarchy-brightness-keyboard cycle"
   ];
 
   # Media player bindings (bindld - works when locked)
@@ -247,15 +266,17 @@ in {
       # Main descriptive bindings
       ${mkBindd mainBindings}
 
-      # Dictation bindings (hold to record)
-      ${mkBindd dictationStartBindings}
-      ${mkBinddr dictationStopBindings}
+      # Dictation bindings
+      ${mkBindd dictationBindings}
 
       # Mouse bindings
       ${mkBindmd mouseBindings}
 
       # Multimedia bindings (repeat enabled, works when locked)
       ${mkBindeld multimediaBindings}
+
+      # Keyboard backlight cycle (works when locked)
+      ${mkBindld kbdBacklightBindings}
 
       # Media player bindings (works when locked)
       ${mkBindld mediaPlayerBindings}

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Keyboard brightness control
+# Usage: omarchy-brightness-keyboard <up|down|cycle>
+
+DEVICE=$(brightnessctl -l -c leds 2>/dev/null | grep -oP '(?<=Device \x27)[^\x27]+' | head -1)
+
+if [[ -z "$DEVICE" ]]; then
+  exit 0
+fi
+
+MAX=$(brightnessctl -d "$DEVICE" max 2>/dev/null)
+CURRENT=$(brightnessctl -d "$DEVICE" get 2>/dev/null)
+
+case "$1" in
+  up)
+    brightnessctl -d "$DEVICE" set +1 -q
+    ;;
+  down)
+    brightnessctl -d "$DEVICE" set 1- -q
+    ;;
+  cycle)
+    if [[ "$CURRENT" -ge "$MAX" ]]; then
+      brightnessctl -d "$DEVICE" set 0 -q
+    else
+      brightnessctl -d "$DEVICE" set +1 -q
+    fi
+    ;;
+  *)
+    echo "Usage: omarchy-brightness-keyboard <up|down|cycle>"
+    exit 1
+    ;;
+esac
+
+omarchy-swayosd-kbd-brightness

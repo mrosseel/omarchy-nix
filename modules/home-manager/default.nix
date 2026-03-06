@@ -59,6 +59,7 @@ in {
     ./imv.nix
     ./evince.nix
     ./zellij.nix
+    ./tmux.nix
     (import ./theme-generator.nix inputs)
   ];
 
@@ -114,6 +115,10 @@ in {
     };
     ".config/elephant/desktopapplications.toml" = {
       source = ../../config/elephant/desktopapplications.toml;
+    };
+    ".local/share/omarchy/default/bash/fns" = {
+      source = ../../default/bash/fns;
+      recursive = true;
     };
   };
   home.packages = packages.homePackages;

@@ -32,6 +32,9 @@ lib: {
         "hackerman"
         "osaka-jade"
         "ristretto"
+        "miasma"
+        "vantablack"
+        "white"
       ];
       default = "tokyo-night";
       description = "Theme to use for Omarchy configuration";
@@ -118,6 +121,8 @@ lib: {
 
         # Core apps - using SUPER SHIFT to avoid conflicts with tiling keys
         "SUPER, RETURN, Terminal, exec, $terminal"
+        "SUPER ALT, RETURN, Tmux, exec, $terminal tmux new"
+        "SUPER SHIFT, RETURN, Browser, exec, $browser"
         "SUPER SHIFT, F, File manager, exec, $fileManager"
         "SUPER SHIFT, B, Web browser, exec, $browser"
         "SUPER SHIFT, M, Music player, exec, $music"

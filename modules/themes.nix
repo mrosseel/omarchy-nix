@@ -88,4 +88,22 @@
     vscode-theme = "Monokai Pro (Filter Ristretto)";
     custom-scheme = true;
   };
+
+  "miasma" = {
+    base16-theme = "miasma";
+    vscode-theme = "In The Fog Dark";
+    custom-scheme = true;
+  };
+
+  "vantablack" = {
+    base16-theme = "vantablack";
+    vscode-theme = "Vantablack";
+    custom-scheme = true;
+  };
+
+  "white" = {
+    base16-theme = "white";
+    vscode-theme = "White";
+    custom-scheme = true;
+  };
 }

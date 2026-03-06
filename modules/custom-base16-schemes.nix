@@ -88,4 +88,70 @@
     base0E = "fd6a85"; # Keywords (pink)
     base0F = "5b4a45"; # Deprecated (brown)
   };
+
+  miasma = {
+    slug = "miasma";
+    scheme = "Miasma";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "222222"; # Default Background
+    base01 = "2a2a2a"; # Lighter Background
+    base02 = "78824b"; # Selection Background (accent)
+    base03 = "666666"; # Comments, Invisibles
+    base04 = "c2c2b0"; # Dark Foreground
+    base05 = "c2c2b0"; # Default Foreground
+    base06 = "d7c483"; # Light Foreground
+    base07 = "d7c483"; # Light Background
+    base08 = "685742"; # Variables (brown)
+    base09 = "b36d43"; # Integers (orange)
+    base0A = "c9a554"; # Classes (gold)
+    base0B = "5f875f"; # Strings (green)
+    base0C = "c9a554"; # Regex (gold)
+    base0D = "78824b"; # Functions (olive - active border)
+    base0E = "bb7744"; # Keywords (orange-brown)
+    base0F = "685742"; # Deprecated (brown)
+  };
+
+  vantablack = {
+    slug = "vantablack";
+    scheme = "Vantablack";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "0d0d0d"; # Default Background (near black)
+    base01 = "1a1a1a"; # Lighter Background
+    base02 = "ffffff"; # Selection Background
+    base03 = "fdfdfd"; # Comments, Invisibles
+    base04 = "ececec"; # Dark Foreground
+    base05 = "ffffff"; # Default Foreground
+    base06 = "ffffff"; # Light Foreground
+    base07 = "ffffff"; # Light Background
+    base08 = "a4a4a4"; # Variables
+    base09 = "cecece"; # Integers
+    base0A = "b0b0b0"; # Classes
+    base0B = "b6b6b6"; # Strings
+    base0C = "b0b0b0"; # Regex
+    base0D = "8d8d8d"; # Functions (accent - active border)
+    base0E = "9b9b9b"; # Keywords
+    base0F = "a4a4a4"; # Deprecated
+  };
+
+  white = {
+    slug = "white";
+    scheme = "White";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "ffffff"; # Default Background
+    base01 = "f0f0f0"; # Lighter Background
+    base02 = "1a1a1a"; # Selection Background
+    base03 = "c0c0c0"; # Comments, Invisibles
+    base04 = "000000"; # Dark Foreground
+    base05 = "000000"; # Default Foreground
+    base06 = "000000"; # Light Foreground
+    base07 = "000000"; # Light Background
+    base08 = "2a2a2a"; # Variables
+    base09 = "4a4a4a"; # Integers
+    base0A = "3e3e3e"; # Classes
+    base0B = "3a3a3a"; # Strings
+    base0C = "3e3e3e"; # Regex
+    base0D = "1a1a1a"; # Functions (active border)
+    base0E = "2e2e2e"; # Keywords
+    base0F = "6e6e6e"; # Deprecated (accent)
+  };
 }

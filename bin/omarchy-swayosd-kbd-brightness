@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Keyboard brightness OSD via swayosd
+
+MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
+DEVICE=$(brightnessctl -l -c leds 2>/dev/null | grep -oP '(?<=Device \x27)[^\x27]+' | head -1)
+
+if [[ -z "$DEVICE" ]]; then
+  exit 0
+fi
+
+MAX=$(brightnessctl -d "$DEVICE" max 2>/dev/null)
+CURRENT=$(brightnessctl -d "$DEVICE" get 2>/dev/null)
+
+if [[ "$MAX" -gt 0 ]]; then
+  PERCENT=$((CURRENT * 100 / MAX))
+else
+  PERCENT=0
+fi
+
+PROGRESS=$(echo "scale=2; $PERCENT / 100" | bc)
+[[ "$PROGRESS" == "0" ]] && PROGRESS="0.01"
+
+swayosd-client --monitor "$MONITOR" --custom-icon "keyboard-brightness" --custom-message "Keyboard Brightness ${PERCENT}%" --progress "$PROGRESS"
