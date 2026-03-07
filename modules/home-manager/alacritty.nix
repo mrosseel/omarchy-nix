@@ -12,20 +12,32 @@ in {
       # Load theme from runtime config (allows dynamic theme switching)
       general.import = ["~/.config/omarchy/current/theme/alacritty.toml"];
 
+      env.TERM = "xterm-256color";
+
+      terminal.osc52 = "CopyPaste";
+
       font = {
-        size = 12;
+        size = 9;
         normal = {
           family = "JetBrainsMono Nerd Font";
           style = "Regular";
+        };
+        bold = {
+          family = "JetBrainsMono Nerd Font";
+          style = "Bold";
+        };
+        italic = {
+          family = "JetBrainsMono Nerd Font";
+          style = "Italic";
         };
       };
 
       window = {
         padding = {
-          x = 10;
-          y = 10;
+          x = 14;
+          y = 14;
         };
-        opacity = 0.95;
+        decorations = "None";
       };
 
       # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)

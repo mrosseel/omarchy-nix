@@ -76,7 +76,7 @@ When implementing features:
 **Last synced Omarchy commit**: `9a2dc684` (origin/dev branch)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
 **Last sync date**: March 6, 2026
-**Sync notes**: Partial sync (phases 1-3 of 5). Ported:
+**Sync notes**: Full sync (all 5 phases). Ported:
 - ✅ Phase 1: New themes (Miasma, Vantablack, White) with full config sets
 - ✅ Phase 1: New backgrounds for Nord and Tokyo Night
 - ✅ Phase 2: New keybindings (zoom, layout toggle, toggle menu, capture menu, monitor scaling, aspect toggle, wifi/activity/lock, browser alt)
@@ -87,9 +87,22 @@ When implementing features:
 - ✅ Phase 3: Full tmux integration (module, config, vim-tmux-navigator, bash functions)
 - ✅ Phase 3: Tmux dev layout functions (tdl, tdlm, tsl)
 - ✅ Phase 3: Super+Alt+Return keybinding for tmux
-Still pending:
-- Phase 4: Screen capture overhaul, waybar indicators, background selector
-- Phase 5: Terminal config updates, bash functions/aliases, misc configs
+- ✅ Phase 4: Waybar indicators (idle, notification-silencing) with signal-based updates
+- ✅ Phase 4: Waybar config synced (tray-expander drawer, headset icon, indicator modules)
+- ✅ Phase 4: Waybar style synced (indicator styling)
+- ✅ Phase 4: Screen recording updated (4K cap, webcam device auto-detect, resolution flag, trim)
+- ✅ Phase 4: Background selector elephant menu (walker-based)
+- ✅ Phase 4: Theme background scripts (bg-set, bg-install, bg-next updated)
+- ✅ Phase 5: Alacritty config (osc52, TERM env, font size 9, padding 14, bold/italic fonts, no decorations)
+- ✅ Phase 5: Ghostty config (async-backend epoll, mouse-scroll-multiplier, shell-integration-features, cursor block, resize-overlay never, split resize keybinds, font size 9)
+- ✅ Phase 5: Chromium copy-url extension with --load-extension flag
+- ✅ Phase 5: Bash functions (compression, drives, ssh-port-forwarding, transcoding)
+- ✅ Phase 5: Drive utility scripts (drive-select, drive-info)
+- ✅ Phase 5: Hyprland window rules migrated to 0.53+ syntax with sourced app configs
+- ✅ Phase 5: Hyprland app configs (17 separate app config files)
+- ✅ Phase 5: Hyprland input config (misc dpms wake settings)
+- ✅ Phase 5: Menu updated (screenshot direct, screenrecord webcam selection, background walker menu, system power menu, user extensions)
+- ✅ Phase 5: Ported launch-editor, cmd-share, launch-about, notification-dismiss scripts
 
 **Branch tracking**: We track the **`dev`** branch (not `master`), as it contains the latest development work
 

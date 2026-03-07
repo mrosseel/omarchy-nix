@@ -120,6 +120,10 @@ in {
       source = ../../default/bash/fns;
       recursive = true;
     };
+    ".local/share/omarchy/default/hypr" = {
+      source = ../../default/hypr;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 

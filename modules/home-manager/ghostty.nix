@@ -12,27 +12,46 @@ in {
       # Window settings
       window-padding-x = 14;
       window-padding-y = 14;
-      background-opacity = 0.95;
-      window-decoration = "none";
+      window-theme = "ghostty";
+      resize-overlay = "never";
+      gtk-toolbar-style = "flat";
 
-      font-family = cfg.primary_font;
-      font-size = 12;
+      font-family = "JetBrainsMono Nerd Font";
+      font-style = "Regular";
+      font-size = 9;
 
       # Load theme from runtime config (allows dynamic theme switching)
       config-file = "?~/.config/omarchy/current/theme/ghostty.conf";
+
+      # Cursor styling
+      cursor-style = "block";
+      cursor-style-blink = false;
+
+      # Cursor styling + SSH session terminfo
+      shell-integration-features = "no-cursor,ssh-env";
 
       keybind = [
         # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)
         "shift+insert=paste_from_clipboard"
         "control+insert=copy_to_clipboard"
-        "ctrl+k=reset"
+        # Split resize (Super+Ctrl+Shift+Alt+Arrow)
+        "super+control+shift+alt+arrow_down=resize_split:down,100"
+        "super+control+shift+alt+arrow_up=resize_split:up,100"
+        "super+control+shift+alt+arrow_left=resize_split:left,100"
+        "super+control+shift+alt+arrow_right=resize_split:right,100"
       ];
+
+      # Slowdown mouse scrolling
+      mouse-scroll-multiplier = 0.95;
 
       # Disable "potentially unsafe paste" warning
       clipboard-paste-protection = false;
 
       # Disable close confirmation dialog
       confirm-close-surface = false;
+
+      # Fix general slowness on Hyprland
+      async-backend = "epoll";
     };
     themes = {
       omarchy = {
