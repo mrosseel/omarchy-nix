@@ -35,6 +35,8 @@ lib: {
         "miasma"
         "vantablack"
         "white"
+        "retro-82"
+        "lumon"
       ];
       default = "tokyo-night";
       description = "Theme to use for Omarchy configuration";

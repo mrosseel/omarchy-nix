@@ -35,7 +35,7 @@
     "SUPER SHIFT, SPACE, Toggle top bar, exec, omarchy-toggle-waybar"
     "SUPER CTRL, SPACE, Theme background menu, exec, omarchy-menu background"
     "SUPER SHIFT CTRL, SPACE, Theme menu, exec, omarchy-menu theme"
-    "SUPER, BACKSPACE, Toggle window transparency, exec, hyprctl dispatch setprop \"address:$(hyprctl activewindow -j | jq -r '.address')\" opaque toggle"
+    "SUPER, BACKSPACE, Toggle window transparency, exec, omarchy-hyprland-active-window-transparency-toggle"
     "SUPER SHIFT, BACKSPACE, Toggle window gaps, exec, omarchy-hyprland-window-gaps-toggle"
     "SUPER CTRL, BACKSPACE, Toggle single-window square aspect, exec, omarchy-hyprland-window-single-square-aspect-toggle"
 
@@ -64,8 +64,8 @@
     "SUPER CTRL, S, Share, exec, omarchy-menu share"
 
     # Waybar-less information
-    "SUPER CTRL ALT, T, Show time, exec, notify-send \"    $(date +\"%A %H:%M  —  %d %B W%V %Y\")\""
-    "SUPER CTRL ALT, B, Show battery remaining, exec, notify-send \"󰁹    Battery is at $(omarchy-battery-remaining)%\""
+    "SUPER CTRL ALT, T, Show time, exec, notify-send -u low \"    $(date +\"%A %H:%M  ·  %d %B %Y  ·  Week %V\")\""
+    "SUPER CTRL ALT, B, Show battery remaining, exec, notify-send -u low \"$(omarchy-battery-status)\""
 
     # Control panels
     "SUPER CTRL, A, Audio controls, exec, omarchy-launch-audio"
@@ -123,6 +123,30 @@
     "SUPER SHIFT, code:17, Move window to workspace 8, movetoworkspace, 8"
     "SUPER SHIFT, code:18, Move window to workspace 9, movetoworkspace, 9"
     "SUPER SHIFT, code:19, Move window to workspace 10, movetoworkspace, 10"
+
+    # Switch workspaces with SUPER + F1-F10 (workspaces 11-20)
+    "SUPER, F1, Switch to workspace 11, workspace, 11"
+    "SUPER, F2, Switch to workspace 12, workspace, 12"
+    "SUPER, F3, Switch to workspace 13, workspace, 13"
+    "SUPER, F4, Switch to workspace 14, workspace, 14"
+    "SUPER, F5, Switch to workspace 15, workspace, 15"
+    "SUPER, F6, Switch to workspace 16, workspace, 16"
+    "SUPER, F7, Switch to workspace 17, workspace, 17"
+    "SUPER, F8, Switch to workspace 18, workspace, 18"
+    "SUPER, F9, Switch to workspace 19, workspace, 19"
+    "SUPER, F10, Switch to workspace 20, workspace, 20"
+
+    # Move active window to workspace with SUPER + SHIFT + F1-F10
+    "SUPER SHIFT, F1, Move window to workspace 11, movetoworkspace, 11"
+    "SUPER SHIFT, F2, Move window to workspace 12, movetoworkspace, 12"
+    "SUPER SHIFT, F3, Move window to workspace 13, movetoworkspace, 13"
+    "SUPER SHIFT, F4, Move window to workspace 14, movetoworkspace, 14"
+    "SUPER SHIFT, F5, Move window to workspace 15, movetoworkspace, 15"
+    "SUPER SHIFT, F6, Move window to workspace 16, movetoworkspace, 16"
+    "SUPER SHIFT, F7, Move window to workspace 17, movetoworkspace, 17"
+    "SUPER SHIFT, F8, Move window to workspace 18, movetoworkspace, 18"
+    "SUPER SHIFT, F9, Move window to workspace 19, movetoworkspace, 19"
+    "SUPER SHIFT, F10, Move window to workspace 20, movetoworkspace, 20"
 
     # Move active window silently to a workspace with SUPER + SHIFT + ALT + [1-9; 0]
     "SUPER SHIFT ALT, code:10, Move window silently to workspace 1, movetoworkspacesilent, 1"

@@ -58,22 +58,22 @@ in {
     };
 
     decoration = {
-      rounding = 4;
+      rounding = 0;
 
       shadow = {
-        enabled = false;
-        range = 30;
+        enabled = true;
+        range = 2;
         render_power = 3;
-        ignore_window = true;
-        color = "rgba(00000045)";
+        color = "rgba(1a1a1aee)";
       };
 
       blur = {
         enabled = true;
-        size = 5;
+        size = 2;
         passes = 2;
-
-        vibrancy = 0.1696;
+        special = true;
+        brightness = 0.60;
+        contrast = 0.75;
       };
     };
 
@@ -103,6 +103,7 @@ in {
         "fadeLayersIn, 1, 1.79, almostLinear"
         "fadeLayersOut, 1, 1.39, almostLinear"
         "workspaces, 0, 0, ease"
+        "specialWorkspace, 1, 4, easeOutQuint, slidevert"
       ];
     };
 
@@ -119,6 +120,18 @@ in {
     misc = {
       disable_hyprland_logo = true;
       disable_splash_rendering = true;
+      focus_on_activate = true;
+      anr_missed_pings = 3;
+      on_focus_under_fullscreen = 1;
+    };
+
+    cursor = {
+      hide_on_key_press = true;
+      warp_on_change_workspace = 1;
+    };
+
+    binds = {
+      hide_special_on_workspace_change = true;
     };
   };
 }

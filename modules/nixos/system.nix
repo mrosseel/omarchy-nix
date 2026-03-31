@@ -148,8 +148,6 @@ in {
       ExecStart = "${elephantCombined}/bin/elephant";
       Restart = "on-failure";
       RestartSec = 3;
-      # Import environment so launched apps have display variables
-      ImportEnvironment = true;
     };
     environment = {
       ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";

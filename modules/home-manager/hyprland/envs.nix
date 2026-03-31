@@ -51,6 +51,13 @@ in {
         # GTK theme
         "GTK_THEME,Adwaita:dark"
 
+        # Style Gum confirm to match terminal theme
+        "GUM_CONFIRM_PROMPT_FOREGROUND,6"
+        "GUM_CONFIRM_SELECTED_FOREGROUND,0"
+        "GUM_CONFIRM_SELECTED_BACKGROUND,2"
+        "GUM_CONFIRM_UNSELECTED_FOREGROUND,7"
+        "GUM_CONFIRM_UNSELECTED_BACKGROUND,8"
+
         # XDG Desktop Portal
         "XDG_CURRENT_DESKTOP,Hyprland"
         "XDG_SESSION_TYPE,wayland"

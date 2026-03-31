@@ -12,23 +12,23 @@
 
 stdenv.mkDerivation rec {
   pname = "voxtype";
-  version = "0.6.0-rc.2";
+  version = "0.6.4";
 
   srcs = [
     (fetchurl {
       url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-avx2";
-      hash = "sha256-l4t8JMAWxXThojrJltVBb/jEQQnQfjKXkPknI8S9EPM=";
+      hash = "sha256-dWLTIKJqRaNIcfdvLSJNKWMwBxiC/nd4SeUjqD2F56w=";
       name = "voxtype-cpu";
     })
     (fetchurl {
       url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-vulkan";
-      hash = "sha256-mRedv+79+B9gUiAQ3/6YlpbRtuEI99TaS7raxMWStOI=";
+      hash = "sha256-PpwbxYJYMYlAQ/vw2Jed8j7aNFvcx97YAM5GNWJ4+cs=";
       name = "voxtype-vulkan";
     })
     (fetchurl {
-      url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-parakeet-rocm";
-      hash = "sha256-QaGNmUXAGYtI/iQh9FoF2qWiWxi9s1Dq0wF7Tx54ybg=";
-      name = "voxtype-parakeet-rocm";
+      url = "https://github.com/peteonrails/voxtype/releases/download/v${version}/voxtype-${version}-linux-x86_64-onnx-rocm";
+      hash = "sha256-xP2LLQpGg86niT6YTr4NlXRzaRobvRRrrm8tpRqtGCs=";
+      name = "voxtype-onnx-rocm";
     })
   ];
 
@@ -51,7 +51,7 @@ stdenv.mkDerivation rec {
 
     mkdir -p $out/bin $out/lib/voxtype
 
-    # Install parakeet-rocm as main executable (AMD GPU via ROCm)
+    # Install onnx-rocm as main executable (AMD GPU via ROCm)
     cp ${builtins.elemAt srcs 2} $out/bin/voxtype
     chmod +x $out/bin/voxtype
 
@@ -63,14 +63,14 @@ stdenv.mkDerivation rec {
     cp ${builtins.elemAt srcs 1} $out/lib/voxtype/voxtype-vulkan
     chmod +x $out/lib/voxtype/voxtype-vulkan
 
-    # Install parakeet-rocm in lib too
-    cp ${builtins.elemAt srcs 2} $out/lib/voxtype/voxtype-parakeet-rocm
-    chmod +x $out/lib/voxtype/voxtype-parakeet-rocm
+    # Install onnx-rocm in lib too
+    cp ${builtins.elemAt srcs 2} $out/lib/voxtype/voxtype-onnx-rocm
+    chmod +x $out/lib/voxtype/voxtype-onnx-rocm
 
     # Create symlinks expected by voxtype
-    ln -s $out/lib/voxtype/voxtype-parakeet-rocm $out/lib/voxtype/voxtype-gpu
+    ln -s $out/lib/voxtype/voxtype-onnx-rocm $out/lib/voxtype/voxtype-gpu
 
-    # Wrap main binary (parakeet-rocm) with ROCm support
+    # Wrap main binary (onnx-rocm) with ROCm support
     wrapProgram $out/bin/voxtype \
       --prefix PATH : ${lib.makeBinPath [ wtype wl-clipboard ]} \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ vulkan-loader rocmPackages.clr ]} \
@@ -87,8 +87,8 @@ stdenv.mkDerivation rec {
       --prefix XDG_DATA_DIRS : /run/opengl-driver/share \
       --set GGML_VK_VISIBLE_DEVICES 0
 
-    # Wrap parakeet-rocm binary in lib
-    wrapProgram $out/lib/voxtype/voxtype-parakeet-rocm \
+    # Wrap onnx-rocm binary in lib
+    wrapProgram $out/lib/voxtype/voxtype-onnx-rocm \
       --prefix PATH : ${lib.makeBinPath [ wtype wl-clipboard ]} \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ vulkan-loader rocmPackages.clr ]} \
       --prefix XDG_DATA_DIRS : /run/opengl-driver/share

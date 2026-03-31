@@ -73,36 +73,33 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `9a2dc684` (origin/dev branch)
+**Last synced Omarchy commit**: `64ef8044` (origin/dev branch)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: March 6, 2026
-**Sync notes**: Full sync (all 5 phases). Ported:
-- ✅ Phase 1: New themes (Miasma, Vantablack, White) with full config sets
-- ✅ Phase 1: New backgrounds for Nord and Tokyo Night
-- ✅ Phase 2: New keybindings (zoom, layout toggle, toggle menu, capture menu, monitor scaling, aspect toggle, wifi/activity/lock, browser alt)
-- ✅ Phase 2: Updated brightness keys to use omarchy-brightness-display/keyboard
-- ✅ Phase 2: Added keyboard brightness keys (XF86KbdBrightness)
-- ✅ Phase 2: Ported 16 new scripts (monitor-scaling-cycle, window-gaps-toggle, etc.)
-- ✅ Phase 2: Updated menu toggle section with 8 toggles
-- ✅ Phase 3: Full tmux integration (module, config, vim-tmux-navigator, bash functions)
-- ✅ Phase 3: Tmux dev layout functions (tdl, tdlm, tsl)
-- ✅ Phase 3: Super+Alt+Return keybinding for tmux
-- ✅ Phase 4: Waybar indicators (idle, notification-silencing) with signal-based updates
-- ✅ Phase 4: Waybar config synced (tray-expander drawer, headset icon, indicator modules)
-- ✅ Phase 4: Waybar style synced (indicator styling)
-- ✅ Phase 4: Screen recording updated (4K cap, webcam device auto-detect, resolution flag, trim)
-- ✅ Phase 4: Background selector elephant menu (walker-based)
-- ✅ Phase 4: Theme background scripts (bg-set, bg-install, bg-next updated)
-- ✅ Phase 5: Alacritty config (osc52, TERM env, font size 9, padding 14, bold/italic fonts, no decorations)
-- ✅ Phase 5: Ghostty config (async-backend epoll, mouse-scroll-multiplier, shell-integration-features, cursor block, resize-overlay never, split resize keybinds, font size 9)
-- ✅ Phase 5: Chromium copy-url extension with --load-extension flag
-- ✅ Phase 5: Bash functions (compression, drives, ssh-port-forwarding, transcoding)
-- ✅ Phase 5: Drive utility scripts (drive-select, drive-info)
-- ✅ Phase 5: Hyprland window rules migrated to 0.53+ syntax with sourced app configs
-- ✅ Phase 5: Hyprland app configs (17 separate app config files)
-- ✅ Phase 5: Hyprland input config (misc dpms wake settings)
-- ✅ Phase 5: Menu updated (screenshot direct, screenrecord webcam selection, background walker menu, system power menu, user extensions)
-- ✅ Phase 5: Ported launch-editor, cmd-share, launch-about, notification-dismiss scripts
+**Last sync date**: March 31, 2026
+**Sync notes**: Synced ~130 commits from 9a2dc684..64ef8044. Ported:
+- ✅ New themes: Retro 82 and Lumon Industries (full config sets, backgrounds, base16 schemes)
+- ✅ Updated Gruvbox backgrounds (3 new + rename to match upstream)
+- ✅ Updated all 19 theme preview images to consistent size and style
+- ✅ Theme fixes: white icons → Yaru-grey, miasma vscode → Miasma theme, miasma neovim → OldJobobo fork
+- ✅ Tmux: COPY mode indicator, ZOOM indicator, native window auto-rename, Alt+Shift+Arrow window swap, reload display message
+- ✅ Alacritty: Shift+Return multi-line binding (Claude Code compat)
+- ✅ Browser: dark/light mode fix (BrowserColorScheme policy for Chromium/Brave)
+- ✅ Hyprland looknfeel: rounding=0, shadows enabled, blur special/brightness/contrast, scratchpad slidevert animation, misc/cursor/binds settings
+- ✅ Hyprland input: repeat_rate/delay, numlock_by_default, touchpad scroll_factor, terminal scroll window rules
+- ✅ Hyprland apps: LocalSend window size, JetBrains find window title match fix
+- ✅ Hyprland preview-share-picker: default to outputs page, stylesheet reference
+- ✅ Hyprland envs: GUM_CONFIRM style environment variables
+- ✅ New script: omarchy-hyprland-active-window-transparency-toggle (extracted from inline binding)
+- ✅ New scripts: omarchy-battery-status, omarchy-battery-remaining-time, omarchy-battery-capacity
+- ✅ New script: omarchy-menu-keybindings (walker-based keybinding browser)
+- ✅ Updated ~10 scripts with notify-send -u low for immediate-feedback notifications
+- ✅ Updated omarchy-menu: toggle existing walker, keybindings via omarchy-menu-keybindings
+- ✅ Updated omarchy-theme-set-vscode: VSCode Insiders + Cursor support
+- ✅ Updated omarchy-hyprland-monitor-scaling-cycle: applies configured resolution/refresh rate
+- ✅ Updated time/battery display format to match upstream
+- ✅ Bash: git worktrees functions (ga/gd), aliases (ls/ff/sff/zd/cd), kitty image preview in ff
+- ✅ Voxtype: Vulkan GPU auto-enable, config merge (won't overwrite user settings)
+- ✅ Elephant: hide themes menu from provider list
 
 **Branch tracking**: We track the **`dev`** branch (not `master`), as it contains the latest development work
 
@@ -239,7 +236,7 @@ Both modules import their options from `config.nix`, which defines all user-conf
 6. All application modules receive the colorScheme via `config.colorScheme`
 
 **Custom Themes**:
-- Custom base16 schemes (ethereal, hackerman, osaka-jade, ristretto) are defined in `modules/custom-base16-schemes.nix`
+- Custom base16 schemes (ethereal, hackerman, osaka-jade, ristretto, miasma, vantablack, white, retro-82, lumon) are defined in `modules/custom-base16-schemes.nix`
 - Marked with `custom-scheme = true` in `modules/themes.nix`
 
 **Theme Files**:
@@ -253,7 +250,7 @@ Both modules import their options from `config.nix`, which defines all user-conf
 **Main Configuration** (`config.nix`):
 - Defines all user-configurable options using NixOS module system
 - Required options: `username`, `full_name`, `email_address`, `theme`
-- Theme options: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, rose-pine, rose-pine-dawn, rose-pine-moon, nord, gruvbox, gruvbox-light, flexoki-light, matte-black, ethereal, hackerman, osaka-jade, ristretto
+- Theme options: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, rose-pine, rose-pine-dawn, rose-pine-moon, nord, gruvbox, gruvbox-light, flexoki-light, matte-black, ethereal, hackerman, osaka-jade, ristretto, miasma, vantablack, white, retro-82, lumon
 - Optional features: `gaming.enable`, `nvidia.enable`, `office_suite.enable`, `seamless_boot.enable`, `fido2_auth.enable`, `firewall.enable`
 - Light theme detection: `light_theme_detection.enable`, `light_theme_detection.light_theme_mappings`
 

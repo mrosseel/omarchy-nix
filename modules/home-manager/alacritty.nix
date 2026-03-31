@@ -44,6 +44,7 @@ in {
       keyboard.bindings = [
         { key = "Insert"; mods = "Shift"; action = "Paste"; }
         { key = "Insert"; mods = "Control"; action = "Copy"; }
+        { key = "Return"; mods = "Shift"; chars = "\\u001B\\r"; }
       ];
     };
   };

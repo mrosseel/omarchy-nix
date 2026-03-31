@@ -154,4 +154,48 @@
     base0E = "2e2e2e"; # Keywords
     base0F = "6e6e6e"; # Deprecated (accent)
   };
+
+  retro-82 = {
+    slug = "retro-82";
+    scheme = "Retro '82";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "05182e"; # Default Background (deep navy)
+    base01 = "00172e"; # Lighter Background
+    base02 = "134e5a"; # Selection Background
+    base03 = "134e5a"; # Comments, Invisibles
+    base04 = "a7c9c6"; # Dark Foreground
+    base05 = "f6dcac"; # Default Foreground (warm cream)
+    base06 = "f6dcac"; # Light Foreground
+    base07 = "f6dcac"; # Light Background
+    base08 = "f85525"; # Variables (red/orange)
+    base09 = "e97b3c"; # Integers (orange)
+    base0A = "faa968"; # Classes (amber accent)
+    base0B = "028391"; # Strings (teal)
+    base0C = "8cbfb8"; # Regex (cyan)
+    base0D = "faa968"; # Functions (amber - active border)
+    base0E = "3f8f8a"; # Keywords (dark teal)
+    base0F = "f85525"; # Deprecated (red)
+  };
+
+  lumon = {
+    slug = "lumon";
+    scheme = "Lumon";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "16242d"; # Default Background (dark blue-green)
+    base01 = "1b2d40"; # Lighter Background
+    base02 = "304860"; # Selection Background
+    base03 = "304860"; # Comments, Invisibles
+    base04 = "d6e2ee"; # Dark Foreground
+    base05 = "d6e2ee"; # Default Foreground (light blue-grey)
+    base06 = "f2fcff"; # Light Foreground
+    base07 = "ffffff"; # Light Background
+    base08 = "4d86b0"; # Variables (blue)
+    base09 = "6fa4c9"; # Integers (light blue)
+    base0A = "6fb8e3"; # Classes (sky blue)
+    base0B = "5e95bc"; # Strings (steel blue)
+    base0C = "b4e4f6"; # Regex (pale blue)
+    base0D = "f2fcff"; # Functions (ice white - active border)
+    base0E = "8bc9eb"; # Keywords (light sky)
+    base0F = "4d86b0"; # Deprecated (blue)
+  };
 }

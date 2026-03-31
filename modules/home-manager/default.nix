@@ -150,6 +150,7 @@ in {
 
   gtk = {
     enable = true;
+    gtk4.theme = null;
     theme = {
       name = if isLightModeEnabled then "Adwaita" else "Adwaita-dark";
       package = pkgs.gnome-themes-extra;

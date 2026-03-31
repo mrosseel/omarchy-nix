@@ -13,8 +13,6 @@
       "wl-clip-persist --clipboard regular & clipse -listen"
       "pkill -x waybar; uwsm-app -- waybar"
       "uwsm-app -- swayosd-server"
-      "uwsm-app -- elephant"
-      "uwsm-app -- walker --gapplication-service"
 
       # "dropbox-cli start"  # Uncomment to run Dropbox
     ];

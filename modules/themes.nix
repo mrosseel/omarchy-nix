@@ -91,7 +91,7 @@
 
   "miasma" = {
     base16-theme = "miasma";
-    vscode-theme = "In The Fog Dark";
+    vscode-theme = "Miasma";
     custom-scheme = true;
   };
 
@@ -104,6 +104,18 @@
   "white" = {
     base16-theme = "white";
     vscode-theme = "White";
+    custom-scheme = true;
+  };
+
+  "retro-82" = {
+    base16-theme = "retro-82";
+    vscode-theme = "Retro '82";
+    custom-scheme = true;
+  };
+
+  "lumon" = {
+    base16-theme = "lumon";
+    vscode-theme = "Lumon";
     custom-scheme = true;
   };
 }
