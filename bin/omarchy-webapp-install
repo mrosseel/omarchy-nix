@@ -1,71 +1,75 @@
 #!/bin/bash
-# Install a webapp as a desktop application
 
-if [ "$#" -lt 3 ]; then
-  echo "Usage: omarchy-webapp-install <name> <url> <icon-url> [custom-exec] [mime-types]"
-  echo ""
-  echo "Examples:"
-  echo "  omarchy-webapp-install ChatGPT https://chat.openai.com ChatGPT"
-  echo "  omarchy-webapp-install Gmail https://mail.google.com https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
-  echo "  omarchy-webapp-install Notion https://notion.so https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png"
-  echo ""
-  echo "Icons:"
-  echo "  - Use pre-installed icon names (ChatGPT, Discord, GitHub, HEY, WhatsApp, YouTube, Zoom, etc.)"
-  echo "  - Or use PNG URLs from https://dashboardicons.com"
-  echo "  - Or use local file paths to PNG files"
-  exit 1
-fi
+set -e
 
-APP_NAME="$1"
-APP_URL="$2"
-ICON_REF="$3"
-CUSTOM_EXEC="$4"  # Optional custom exec command
-MIME_TYPES="$5"   # Optional mime types
-
-# Ensure valid inputs
-if [[ -z "$APP_NAME" || -z "$APP_URL" || -z "$ICON_REF" ]]; then
-  echo "Error: App name, URL, and icon URL are required!"
-  exit 1
-fi
-
-# Create icon directory
 ICON_DIR="$HOME/.local/share/applications/icons"
+
+if (( $# < 3 )); then
+  echo -e "\e[32mLet's create a new web app you can start with the app launcher.\n\e[0m"
+  APP_NAME=$(gum input --prompt "Name> " --placeholder "My favorite web app")
+  APP_URL=$(gum input --prompt "URL> " --placeholder "https://example.com")
+  if [[ ! $APP_URL =~ ^[a-zA-Z][a-zA-Z0-9+.-]*: ]]; then
+    APP_URL="https://$APP_URL"
+  fi
+
+  # Try to fetch favicon automatically first.
+  FAVICON_URL="https://www.google.com/s2/favicons?domain=${APP_URL}&sz=128"
+  mkdir -p "$ICON_DIR"
+  if curl -fsSL -o "$ICON_DIR/$APP_NAME.png" "$FAVICON_URL" && [[ -s $ICON_DIR/$APP_NAME.png ]]; then
+    ICON_REF="$APP_NAME.png"
+  else
+    ICON_REF=$(gum input --prompt "Icon URL> " --placeholder "Could not fetch favicon automatically. Enter PNG icon URL (see https://dashboardicons.com)")
+  fi
+
+  CUSTOM_EXEC=""
+  MIME_TYPES=""
+  INTERACTIVE_MODE=true
+else
+  APP_NAME="$1"
+  APP_URL="$2"
+  if [[ ! $APP_URL =~ ^[a-zA-Z][a-zA-Z0-9+.-]*: ]]; then
+    APP_URL="https://$APP_URL"
+  fi
+  ICON_REF="$3"
+  CUSTOM_EXEC="$4" # Optional custom exec command
+  MIME_TYPES="$5"  # Optional mime types
+  INTERACTIVE_MODE=false
+fi
+
+# Ensure valid execution
+if [[ -z $APP_NAME || -z $APP_URL ]]; then
+  echo "You must set app name and app URL!"
+  exit 1
+fi
+
+# Resolve icon from URL or from a local icon name.
 mkdir -p "$ICON_DIR"
 
-# Check if icon is a URL, pre-installed icon name, or local path
+if [[ -z $ICON_REF ]]; then
+  ICON_REF="https://www.google.com/s2/favicons?domain=${APP_URL}&sz=128"
+fi
+
 if [[ $ICON_REF =~ ^https?:// ]]; then
-  # Download icon from URL
   ICON_PATH="$ICON_DIR/$APP_NAME.png"
-  echo "Downloading icon..."
-  if curl -sL -o "$ICON_PATH" "$ICON_REF"; then
-    echo "Icon downloaded successfully"
-  else
-    echo "Error: Failed to download icon from $ICON_REF"
+  if ! curl -fsSL -o "$ICON_PATH" "$ICON_REF" || [[ ! -s $ICON_PATH ]]; then
+    echo "Error: Failed to download icon."
     exit 1
   fi
 elif [[ -f "$HOME/.config/omarchy/webapp-icons/$ICON_REF.png" ]]; then
-  # Use pre-installed icon from webapp-icons directory
   ICON_PATH="$HOME/.config/omarchy/webapp-icons/$ICON_REF.png"
-  echo "Using pre-installed icon: $ICON_REF"
+elif [[ -f "$ICON_DIR/$ICON_REF" ]]; then
+  ICON_PATH="$ICON_DIR/$ICON_REF"
 elif [[ -f "$ICON_REF" ]]; then
-  # Use local file path
   ICON_PATH="$ICON_REF"
 else
   echo "Error: Icon not found: $ICON_REF"
-  echo "  - Not found as URL"
-  echo "  - Not found in ~/.config/omarchy/webapp-icons/"
-  echo "  - Not found as local file"
   exit 1
 fi
 
 # Use custom exec if provided, otherwise default behavior
-if [[ -n $CUSTOM_EXEC ]]; then
-  EXEC_COMMAND="$CUSTOM_EXEC"
-else
-  EXEC_COMMAND="omarchy-launch-webapp $APP_URL"
-fi
+EXEC_COMMAND="${CUSTOM_EXEC:-omarchy-launch-webapp $APP_URL}"
 
-# Create desktop entry
+# Create application .desktop file
 DESKTOP_FILE="$HOME/.local/share/applications/$APP_NAME.desktop"
 
 cat >"$DESKTOP_FILE" <<EOF
@@ -78,7 +82,6 @@ Terminal=false
 Type=Application
 Icon=$ICON_PATH
 StartupNotify=true
-Categories=Network;WebApp;
 EOF
 
 # Add mime types if provided
@@ -88,7 +91,6 @@ fi
 
 chmod +x "$DESKTOP_FILE"
 
-echo ""
-echo "✓ Webapp installed: $APP_NAME"
-echo "  Launch with: SUPER + SPACE, then search for '$APP_NAME'"
-echo "  Desktop file: $DESKTOP_FILE"
+if [[ $INTERACTIVE_MODE == "true" ]]; then
+  echo -e "You can now find $APP_NAME using the app launcher (SUPER + SPACE)\n"
+fi

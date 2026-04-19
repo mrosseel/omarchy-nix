@@ -37,7 +37,8 @@ inputs: {
           libqalculate
           imagemagick
           bluez
-        ])}
+        ])} \
+        --suffix PATH : /run/current-system/sw/bin:/etc/profiles/per-user/${cfg.username}/bin:/run/wrappers/bin
     '';
   };
 in {
@@ -169,6 +170,20 @@ in {
     };
   };
   services.gvfs.enable = true;
+
+  # Printing support (CUPS stack - matches Omarchy's cups/cups-browsed/cups-filters/cups-pdf)
+  services.printing = {
+    enable = true;
+    browsing = true;
+  };
+
+  # Power management profiles (performance/balanced/power-saver)
+  services.power-profiles-daemon.enable = true;
+
+  # Credential storage for apps (gnome-keyring)
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.greetd.enableGnomeKeyring = true;
+
 
   # Networking
   services.resolved.enable = true;

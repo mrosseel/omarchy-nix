@@ -79,9 +79,11 @@ in {
     (if cfg.browser == "brave" then brave else chromium)
     obsidian
     vlc
+    mpv
     gnome-calculator
     loupe
     krita
+    pinta
     xournalpp
     localsend
 
@@ -104,11 +106,6 @@ in {
     # Might have to make it ourselves
     # asdcontrol
 
-    # Don't want these right now
-    # obs-studio
-    # kdePackages.kdenLive
-    # pinta
-    # libreoffice
     signal-desktop
 
     # Commercial GUIs
@@ -123,7 +120,25 @@ in {
 
     # Containers
     docker-compose
-    # podman-compose
+    docker-buildx
+
+    # Database client libraries (needed by dev tools to connect to MySQL/PostgreSQL)
+    mariadb.client
+    postgresql.lib
+
+    # Nautilus enhancements
+    ffmpegthumbnailer
+    sushi
+
+    # Credential storage
+    gnome-keyring
+    libsecret
+
+    # Qt Wayland and theming
+    kdePackages.qtwayland
+    libsForQt5.qt5.qtwayland
+    libsForQt5.qtstyleplugin-kvantum
+    kdePackages.qtstyleplugin-kvantum
   ];
 
   homePackages = with pkgs; [
