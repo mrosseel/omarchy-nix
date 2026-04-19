@@ -73,35 +73,33 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `64ef8044` (origin/dev branch)
+**Last synced Omarchy commit**: `236a34b2` (origin/master, v3.5.1)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: March 31, 2026
-**Sync notes**: Synced ~130 commits from 9a2dc684..64ef8044. Ported:
-- ✅ New themes: Retro 82 and Lumon Industries (full config sets, backgrounds, base16 schemes)
-- ✅ Updated Gruvbox backgrounds (3 new + rename to match upstream)
-- ✅ Updated all 19 theme preview images to consistent size and style
-- ✅ Theme fixes: white icons → Yaru-grey, miasma vscode → Miasma theme, miasma neovim → OldJobobo fork
-- ✅ Tmux: COPY mode indicator, ZOOM indicator, native window auto-rename, Alt+Shift+Arrow window swap, reload display message
-- ✅ Alacritty: Shift+Return multi-line binding (Claude Code compat)
-- ✅ Browser: dark/light mode fix (BrowserColorScheme policy for Chromium/Brave)
-- ✅ Hyprland looknfeel: rounding=0, shadows enabled, blur special/brightness/contrast, scratchpad slidevert animation, misc/cursor/binds settings
-- ✅ Hyprland input: repeat_rate/delay, numlock_by_default, touchpad scroll_factor, terminal scroll window rules
-- ✅ Hyprland apps: LocalSend window size, JetBrains find window title match fix
-- ✅ Hyprland preview-share-picker: default to outputs page, stylesheet reference
-- ✅ Hyprland envs: GUM_CONFIRM style environment variables
-- ✅ New script: omarchy-hyprland-active-window-transparency-toggle (extracted from inline binding)
-- ✅ New scripts: omarchy-battery-status, omarchy-battery-remaining-time, omarchy-battery-capacity
-- ✅ New script: omarchy-menu-keybindings (walker-based keybinding browser)
-- ✅ Updated ~10 scripts with notify-send -u low for immediate-feedback notifications
-- ✅ Updated omarchy-menu: toggle existing walker, keybindings via omarchy-menu-keybindings
-- ✅ Updated omarchy-theme-set-vscode: VSCode Insiders + Cursor support
-- ✅ Updated omarchy-hyprland-monitor-scaling-cycle: applies configured resolution/refresh rate
-- ✅ Updated time/battery display format to match upstream
-- ✅ Bash: git worktrees functions (ga/gd), aliases (ls/ff/sff/zd/cd), kitty image preview in ff
-- ✅ Voxtype: Vulkan GPU auto-enable, config merge (won't overwrite user settings)
-- ✅ Elephant: hide themes menu from provider list
+**Last sync date**: April 19, 2026
+**Sync notes**: Synced ~60 commits from 64ef8044..236a34b2 (v3.4.2 → v3.5.1). Ported:
+- ✅ Hyprland input: repeat_delay 600 → 250 (faster key repeat)
+- ✅ Hyprland looknfeel: disable_scale_notification = true
+- ✅ Hyprland bindings: OSD uses omarchy-hyprland-monitor-focused, mic mute uses omarchy-cmd-mic-mute
+- ✅ Hyprland bindings: Copilot key (SUPER SHIFT code:201) → Omarchy menu
+- ✅ Hyprland bindings: SUPER CTRL Delete → toggle laptop display
+- ✅ Hyprland autostart: omarchy-powerprofiles-init on boot
+- ✅ New scripts: omarchy-hyprland-monitor-focused, omarchy-hyprland-monitor-internal-toggle
+- ✅ New scripts: omarchy-cmd-mic-mute, omarchy-ac-present, omarchy-battery-present
+- ✅ New scripts: omarchy-powerprofiles-init, omarchy-powerprofiles-set
+- ✅ New scripts: omarchy-restart-trackpad, omarchy-sudo-reset
+- ✅ Updated omarchy-battery-remaining-time: handle minutes unit with regex, show Xm for short durations
+- ✅ Updated omarchy-launch-walker: restored GSK_RENDERER=cairo (fixes sluggish GTK4), pgrep -x
+- ✅ Updated omarchy-theme-set-browser: suppress stderr noise (&>/dev/null)
+- ✅ Updated omarchy-cmd-screenshot: auto-create screenshot directory
+- ✅ Updated omarchy-menu: laptop display toggle, trackpad restart, waybar config.jsonc path
+- ✅ Removed jetbrains.conf (JetBrains fixed Hyprland issues upstream)
+- ✅ Added moonlight.conf app window rule
+- ✅ Added resume-boost systemd sleep hook (power profile boost on resume)
+- ✅ Added LocalSend Nautilus extension (right-click Send via LocalSend)
+- ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
+- ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: We track the **`dev`** branch (not `master`), as it contains the latest development work
+**Branch tracking**: We track the **`master`** branch (v3.5.1 release)
 
 **To check current Omarchy status**:
 ```bash
@@ -526,7 +524,7 @@ The flake expects to be used alongside a user's existing NixOS configuration wit
 - base16 color variables are accessed via `config.colorScheme.palette.base00` through `base0F`
 
 **Hyprland Configuration**:
-- Hyprland is pinned to v0.52.2 to match Omarchy (Arch) version - update carefully
+- Hyprland is pinned to v0.54.3 via the omarchy-nix flake input - update carefully
 - Environment variables are set in `modules/home-manager/hyprland/envs.nix`
 - Keybindings support metadata (description) as 3rd parameter: `"SUPER, B, Browser, exec, $browser"`
 

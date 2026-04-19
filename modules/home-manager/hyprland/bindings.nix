@@ -6,7 +6,7 @@
 }: let
   cfg = config.omarchy;
   # OSD client for the currently focused monitor
-  osdclient = "swayosd-client --monitor \"$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')\"";
+  osdclient = "swayosd-client --monitor \"$(omarchy-hyprland-monitor-focused)\"";
 
   # Convert binding lists to extraConfig strings
   mkBindd = bindings: lib.concatMapStringsSep "\n" (binding: "bindd = ${binding}") bindings;
@@ -28,6 +28,7 @@
     "SUPER CTRL, C, Capture menu, exec, omarchy-menu capture"
     "SUPER CTRL, O, Toggle menu, exec, omarchy-menu toggle"
     "SUPER ALT, SPACE, Omarchy menu, exec, omarchy-menu"
+    "SUPER SHIFT, code:201, Omarchy menu, exec, omarchy-menu"
     "SUPER, ESCAPE, System menu, exec, omarchy-menu system"
     "SUPER, K, Show key bindings, exec, omarchy-show-keybindings"
 
@@ -49,6 +50,7 @@
     # Toggles
     "SUPER CTRL, I, Toggle locking on idle, exec, omarchy-toggle-idle"
     "SUPER CTRL, N, Toggle nightlight, exec, omarchy-toggle-nightlight"
+    "SUPER CTRL, Delete, Toggle laptop display, exec, omarchy-hyprland-monitor-internal-toggle"
 
     # Control Apple Display brightness
     "CTRL, F1, Apple Display brightness down, exec, omarchy-brightness-display -5000"
@@ -247,7 +249,7 @@
     ",XF86AudioRaiseVolume, Volume up, exec, ${osdclient} --output-volume raise"
     ",XF86AudioLowerVolume, Volume down, exec, ${osdclient} --output-volume lower"
     ",XF86AudioMute, Mute, exec, ${osdclient} --output-volume mute-toggle"
-    ",XF86AudioMicMute, Mute microphone, exec, ${osdclient} --input-volume mute-toggle"
+    ",XF86AudioMicMute, Mute microphone, exec, omarchy-cmd-mic-mute"
     ",XF86MonBrightnessUp, Brightness up, exec, omarchy-brightness-display +5%"
     ",XF86MonBrightnessDown, Brightness down, exec, omarchy-brightness-display 5%-"
     ",XF86KbdBrightnessUp, Keyboard brightness up, exec, omarchy-brightness-keyboard up"

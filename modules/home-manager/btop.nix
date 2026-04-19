@@ -89,6 +89,7 @@ in {
       force_tty = false;
       vim_keys = true;
       rounded_corners = true;
+      terminal_sync = true;
       graph_symbol = "braille";
       graph_symbol_cpu = "default";
       graph_symbol_mem = "default";
@@ -112,6 +113,7 @@ in {
       cpu_single_graph = false;
       cpu_bottom = false;
       show_uptime = true;
+      show_cpu_watts = true;
       check_temp = true;
       cpu_sensor = "Auto";
       show_coretemp = true;
@@ -119,6 +121,7 @@ in {
       temp_scale = "celsius";
       base_10_sizes = false;
       show_cpu_freq = true;
+      freq_mode = "first";
       clock_format = "%X";
       background_update = true;
       custom_cpu_name = ";
@@ -144,7 +147,11 @@ in {
       net_iface = ";
       show_battery = true;
       selected_battery = "Auto";
+      show_battery_watts = true;
       log_level = "WARNING";
+      save_config_on_exit = true;
+      gpu_mirror_graph = true;
+      shown_gpus = "nvidia amd intel";
     };
   };
 }

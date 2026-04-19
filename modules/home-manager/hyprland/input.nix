@@ -11,7 +11,7 @@
       kb_options = "compose:caps";
 
       repeat_rate = 40;
-      repeat_delay = 600;
+      repeat_delay = 250;
 
       numlock_by_default = true;
 

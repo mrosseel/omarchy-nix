@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Toggle microphone mute with OSD feedback.
+
+swayosd-client --monitor "$(omarchy-hyprland-monitor-focused)" --input-volume mute-toggle
