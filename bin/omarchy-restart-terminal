@@ -6,10 +6,13 @@ if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
   touch ~/.config/alacritty/alacritty.toml
 fi
 
-if pgrep -x kitty >/dev/null; then
-  killall -SIGUSR1 kitty >/dev/null
+# Use -f patterns so the Nix-wrapped binaries (`.kitty-wrapped`,
+# `.ghostty-wrapped`) are matched. With -x against `kitty`/`ghostty` the
+# checks always fail on Nix and config-reload signals never get sent.
+if pgrep -f "(^|/)\.?kitty(-wrapped)?( |\$)" >/dev/null; then
+  pkill -SIGUSR1 -f "(^|/)\.?kitty(-wrapped)?( |\$)" >/dev/null
 fi
 
-if pgrep -x ghostty >/dev/null; then
-  killall -SIGUSR2 ghostty
+if pgrep -f "(^|/)\.?ghostty(-wrapped)?( |\$)" >/dev/null; then
+  pkill -SIGUSR2 -f "(^|/)\.?ghostty(-wrapped)?( |\$)"
 fi
