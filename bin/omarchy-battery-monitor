@@ -1,48 +1,24 @@
 #!/bin/bash
-# Monitor battery and show low battery notifications
 
-# Configuration
-LOW_BATTERY_THRESHOLD=20
-CRITICAL_BATTERY_THRESHOLD=10
-CHECK_INTERVAL=60  # Check every 60 seconds
+# omarchy:summary=Designed to be run by systemd timer every 30 seconds and alerts if battery is low
 
-# Track notification state to avoid spam
-LAST_NOTIFICATION=""
+BATTERY_THRESHOLD=10
+NOTIFICATION_FLAG="/run/user/$UID/omarchy_battery_notified"
+BATTERY_LEVEL=$(omarchy-battery-remaining)
+BATTERY_STATE=$(upower -i $(upower -e | grep 'BAT') | grep -E "state" | awk '{print $2}')
 
-while true; do
-  # Get battery info
-  BATTERY_PATH="/sys/class/power_supply/BAT0"
+send_notification() {
+  notify-send -u critical "󱐋 Time to recharge!" "Battery is down to ${1}%" -i battery-caution -t 30000
+  omarchy-hook battery-low "$1"
+}
 
-  # Check if battery exists (skip on desktops)
-  if [ ! -d "$BATTERY_PATH" ]; then
-    # No battery found, check less frequently
-    sleep 300
-    continue
-  fi
-
-  # Read battery percentage
-  CAPACITY=$(cat "$BATTERY_PATH/capacity" 2>/dev/null || echo "100")
-  STATUS=$(cat "$BATTERY_PATH/status" 2>/dev/null || echo "Unknown")
-
-  # Only notify when discharging
-  if [ "$STATUS" = "Discharging" ]; then
-    if [ "$CAPACITY" -le "$CRITICAL_BATTERY_THRESHOLD" ]; then
-      if [ "$LAST_NOTIFICATION" != "critical" ]; then
-        notify-send "Critical Battery" "Battery at ${CAPACITY}% - Connect charger now!" -u critical -i battery-caution
-        LAST_NOTIFICATION="critical"
-      fi
-    elif [ "$CAPACITY" -le "$LOW_BATTERY_THRESHOLD" ]; then
-      if [ "$LAST_NOTIFICATION" != "low" ]; then
-        notify-send "Low Battery" "Battery at ${CAPACITY}% - Consider charging" -u normal -i battery-low
-        LAST_NOTIFICATION="low"
-      fi
-    else
-      LAST_NOTIFICATION=""
+if [[ -n $BATTERY_LEVEL && $BATTERY_LEVEL =~ ^[0-9]+$ ]]; then
+  if [[ $BATTERY_STATE == "discharging" ]] && (( BATTERY_LEVEL <= BATTERY_THRESHOLD )); then
+    if [[ ! -f $NOTIFICATION_FLAG ]]; then
+      send_notification $BATTERY_LEVEL
+      touch $NOTIFICATION_FLAG
     fi
   else
-    # Reset notification state when charging
-    LAST_NOTIFICATION=""
+    rm -f $NOTIFICATION_FLAG
   fi
-
-  sleep "$CHECK_INTERVAL"
-done
+fi

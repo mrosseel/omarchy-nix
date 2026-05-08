@@ -19,5 +19,6 @@ in {
     ./nvidia.nix
     ./theme-switcher-sudo.nix
     ./voxtype.nix
+    ./hardware.nix
   ];
 }

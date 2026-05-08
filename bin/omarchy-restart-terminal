@@ -1,19 +1,15 @@
 #!/bin/bash
-#
-# omarchy-restart-terminal - Reload terminal emulator configurations
-#
 
-# Alacritty - use IPC to trigger config reload (touch doesn't work with nix store symlinks)
-if pgrep alacritty >/dev/null && command -v alacritty >/dev/null; then
-  alacritty msg config -w -1 "live_config_reload=true" 2>/dev/null || true
+# omarchy:summary=Reload supported terminal emulators after config changes
+
+if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
+  touch ~/.config/alacritty/alacritty.toml
 fi
 
-# Kitty - send SIGUSR1 to reload config
-if pgrep kitty >/dev/null; then
-  pkill -SIGUSR1 kitty
+if pgrep -x kitty >/dev/null; then
+  killall -SIGUSR1 kitty >/dev/null
 fi
 
-# Ghostty - send SIGUSR2 to reload config
-if pgrep ghostty >/dev/null; then
-  pkill -SIGUSR2 ghostty
+if pgrep -x ghostty >/dev/null; then
+  killall -SIGUSR2 ghostty
 fi

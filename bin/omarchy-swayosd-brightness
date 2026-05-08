@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# Display brightness OSD via swayosd
+# omarchy:summary=Display brightness level using SwayOSD on the current monitor.
+# omarchy:args=<percent>
 
-MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
-BRIGHTNESS=$(brightnessctl info -m 2>/dev/null | cut -d, -f4 | tr -d '%')
+percent="$1"
 
-if [[ -z "$BRIGHTNESS" ]]; then
-  BRIGHTNESS=0
-fi
+progress="$(awk -v p="$percent" 'BEGIN{printf "%.2f", p/100}')"
+[[ $progress == "0.00" ]] && progress="0.01"
 
-PROGRESS=$(echo "scale=2; $BRIGHTNESS / 100" | bc)
-[[ "$PROGRESS" == "0" ]] && PROGRESS="0.01"
-
-swayosd-client --monitor "$MONITOR" --custom-icon "display-brightness" --custom-message "Display Brightness ${BRIGHTNESS}%" --progress "$PROGRESS"
+omarchy-swayosd-client \
+  --custom-icon display-brightness-symbolic \
+  --custom-progress "$progress" \
+  --custom-progress-text "${percent}%"

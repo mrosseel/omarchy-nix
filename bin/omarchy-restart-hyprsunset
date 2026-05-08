@@ -1,6 +1,5 @@
 #!/bin/bash
-#
-# omarchy-restart-hyprsunset - Restart hyprsunset service
-#
 
-systemctl --user restart hyprsunset
+# omarchy:summary=Restart the hyprsunset service (used for blue light filtering/night light).
+
+omarchy-restart-app hyprsunset

@@ -1,6 +1,5 @@
 #!/bin/bash
-#
-# omarchy-restart-hypridle - Restart hypridle service
-#
+
+# omarchy:summary=Restart the hypridle service (used for idle detection and auto-lock).
 
 omarchy-restart-app hypridle

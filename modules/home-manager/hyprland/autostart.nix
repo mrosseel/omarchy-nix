@@ -13,6 +13,7 @@
       "pkill -x waybar; uwsm-app -- waybar"
       "uwsm-app -- swayosd-server"
       "omarchy-powerprofiles-init"
+      "uwsm-app -- omarchy-hyprland-monitor-watch"
 
       # "dropbox-cli start"  # Uncomment to run Dropbox
     ];

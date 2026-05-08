@@ -1,3 +1,5 @@
 #!/bin/bash
-# Reload btop configuration (used by Omarchy theme switching)
-pkill -SIGUSR2 btop 2>/dev/null || true
+
+# omarchy:summary=Reload btop configuration (used by the Omarchy theme switching).
+
+pkill -SIGUSR2 btop

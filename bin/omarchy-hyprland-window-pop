@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Toggle to pop-out a tile to stay fixed on a display basis.
+# omarchy:summary=Toggle to pop-out a tile to stay fixed on a display basis.
+# omarchy:args=[width height x y]
 
 width=${1:-1300}
 height=${2:-900}

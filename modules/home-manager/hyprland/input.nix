@@ -6,30 +6,21 @@
 }: {
   wayland.windowManager.hyprland.settings = {
     # https://wiki.hyprland.org/Configuring/Variables/#input
-    input = lib.mkDefault {
-      kb_layout = "us";
-      kb_options = "compose:caps";
+    # Each key uses lib.mkDefault so user path-based overrides merge cleanly.
+    input.kb_layout = lib.mkDefault "us";
+    input.kb_options = lib.mkDefault "compose:caps";
+    input.repeat_rate = lib.mkDefault 40;
+    input.repeat_delay = lib.mkDefault 250;
+    input.numlock_by_default = lib.mkDefault true;
+    input.follow_mouse = lib.mkDefault 1;
+    input.sensitivity = lib.mkDefault 0;
+    input.touchpad.natural_scroll = lib.mkDefault false;
+    input.touchpad.scroll_factor = lib.mkDefault 0.4;
+    input.touchpad.clickfinger_behavior = lib.mkDefault true;
 
-      repeat_rate = 40;
-      repeat_delay = 250;
-
-      numlock_by_default = true;
-
-      follow_mouse = 1;
-
-      sensitivity = 0; # -1.0 - 1.0, 0 means no modification.
-
-      touchpad = {
-        natural_scroll = false;
-        scroll_factor = 0.4;
-      };
-    };
-
-    misc = {
-      key_press_enables_dpms = true;
-      mouse_move_enables_dpms = true;
-      allow_session_lock_restore = true;
-    };
+    misc.key_press_enables_dpms = true;
+    misc.mouse_move_enables_dpms = true;
+    misc.allow_session_lock_restore = true;
   };
 
   wayland.windowManager.hyprland.extraConfig = ''

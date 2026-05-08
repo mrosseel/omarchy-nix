@@ -116,12 +116,17 @@ in {
     ".config/elephant/desktopapplications.toml" = {
       source = ../../config/elephant/desktopapplications.toml;
     };
-    ".local/share/omarchy/default/bash/fns" = {
-      source = ../../default/bash/fns;
+    ".local/share/omarchy/default/bash" = {
+      source = ../../default/bash;
       recursive = true;
     };
+    ".local/share/omarchy/version".source = ../../default/omarchy-version;
     ".local/share/omarchy/default/hypr" = {
       source = ../../default/hypr;
+      recursive = true;
+    };
+    ".local/share/omarchy/default/themed" = {
+      source = ../../default/themed;
       recursive = true;
     };
   };
@@ -139,6 +144,56 @@ in {
       cp "$HOME/.local/share/omarchy/logo.txt" "$HOME/.config/omarchy/branding/screensaver.txt"
     fi
   '';
+
+  # Seed Hyprland toggle state dir (omarchy install/config/omarchy-toggles.sh equivalent)
+  home.activation.seedHyprToggles = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p "$HOME/.local/state/omarchy/toggles/hypr"
+    if [ ! -f "$HOME/.local/state/omarchy/toggles/hypr/flags.conf" ]; then
+      cp "$HOME/.local/share/omarchy/default/hypr/toggles/flags.conf" \
+         "$HOME/.local/state/omarchy/toggles/hypr/flags.conf"
+    fi
+  '';
+
+  # Restart walker / elephant daemons after every switch so they pick up
+  # the new binaries instead of holding onto a stale /nix/store path. Without
+  # this, any walker --dmenu the user opens after an update would talk to a
+  # daemon from before the switch — accumulating zombies that the menu's
+  # toggle logic can't close, and breaking the menu until manual cleanup.
+  # Using -f (match command line) instead of -x (match comm), because Nix's
+  # wrapper binary has comm `.walker-wrapped` rather than `walker`.
+  # `.elephant-wrapped` is the matching token for elephant's wrapper.
+  home.activation.restartWalkerStack = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    pkill -9 -f "walker.*--dmenu" 2>/dev/null || true
+    pkill -f "walker --gapplication-service" 2>/dev/null || true
+    pkill -9 -f "\.elephant-wrapped" 2>/dev/null || true
+  '';
+
+  # Recover internal display when no external monitor is attached at session start.
+  # Mirrors upstream config/systemd/user/omarchy-recover-internal-monitor.service.
+  systemd.user.services.omarchy-recover-internal-monitor = {
+    Unit = {
+      Description = "Recover the internal monitor toggle when no external display is connected";
+      Before = [ "graphical-session-pre.target" ];
+      ConditionPathExists = "%h/.local/state/omarchy/toggles/hypr/internal-monitor-disable.conf";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "%h/.local/share/omarchy/bin/omarchy-hw-recover-internal-monitor";
+    };
+    Install.WantedBy = [ "graphical-session-pre.target" ];
+  };
+
+  # XDG user directories (omarchy install/config/user-dirs.sh equivalent)
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+    download = "${config.home.homeDirectory}/Downloads";
+    pictures = "${config.home.homeDirectory}/Pictures";
+    videos = "${config.home.homeDirectory}/Videos";
+    desktop = config.home.homeDirectory;
+    publicShare = config.home.homeDirectory;
+    templates = config.home.homeDirectory;
+  };
 
   colorScheme = selectedColorScheme;
 
@@ -170,5 +225,9 @@ in {
   };
 
   # TODO: Add an actual nvim config
-  programs.neovim.enable = true;
+  programs.neovim = {
+    enable = true;
+    withRuby = false;
+    withPython3 = false;
+  };
 }

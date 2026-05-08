@@ -115,10 +115,10 @@
     slug = "vantablack";
     scheme = "Vantablack";
     author = "Omarchy (port by omarchy-nix)";
-    base00 = "0d0d0d"; # Default Background (near black)
+    base00 = "000000"; # Default Background (true black)
     base01 = "1a1a1a"; # Lighter Background
     base02 = "ffffff"; # Selection Background
-    base03 = "fdfdfd"; # Comments, Invisibles
+    base03 = "5c5c5c"; # Comments, Invisibles (color8 grey)
     base04 = "ececec"; # Dark Foreground
     base05 = "ffffff"; # Default Foreground
     base06 = "ffffff"; # Light Foreground
@@ -194,7 +194,7 @@
     base0A = "6fb8e3"; # Classes (sky blue)
     base0B = "5e95bc"; # Strings (steel blue)
     base0C = "b4e4f6"; # Regex (pale blue)
-    base0D = "f2fcff"; # Functions (ice white - active border)
+    base0D = "8bc9eb"; # Functions (light sky - new accent / active border)
     base0E = "8bc9eb"; # Keywords (light sky)
     base0F = "4d86b0"; # Deprecated (blue)
   };

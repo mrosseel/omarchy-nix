@@ -14,6 +14,7 @@
   mkBindeld = bindings: lib.concatMapStringsSep "\n" (binding: "bindeld = ${binding}") bindings;
   mkBindld = bindings: lib.concatMapStringsSep "\n" (binding: "bindld = ${binding}") bindings;
   mkBindmd = bindings: lib.concatMapStringsSep "\n" (binding: "bindmd = ${binding}") bindings;
+  mkBindl = bindings: lib.concatMapStringsSep "\n" (binding: "bindl = ${binding}") bindings;
 
   # Dictation bindings (only when voxtype is enabled)
   dictationBindings = lib.optionals cfg.voxtype.enable [
@@ -50,7 +51,11 @@
     # Toggles
     "SUPER CTRL, I, Toggle locking on idle, exec, omarchy-toggle-idle"
     "SUPER CTRL, N, Toggle nightlight, exec, omarchy-toggle-nightlight"
-    "SUPER CTRL, Delete, Toggle laptop display, exec, omarchy-hyprland-monitor-internal-toggle"
+    "SUPER CTRL, Delete, Toggle laptop display, exec, omarchy-hyprland-monitor-internal toggle"
+    "SUPER CTRL ALT, Delete, Toggle laptop display mirroring, exec, omarchy-hyprland-monitor-internal-mirror toggle"
+
+    # Hardware menu (capture/toggle menus already in Menus group above)
+    "SUPER CTRL, H, Hardware menu, exec, omarchy-menu hardware"
 
     # Control Apple Display brightness
     "CTRL, F1, Apple Display brightness down, exec, omarchy-brightness-display -5000"
@@ -58,7 +63,7 @@
     "SHIFT CTRL, F2, Apple Display full brightness, exec, omarchy-brightness-display +60000"
 
     # Captures
-    ", PRINT, Screenshot, exec, omarchy-cmd-screenshot"
+    ", PRINT, Screenshot, exec, omarchy-capture-screenshot"
     "ALT, PRINT, Screenrecording, exec, omarchy-menu screenrecord"
     "SUPER, PRINT, Color picker, exec, pkill hyprpicker || hyprpicker -a"
 
@@ -80,7 +85,7 @@
     "SUPER CTRL ALT, Z, Reset zoom, exec, hyprctl keyword cursor:zoom_factor 1"
 
     # Lock system
-    "SUPER CTRL, L, Lock system, exec, omarchy-lock-screen"
+    "SUPER CTRL, L, Lock system, exec, omarchy-system-lock"
 
     # Close windows
     "SUPER, W, Close window, killactive,"
@@ -249,7 +254,7 @@
     ",XF86AudioRaiseVolume, Volume up, exec, ${osdclient} --output-volume raise"
     ",XF86AudioLowerVolume, Volume down, exec, ${osdclient} --output-volume lower"
     ",XF86AudioMute, Mute, exec, ${osdclient} --output-volume mute-toggle"
-    ",XF86AudioMicMute, Mute microphone, exec, omarchy-cmd-mic-mute"
+    ",XF86AudioMicMute, Mute microphone, exec, omarchy-audio-input-mute"
     ",XF86MonBrightnessUp, Brightness up, exec, omarchy-brightness-display +5%"
     ",XF86MonBrightnessDown, Brightness down, exec, omarchy-brightness-display 5%-"
     ",XF86KbdBrightnessUp, Keyboard brightness up, exec, omarchy-brightness-keyboard up"
@@ -265,6 +270,15 @@
   # Keyboard backlight cycle (bindld - works when locked)
   kbdBacklightBindings = [
     ",XF86KbdLightOnOff, Keyboard backlight cycle, exec, omarchy-brightness-keyboard cycle"
+    ",XF86TouchpadToggle, Toggle touchpad, exec, omarchy-toggle-touchpad"
+    ",XF86TouchpadOn, Enable touchpad, exec, omarchy-toggle-touchpad on"
+    ",XF86TouchpadOff, Disable touchpad, exec, omarchy-toggle-touchpad off"
+  ];
+
+  # Lid switch bindings (bindl - works when locked, no description form)
+  switchBindings = [
+    ", switch:on:Lid Switch, exec, omarchy-hw-external-monitors && omarchy-hyprland-monitor-internal off"
+    ", switch:off:Lid Switch, exec, omarchy-hyprland-monitor-internal on"
   ];
 
   # Media player bindings (bindld - works when locked)
@@ -275,7 +289,7 @@
     ", XF86AudioPrev, Previous track, exec, ${osdclient} --playerctl previous"
 
     # Switch audio output with Super + Mute
-    "SUPER, XF86AudioMute, Switch audio output, exec, omarchy-cmd-audio-switch"
+    "SUPER, XF86AudioMute, Switch audio output, exec, omarchy-audio-output-switch"
 
     # Power menu
     ", XF86PowerOff, Power menu, exec, omarchy-menu system"
@@ -306,6 +320,9 @@ in {
 
       # Media player bindings (works when locked)
       ${mkBindld mediaPlayerBindings}
+
+      # Lid switch (works when locked)
+      ${mkBindl switchBindings}
     '';
   };
 }

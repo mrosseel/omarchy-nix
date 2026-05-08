@@ -1,11 +1,6 @@
 #!/bin/bash
-# Restart Waybar status bar
 
-echo "Restarting Waybar..."
+# omarchy:summary=Restart Waybar
+# omarchy:examples=omarchy restart waybar
 
-# Kill waybar and restart with UWSM wrapper for proper session management
-pkill -x waybar
-setsid uwsm-app -- waybar >/dev/null 2>&1 &
-
-notify-send "Waybar Restarted" "Status bar has been restarted" -u low
-echo "Waybar restarted successfully"
+omarchy-restart-app waybar

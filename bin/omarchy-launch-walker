@@ -1,13 +1,19 @@
 #!/bin/bash
 
-# Launch the Walker application launcher while ensuring that it's data provider (called elephant) is running first.
+# omarchy:summary=Launch Walker and ensure its Elephant data provider is running
 
-# Ensure elephant is running before launching walker
-if ! pgrep -x elephant > /dev/null; then
-  setsid uwsm-app -- elephant &
+# Elephant is managed as a systemd user service on omarchy-nix
+# (see modules/nixos/system.nix). Detect it via systemctl, not pgrep —
+# the upstream `pgrep -x elephant` never matches because Nix's wrapped
+# binary has comm `.elephant-wrapped`, so every menu invocation used to
+# spawn a fresh detached elephant. Letting that run for a week left ~50
+# orphan elephants and a flaky menu (walker would race-connect to one of
+# them, often a stale instance with no providers — Style menu just exits).
+if ! systemctl --user is-active --quiet elephant.service; then
+  systemctl --user start elephant.service
 fi
 
-# Ensure walker service is running
+# Walker daemon: -f matches command line so this check is reliable.
 if ! pgrep -f "walker --gapplication-service" > /dev/null; then
   setsid uwsm-app -- env GSK_RENDERER=cairo walker --gapplication-service &
 fi

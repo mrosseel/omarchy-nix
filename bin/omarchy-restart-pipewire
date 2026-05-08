@@ -1,13 +1,6 @@
 #!/bin/bash
-# Restart PipeWire audio system
 
-echo "Restarting PipeWire..."
+# omarchy:summary=Restart the PipeWire audio service to fix audio issues or apply new configuration.
 
-# Restart pipewire and related services
-systemctl --user restart pipewire pipewire-pulse wireplumber
-
-# Wait for services to start
-sleep 1
-
-notify-send "Audio Restarted" "PipeWire audio system has been restarted" -u low -i audio-card
-echo "PipeWire restarted successfully"
+echo -e "Restarting pipewire audio service...\n"
+systemctl --user restart pipewire.service

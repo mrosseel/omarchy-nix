@@ -1,19 +1,7 @@
 #!/bin/bash
-# Restart WiFi connection
 
-echo "Restarting WiFi..."
+# omarchy:summary=Unblock and restart the Wi-Fi service.
 
-# Stop WiFi
-nmcli radio wifi off
-
-# Wait a moment
-sleep 1
-
-# Start WiFi
-nmcli radio wifi on
-
-# Wait for connection
-sleep 2
-
-notify-send "WiFi Restarted" "WiFi connection has been restarted" -u low -i network-wireless
-echo "WiFi restarted successfully"
+echo -e "Unblocking wifi...\n"
+rfkill unblock wifi
+rfkill list wifi

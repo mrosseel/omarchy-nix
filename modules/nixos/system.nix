@@ -136,7 +136,11 @@ in {
   # Set ELEPHANT_PROVIDER_DIR globally so walker can find providers when running elephant listproviders
   environment.sessionVariables = {
     ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
+    OMARCHY_PATH = "$HOME/.local/share/omarchy";
   };
+
+  # Raise soft fd limit (omarchy install/config/increase-fd-limit.sh equivalent)
+  systemd.settings.Manager.DefaultLimitNOFILESoft = 65536;
 
   # Elephant systemd service
   systemd.user.services.elephant = {

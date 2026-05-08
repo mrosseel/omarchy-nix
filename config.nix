@@ -82,15 +82,60 @@ lib: {
       description = "Office suite configuration";
     };
     gaming = lib.mkOption {
-      type = lib.types.submodule {
+      type = lib.types.submodule ({config, ...}: {
         options = {
           enable = lib.mkOption {
             type = lib.types.bool;
             default = false;
-            description = "Enable gaming support (Steam, game optimizations)";
+            description = "Enable gaming support umbrella (Steam, controllers, GPU 32-bit libs default-on; opt-in for Heroic/Lutris/Moonlight/Retroarch/Xbox Cloud/GeForce Now).";
+          };
+          steam.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = config.enable;
+            description = "Install Steam with Proton-GE, Remote Play, and dedicated server firewall openings.";
+          };
+          heroic.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install Heroic Games Launcher (Epic / GOG / Amazon Prime).";
+          };
+          lutris.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install Lutris with Wine/Winetricks (Battle.net is added through Lutris install scripts at runtime).";
+          };
+          moonlight.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install Moonlight game streaming client.";
+          };
+          retroarch.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install RetroArch with assets and a default selection of libretro cores.";
+          };
+          xboxCloud.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install Xbox Cloud Gaming web app launcher.";
+          };
+          geforceNow.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install GeForce NOW web app launcher.";
+          };
+          xboxControllers.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = config.enable;
+            description = "Enable Xbox controller support (xone, xpadneo, udev rules).";
+          };
+          gpuLib32.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = config.enable;
+            description = "Enable 32-bit graphics libraries (required by many games).";
           };
         };
-      };
+      });
       default = {};
       description = "Gaming configuration";
     };
@@ -268,6 +313,29 @@ lib: {
       };
       default = {};
       description = "Voxtype voice dictation configuration";
+    };
+    hardware = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          asus_b9406.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Apply ASUS ExpertBook B9406 (Panther Lake / Xe3) workarounds: panel-replay/dpcd-backlight kernel params and Pixart 093A:4F05 touchpad libinput quirk.";
+          };
+          asus_z13.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "ASUS ROG Flow Z13 (GZ302) detachable keyboard touchpad fix (mark touchpad as internal so libinput dwt pairs it with the keyboard).";
+          };
+          intel_ptl_fred.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable Intel Panther Lake Flexible Return and Event Delivery (fred=on kernel parameter).";
+          };
+        };
+      };
+      default = {};
+      description = "Hardware-specific workarounds (off by default; enable per machine).";
     };
   };
 }

@@ -73,10 +73,41 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `236a34b2` (origin/master, v3.5.1)
+**Last synced Omarchy commit**: `a3aedb0c` (origin/master, v3.7.1)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: April 19, 2026
-**Sync notes**: Synced ~60 commits from 64ef8044..236a34b2 (v3.4.2 → v3.5.1). Ported:
+**Last sync date**: May 7, 2026
+**Sync notes**: Synced 318 commits from 236a34b2..a3aedb0c (v3.5.1 → v3.7.1). Ported:
+- ✅ Script renames (cmd-screenshot→capture-screenshot, cmd-screenrecord→capture-screenrecording, cmd-screensaver→screensaver, cmd-share→menu-share, cmd-first-run→first-run, cmd-audio-switch→audio-output-switch, lock-screen→system-lock, cmd-mic-mute→audio-input-mute) and references in bin/omarchy-menu, bin/omarchy-launch-screensaver, modules/home-manager/hypridle.nix, modules/home-manager/hyprland/bindings.nix
+- ✅ Toggle framework: omarchy-toggle{,-enabled}, omarchy-hyprland-toggle{,-enabled,-disabled}; companion configs default/hypr/toggles/{flags,single-window-aspect-ratio,window-no-gaps}.conf; home.activation seeds ~/.local/state/omarchy/toggles/hypr/
+- ✅ Hardware helpers: omarchy-hw-{external-monitors,hybrid-gpu,touchpad,touchscreen,recover-internal-monitor,asus-expertbook-b9406,nvidia-gsp,nvidia-without-gsp,intel-ptl,match}
+- ✅ Hyprland monitor scripts: monitor-internal, monitor-internal-mirror, monitor-focused-apple, monitor-watch (autostart entry added)
+- ✅ Toggle scripts: omarchy-toggle-touchpad, omarchy-toggle-touchscreen
+- ✅ Plymouth scripts (set, set-by-theme, preview, reset) — runtime helpers, full plymouth still managed by packages/plymouth-theme-omarchy.nix
+- ✅ New: omarchy CLI wrapper, omarchy-swayosd-client, omarchy-theme-colors-from-alacritty, omarchy-brightness-keyboard-mute, omarchy-capture-text-extraction (OCR), omarchy-dev-{benchmark,bin-metadata}, omarchy-drive-set-password, omarchy-brightness-display-apple, omarchy-hyprland-monitor-focused-apple
+- ✅ Bulk re-port of 87 modified shared scripts (battery, brightness, hw-*, drive, font, hibernation, hyprland-window-*, restart-*, theme-*, toggle-*, etc.) — preserved Nix-specific deviations for omarchy-update, omarchy-update-available, omarchy-update-without-idle, omarchy-setup-fingerprint (FIDO2/U2F differs from upstream fprintd flow), omarchy-menu (substantial Nix-specific menu items), omarchy-launch-screensaver (Nix paths), omarchy-webapp-install (Nix icon paths), omarchy-theme-set (Nix theme model), omarchy-install-tailscale (Nix declarative)
+- ✅ Hyprland config: clickfinger_behavior=true (two-finger right-click default), removed SDL_VIDEODRIVER (steam compat), added laptop-display mirror toggle binding, lid switch bindings, hardware menu binding, touchpad toggle multimedia bindings. Also rewrote input.nix to mkDefault per-key (was wrapping the whole `input = {...}` attrset in mkDefault, which made user path-based overrides like `input.kb_variant = "dvorak"` silently replace the entire attrset instead of merging).
+- ✅ Theme assets: backgrounds/omarchy.png + unlock.png + preview-unlock.png for 18 themes (flexoki-light skipped — no upstream omarchy.png), new tokyo-night/ristretto/vantablack backgrounds
+- ✅ Theme palette updates in modules/custom-base16-schemes.nix: vantablack (true black background, color8 grey), lumon (new sky-blue accent at base0D)
+- ✅ Themed templates: default/themed/{gum.env.conf.tpl, helix.toml.tpl} deployed to ~/.local/share/omarchy/default/themed/ (templating runtime is backlog — see omarchy-theme-set-templates)
+- ✅ NixOS install equivalents: increase-fd-limit (systemd DefaultLimitNOFILESoft=65536), user-dirs (xdg.userDirs), OMARCHY_PATH env var set globally
+- ✅ Gaming module rewrite: modules/nixos/gaming.nix now exposes per-component switches under omarchy.gaming.{steam,heroic,lutris,moonlight,retroarch,xboxCloud,geforceNow,xboxControllers,gpuLib32}.enable. Core stack (steam, xboxControllers, gpuLib32) defaults to gaming.enable; opt-in extras default to false. Replaces every upstream omarchy-install-gaming-* bash script.
+- ✅ Backlog: omarchy-cmd-missing, omarchy-debug, omarchy-version, omarchy-version-{branch,channel}, omarchy-snapshot, omarchy-theme-{current,list}, default/bash/completions deployed
+- ⚠️ Not ported (intentional): all gaming bash installers (replaced by gaming.nix options), omarchy-pkg-*, omarchy-refresh-*, omarchy-update-* lifecycle scripts (replaced by nixos-rebuild), all install/* shell scripts (replaced by NixOS modules), migrations/* (NixOS rebuilds declaratively), default/snapper/root, hardware-specific install scripts for ASUS B9406 / Z13 / Intel FRED (deferred)
+- ✅ Gap closures (post-sync audit):
+    - `recover-internal-monitor.service` wired declaratively in `modules/home-manager/default.nix` (`systemd.user.services.omarchy-recover-internal-monitor`).
+    - Hardware modules: new `modules/nixos/hardware.nix` exposes `omarchy.hardware.{asus_b9406,asus_z13,intel_ptl_fred}.enable` (kernel params + udev rules + libinput quirks; off by default).
+    - `omarchy-setup-fido2` (referenced from omarchy-menu but never defined) symlinked to the existing `omarchy-setup-fingerprint`, which actually handles FIDO2/U2F key registration on omarchy-nix. Menu Fido2 entry now functional.
+    - `omarchy-plymouth-reset` guards the missing `omarchy-refresh-sddm` call so it no-ops on Nix instead of erroring.
+    - Theme management ported: `omarchy-theme-install` (git clone into `~/.config/omarchy/themes/`), `omarchy-theme-remove`, `omarchy-theme-refresh`, `omarchy-theme-update` (git-pull only, skips Nix-managed symlinked themes).
+    - Bash defaults now fully deployed (`default/bash/{aliases,envs,fns,functions,init,inputrc,rc,shell,completions}` → `~/.local/share/omarchy/default/bash/`).
+- ⚠️ Remaining gaps (intentionally not closed):
+    - `omarchy-first-run` calls `install/first-run/*.sh` which are Arch-only; on Nix the script is a safe no-op (flag file `~/.local/state/omarchy/first-run.mode` is never created and the autostart entry is intentionally absent). Equivalent functionality is already declarative: firewall/DNS/fingerprint/elephant/gnome-theme/wifi via NixOS modules; battery-monitor and welcome are nice-to-haves.
+    - Theme templating runtime (`omarchy-theme-set-templates`) NOT ported. omarchy-nix uses pre-rendered theme configs in `config/themes/<theme>/` instead of `colors.toml + *.tpl`. The new `default/themed/{gum.env.conf.tpl,helix.toml.tpl}` are deployed but unused. Closing this would require either Nix-time template rendering or porting the dynamic theme machinery wholesale.
+    - Plymouth runtime scripts (`omarchy-plymouth-set`, `-set-by-theme`, `-preview`) write to `/usr/share/plymouth/` and call `mkinitcpio`/`limine-mkinitcpio`; fundamentally Arch. Kept for name parity but unusable on Nix — Plymouth theme is rebuilt declaratively via `packages/plymouth-theme-omarchy.nix` + `nixos-rebuild`.
+    - All `omarchy-pkg-*` / `omarchy-refresh-*` / `omarchy-update-*` lifecycle scripts: replaced by `nixos-rebuild switch` and `home-manager switch`. No port planned.
+    - `omarchy-snapshot`: depends on snapper (Btrfs-specific). Kept for parity; will fail on non-snapper systems.
+
+**Previous sync**: ~60 commits from 64ef8044..236a34b2 (v3.4.2 → v3.5.1):
 - ✅ Hyprland input: repeat_delay 600 → 250 (faster key repeat)
 - ✅ Hyprland looknfeel: disable_scale_notification = true
 - ✅ Hyprland bindings: OSD uses omarchy-hyprland-monitor-focused, mic mute uses omarchy-cmd-mic-mute
@@ -99,7 +130,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: We track the **`master`** branch (v3.5.1 release)
+**Branch tracking**: We track the **`master`** branch (v3.7.1 release)
 
 **To check current Omarchy status**:
 ```bash

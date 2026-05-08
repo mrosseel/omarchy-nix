@@ -1,6 +1,5 @@
 #!/bin/bash
-#
-# omarchy-restart-swayosd - Restart swayosd-server
-#
+
+# omarchy:summary=Restart the SwayOSD server
 
 omarchy-restart-app swayosd-server
