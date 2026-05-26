@@ -83,35 +83,46 @@ in {
     ];
   };
 
-  # UWSM integration for Hyprland
-  programs.uwsm.enable = lib.mkIf cfg.seamless_boot.enable true;
+  # UWSM integration for Hyprland (always on; SDDM relies on hyprland-uwsm.desktop)
+  programs.uwsm.enable = true;
 
-  # Login configuration
-  services.greetd = let
-    # Use seamless_boot.username if set, otherwise fall back to main username
+  # Login configuration (matches upstream omarchy: SDDM Wayland greeter on Hyprland).
+  # Autologin path mirrors /etc/sddm.conf.d/autologin.conf from upstream install/login/sddm.sh.
+  services.displayManager = let
+    sddmHyprlandConf = pkgs.writeText "sddm-hyprland.conf"
+      (builtins.readFile ../../default/sddm/hyprland.conf);
+    hyprlandPkg = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     loginUser = if cfg.seamless_boot.username != null
                 then cfg.seamless_boot.username
                 else cfg.username;
   in {
-    enable = true;
-    settings = lib.mkMerge [
-      # Seamless auto-login when enabled
-      (lib.mkIf cfg.seamless_boot.enable {
-        initial_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-          user = loginUser;
-        };
-        default_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-          user = loginUser;
-        };
-      })
-      # Traditional tuigreet when disabled
-      (lib.mkIf (!cfg.seamless_boot.enable) {
-        default_session.command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
-      })
-    ];
+    sddm = {
+      enable = true;
+      wayland.enable = true;
+      package = pkgs.kdePackages.sddm;
+      theme = "omarchy";
+      extraPackages = packages.sddmThemes;
+      autoNumlock = false;
+      settings = {
+        Theme.CursorTheme = lib.mkDefault "";
+        # Wayland greeter runs on a minimal Hyprland compositor
+        Wayland.CompositorCommand = "${hyprlandPkg}/bin/Hyprland --config ${sddmHyprlandConf}";
+        # Match upstream: Wayland-only, no X11 fallback (omarchy commit 4eb3a919)
+        General.DisplayServer = "wayland";
+      };
+    };
+    defaultSession = "hyprland-uwsm";
+    autoLogin = lib.mkIf cfg.seamless_boot.enable {
+      enable = true;
+      user = loginUser;
+    };
   };
+
+  # Upstream installs /etc/pam.d/sddm and then strips the gnome-keyring auth/password
+  # lines to avoid creating an encrypted login keyring that conflicts with
+  # passwordless Default_keyring auto-unlock. NixOS exposes that knob directly.
+  security.pam.services.sddm.enableGnomeKeyring = false;
+  security.pam.services.sddm-autologin.enableGnomeKeyring = false;
 
   # Binary cache for Walker (speeds up builds)
   nix.settings = {
@@ -184,9 +195,8 @@ in {
   # Power management profiles (performance/balanced/power-saver)
   services.power-profiles-daemon.enable = true;
 
-  # Credential storage for apps (gnome-keyring)
+  # Credential storage for apps (gnome-keyring); SDDM PAM lines configured above.
   services.gnome.gnome-keyring.enable = true;
-  security.pam.services.greetd.enableGnomeKeyring = true;
 
 
   # Networking

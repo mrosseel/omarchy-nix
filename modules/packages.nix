@@ -1,5 +1,6 @@
 {pkgs, config, lib}: let
   plymouth-theme-omarchy = pkgs.callPackage ../packages/plymouth-theme-omarchy.nix {};
+  sddm-theme-omarchy = pkgs.callPackage ../packages/sddm-theme-omarchy.nix {};
   hyprland-preview-share-picker = pkgs.callPackage ../packages/hyprland-preview-share-picker.nix {};
   voxtype = pkgs.callPackage ../packages/voxtype.nix {};
   terminaltexteffects = pkgs.callPackage ../packages/terminaltexteffects.nix {};
@@ -147,5 +148,10 @@ in {
   # Plymouth theme
   plymouthThemes = [
     plymouth-theme-omarchy
+  ];
+
+  # SDDM theme
+  sddmThemes = [
+    sddm-theme-omarchy
   ];
 }

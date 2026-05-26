@@ -18,14 +18,14 @@ inputs: {
 in {
   programs.hyprland = {
     enable = true;
-    # package = inputs.hyprland.packages.${pkgs.system}.hyprland;
     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-    withUWSM = cfg.seamless_boot.enable;
+    withUWSM = true;
   };
 
-  # Override the auto-generated desktop file with our fixed version
-  environment.systemPackages = lib.mkIf cfg.seamless_boot.enable [
+  # Override the auto-generated desktop file with our fixed version.
+  # SDDM picks the session whose name contains "uwsm" (see default/sddm/omarchy/Main.qml).
+  environment.systemPackages = [
     (pkgs.runCommand "hyprland-uwsm-override" {} ''
       mkdir -p $out/share/wayland-sessions
       cat > $out/share/wayland-sessions/hyprland-uwsm.desktop <<EOF
