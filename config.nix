@@ -156,17 +156,19 @@ lib: {
       type = lib.types.listOf lib.types.str;
       description = "A list of single keystroke key bindings to launch common apps.";
       default = [
-        # Web apps - using plain SUPER for frequently used apps
-        "SUPER, A, ChatGPT, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
-        "SUPER SHIFT, A, Grok, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
-        "SUPER, C, Calendar, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
-        "SUPER, E, HEY Email, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
-        "SUPER, Y, YouTube, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
-        "SUPER SHIFT, G, WhatsApp, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
-        "SUPER, X, X (Twitter), exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
-        "SUPER SHIFT, X, Compose post on X, exec, $webapp=https://x.com/compose/post"
+        # Web apps - SUPER SHIFT (matches upstream Omarchy; plain SUPER is reserved
+        # for clipboard / window-management bindings, so promoting webapps to plain
+        # SUPER produces double-fires with SUPER+C/V/X universal copy/paste/cut).
+        "SUPER SHIFT, A, ChatGPT, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
+        "SUPER SHIFT ALT, A, Grok, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
+        "SUPER SHIFT, C, Calendar, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
+        "SUPER SHIFT, E, Email, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
+        "SUPER SHIFT, Y, YouTube, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
+        "SUPER SHIFT ALT, G, WhatsApp, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
+        "SUPER SHIFT, X, X, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
+        "SUPER SHIFT ALT, X, X Post, exec, ~/.local/share/omarchy/bin/omarchy-launch-webapp https://x.com/compose/post"
 
-        # Core apps - using SUPER SHIFT to avoid conflicts with tiling keys
+        # Core apps - SUPER SHIFT to avoid conflicts with tiling/clipboard keys
         "SUPER, RETURN, Terminal, exec, $terminal"
         "SUPER ALT, RETURN, Tmux, exec, $terminal tmux new"
         "SUPER SHIFT, RETURN, Browser, exec, $browser"
@@ -178,8 +180,8 @@ lib: {
         "SUPER SHIFT, D, Lazy Docker, exec, $terminal -e lazydocker"
         "SUPER SHIFT, I, Messenger, exec, $messenger"
         "SUPER SHIFT, O, Obsidian, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
-        "SUPER, SLASH, Password manager, exec, $passwordManager"
-        "SUPER, R, Calculator, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
+        "SUPER SHIFT, SLASH, Password manager, exec, $passwordManager"
+        "SUPER SHIFT, R, Calculator, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus gnome-calculator gnome-calculator"
         # Uncomment if gaming.enable = true (changed from SUPER, S to avoid scratchpad conflict):
         # "SUPER SHIFT, S, Steam, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
       ];
