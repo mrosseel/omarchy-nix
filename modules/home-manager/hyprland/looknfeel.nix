@@ -13,8 +13,8 @@ in {
     group {
       col.border_active = ${activeBorder}
       col.border_inactive = ${inactiveBorder}
-      col.border_locked_active = -1
-      col.border_locked_inactive = -1
+      col.border_locked_active = ${activeBorder}
+      col.border_locked_inactive = ${inactiveBorder}
 
       groupbar {
         font_size = 12
@@ -108,7 +108,6 @@ in {
     };
 
     dwindle = {
-      pseudotile = true;
       preserve_split = true;
       force_split = 2;
     };
