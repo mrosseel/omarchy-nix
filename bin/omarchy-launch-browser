@@ -4,7 +4,8 @@
 # omarchy:args=[url]
 
 default_browser=$(xdg-settings get default-web-browser)
-browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
+# Nix deviation: extra search paths for NixOS-managed desktop entries (system + home-manager).
+browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/etc/profiles/per-user/$USER,/run/current-system/sw,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
 
 if $browser_exec --help | grep -q MOZ_LOG; then
   private_flag="--private-window"

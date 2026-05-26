@@ -10,4 +10,8 @@ google-chrome* | brave* | microsoft-edge* | opera* | vivaldi* | helium*) ;;
 *) browser="chromium.desktop" ;;
 esac
 
-exec setsid uwsm-app -- $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"
+# Nix deviation: upstream only searches {~/.local,~/.nix-profile,/usr}/share/applications.
+# On NixOS, system packages live under /run/current-system/sw and home-manager packages
+# under /etc/profiles/per-user/$USER, so the upstream pipeline returns empty and uwsm-app
+# then mistakes --app=URL for a path.
+exec setsid uwsm-app -- $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/etc/profiles/per-user/$USER,/run/current-system/sw,/usr}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"
