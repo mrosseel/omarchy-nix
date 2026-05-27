@@ -129,6 +129,13 @@ in {
       source = ../../default/themed;
       recursive = true;
     };
+    # Hook sample tree (read-only source under $OMARCHY_PATH); the activation
+    # below seeds copies into ~/.config/omarchy/hooks/ so users can rename
+    # *.sample to enable a hook.
+    ".local/share/omarchy/default/hooks" = {
+      source = ../../config/omarchy/hooks;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 
@@ -151,6 +158,24 @@ in {
     if [ ! -f "$HOME/.local/state/omarchy/toggles/hypr/flags.conf" ]; then
       cp "$HOME/.local/share/omarchy/default/hypr/toggles/flags.conf" \
          "$HOME/.local/state/omarchy/toggles/hypr/flags.conf"
+    fi
+  '';
+
+  # Seed ~/.config/omarchy/hooks/ with .sample files from the read-only source
+  # tree. The user renames *.sample (drops the extension) to enable a hook.
+  # Existing files are never overwritten - this is one-shot bootstrap per name.
+  home.activation.seedOmarchyHookSamples = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    src="$HOME/.local/share/omarchy/default/hooks"
+    dst="$HOME/.config/omarchy/hooks"
+    if [ -d "$src" ]; then
+      while IFS= read -r -d ''' rel; do
+        target="$dst/$rel"
+        if [ ! -e "$target" ]; then
+          mkdir -p "$(dirname "$target")"
+          cp "$src/$rel" "$target"
+          chmod 755 "$target"
+        fi
+      done < <(cd "$src" && find . -type f -name '*.sample' -printf '%P\0')
     fi
   '';
 
