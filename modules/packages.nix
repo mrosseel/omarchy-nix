@@ -33,6 +33,7 @@ in {
     ghostty
     alacritty
     kitty
+    foot
 
     # Screenshot and recording
     satty

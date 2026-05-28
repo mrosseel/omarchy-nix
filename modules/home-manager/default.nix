@@ -36,6 +36,7 @@ in {
     (import ./ghostty.nix)
     (import ./alacritty.nix)
     (import ./kitty.nix)
+    (import ./foot.nix)
     (import ./btop.nix)
     (import ./direnv.nix)
     (import ./git.nix)
