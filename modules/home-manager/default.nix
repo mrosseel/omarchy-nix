@@ -73,8 +73,10 @@ in {
       source = ../../config/branding;
       recursive = true;
     };
-    # Deploy logo.txt to ~/.local/share/omarchy/ (read-only source)
+    # Deploy logo.txt + icon.txt to ~/.local/share/omarchy/ (read-only source).
+    # omarchy-branding-{screensaver,about} reset reads from $OMARCHY_PATH/.
     ".local/share/omarchy/logo.txt".source = ../../config/branding/logo.txt;
+    ".local/share/omarchy/icon.txt".source = ../../config/branding/icon.txt;
     ".config/omarchy/screensaver" = {
       source = ../../config/screensaver;
       recursive = true;
@@ -157,11 +159,15 @@ in {
     "$HOME/.local/share/omarchy/bin"
   ];
 
-  # Copy logo.txt to screensaver.txt on first use (user-customizable)
+  # Copy logo.txt/icon.txt to screensaver.txt/about.txt on first use
+  # (user-customizable via omarchy-branding-{screensaver,about}).
   home.activation.copyScreensaverTxt = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p "$HOME/.config/omarchy/branding"
     if [ ! -f "$HOME/.config/omarchy/branding/screensaver.txt" ]; then
-      mkdir -p "$HOME/.config/omarchy/branding"
       cp "$HOME/.local/share/omarchy/logo.txt" "$HOME/.config/omarchy/branding/screensaver.txt"
+    fi
+    if [ ! -f "$HOME/.config/omarchy/branding/about.txt" ]; then
+      cp "$HOME/.local/share/omarchy/icon.txt" "$HOME/.config/omarchy/branding/about.txt"
     fi
   '';
 
