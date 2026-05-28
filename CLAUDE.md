@@ -73,10 +73,42 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `a3aedb0c` (origin/master, v3.7.1)
+**Last synced Omarchy commit**: `8e031516` (origin/master, v3.8.2)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: May 7, 2026
-**Sync notes**: Synced 318 commits from 236a34b2..a3aedb0c (v3.5.1 → v3.7.1). Ported:
+**Last sync date**: May 28, 2026
+**Sync notes**: Synced 170 commits from a3aedb0c..8e031516 (v3.7.1 → v3.8.2). Also bumped Hyprland v0.54.3 → v0.55.2 to fix a screenshare/sessionLock crash and the removed `dwindle.pseudotile` / `-1` gradient config options. Ported:
+- ✅ Hyprland 0.55.2 bump + config adjustments (commits 9c8f6cf2, 8e031516): pseudotile removed from `dwindle`, `col.border_locked_*` reuses `${activeBorder}` / `${inactiveBorder}` instead of `-1`. Existing `layoutmsg, togglesplit` binding already in place from prior sync.
+- ✅ SDDM Wayland greeter (commits 2cc4a263, 4eb3a919, 5cf83d20, 6f03b728, 25e6fe2e): replaces greetd entirely. New `packages/sddm-theme-omarchy.nix` packages the upstream Main.qml + assets; `services.displayManager.sddm` + `Wayland.CompositorCommand` runs a minimal Hyprland as the greeter compositor; autologin gated by `cfg.seamless_boot.enable`; `defaultSession = "hyprland-uwsm"` so the QML session-pick heuristic works. UWSM + the hyprland-uwsm.desktop override are now unconditional.
+- ✅ Hook framework (commits c8f65ccd, fe0ea4de, f0969c67, c9aece1c): `bin/omarchy-hook` runs `<name>` + `<name>.d/*` from `~/.config/omarchy/hooks/`, skipping `*.sample` and not halting on individual failures. `bin/omarchy-hook-install` scaffolds new hooks. Five sample hooks ship under `config/omarchy/hooks/<type>.d/` (battery-low, font-set, post-boot/weather, post-update, theme-set). New `home.activation.seedOmarchyHookSamples` copies samples into the user dir on first activation (never overwrites).
+- ✅ System idle/lock refactor (commits dd46e965, ca74b4d1, 4d11f8cc, 90ac2b8c, 6111ee13, 4e4a688f, 080feaf2): `omarchy-system-lock` owns turning off display + keyboard brightness 3s after lock; new `omarchy-system-wake` restores; `omarchy-brightness-display` accepts on/off, `omarchy-brightness-keyboard` accepts off/restore. `hypridle.nix` drops the dedicated dpms listener.
+- ✅ Weather widget (commits 6b6d71a9, b10f8116): `bin/omarchy-weather-{icon,status}`, `default/waybar/weather.sh`, waybar `custom/weather` between clock and update; deploy `default/waybar/` to `$OMARCHY_PATH`.
+- ✅ Reminders (commit 129c3944): `bin/omarchy-reminder` (set/show/clear) via systemd `--user` transient timers, plus the supporting `bin/omarchy-notification-send` (used by reminders, hooks samples, etc.).
+- ✅ Transcoding (commits b8fc1bb6, 7702e837, ec4a3d02, acb2c37b): `bin/omarchy-transcode`, `bin/omarchy-transcode-ascii`, `default/nautilus-python/extensions/transcode.py`, bash fns now thin wrappers around `omarchy-transcode`. Deploy nautilus-python extensions to `~/.local/share/nautilus-python/extensions/` (also picks up the previously-deployed-nowhere `localsend.py`).
+- ✅ Voxtype F9 push-to-talk (commit 95ba1c42): adds `bindd ", F9, Start dictation"` + `binddr ", F9, Stop dictation"` to the existing toggle binding. Voxtype install stays declarative on Nix (per package/module).
+- ✅ Foot terminal (commit 7debca9f): `modules/home-manager/foot.nix` enables `programs.foot` with the upstream config (theme include from current/theme/foot.ini, JetBrains Mono 9pt, 14x14 pad, Ctrl/Shift+Insert universal clipboard). `bin/omarchy-theme-set-foot` ports the live-recolor OSC injector. `default/foot/{foot.desktop,screensaver.ini}` deployed. `pkgs.foot` added to systemPackages.
+- ✅ Default-app abstraction (commit 95d8125e): `bin/omarchy-default-{browser,terminal,editor}` for runtime defaults. Nix deviations: terminal/editor scripts unlink the read-only home-manager symlink before writing; editor seeds `~/.config/uwsm/default` if absent. Install/remove counterparts intentionally skipped (declarative on Nix).
+- ✅ Notifications: mako `group-by=app-name,summary,body` (commit 5c3ca608); `omarchy-notification-send` (extracted in 129c3944, used here and by reminders).
+- ✅ omarchy-menu refactor (commits 7702e837, acb2c37b, fbc177ba, 37d6e4f9, 99b158cb, 81aaade8): added Reminder + Transcode entries to Trigger, About/Screensaver submenus to Style, Defaults + Security submenus to Setup (Browser/Terminal/Editor with current-state pre-select via omarchy-default-*). New `bin/omarchy-menu-{file,input,select}` walker prompt helpers. `browser_desktop_exists` checks NixOS profile paths (`/etc/profiles/per-user`, `/run/current-system/sw`, `~/.nix-profile`). Install/Remove Arch-installer submenus, drive-password rename, foot-install entry intentionally skipped.
+- ✅ Security setup/remove split (commit 45db959d): rename `omarchy-setup-fingerprint`/`-fido2` to `omarchy-setup-security-fingerprint`/`-fido2`; add `omarchy-remove-security-fingerprint`/`-fido2`. All four are Nix-flavored: enrolment-only (no /etc/pam.d edits, no pacman calls); hyprlock.conf symlink materialised to a writable copy before editing. The `omarchy-setup-fido2 -> omarchy-setup-fingerprint` symlink workaround is removed.
+- ✅ Branding + state (commits 7702e837, 48859c82, 065b9439, fbc177ba): `bin/omarchy-branding-about`, `bin/omarchy-branding-screensaver`, `bin/omarchy-state`. Deploy `config/branding/icon.txt` next to logo.txt; activation seeds both screensaver.txt and about.txt on first use.
+- ✅ Hardware quirks (commits cd30fd09, b3a62245, d1056a27, bc62c233, 402da79f): new omarchy.hardware toggles `asus_zenbook_ux5406aa.enable` (dpcd_backlight), `intel_ptl_video_accel.enable` (intel-media-driver + vpl-gpu-rt), `intel_ptl_sof_firmware.enable` (sof-firmware), `lenovo_yoga_pro7_bass.enable` (snd-sof-intel-hda-generic hda_model quirk). Dell XPS haptic touchpad skipped (no Nix package for dell-xps-touchpad-haptics yet).
+- ✅ Theme polish (commits 2a5db9ed, 4dd25423): retro-82 color0/black/selection text moved from `#00172e` to `#303442` (distinct from `#05182e` bg); matte-black selection bg `#333333` → `#515151` (distinct from color0); catppuccin neovim colorscheme renamed `catppuccin` → `catppuccin-nvim` for current LazyVim plugin compat. Helix template tweak skipped (template runtime unported).
+- ✅ Bulk re-port of 28 modified bin scripts that had no local divergence at last sync: `omarchy`, `-battery-monitor`, `-brightness-display-apple`, `-capture-{screenshot,screenrecording,text-extraction}`, `-debug`, `-dev-bin-metadata`, `-drive-select`, `-first-run`, `-font-set` (with foot integration), `-hyprland-monitor-{focused-apple,scaling-cycle}`, `-plymouth-{preview,set}`, `-restart-{pipewire,swayosd,trackpad,waybar}`, `-swayosd-{brightness,kbd-brightness}`, `-theme-{bg-set,colors-from-alacritty,refresh}`, `-theme-set-{browser,gnome,obsidian,vscode}`. Targeted merge for `-launch-screensaver` (foot case).
+- ✅ Misc small changes: Bluetooth A2DP auto-connect WirePlumber drop-in (commit 9c3520ca); swayosd-server as a systemd user unit instead of an exec-once (commit fa1ed01c) + theme-switcher uses `systemctl restart` instead of pkill+setsid; tmux `extended-keys on`/`csi-u`/`escape-time=10` (commit f2e38aa1); `decoration { rounding=0 }` block in window-no-gaps toggle (commit 22b25991); new `bin/omarchy-cmd-terminal-cwd`. config/chromium-flags.conf VAAPI removal and install/first-run/gtk-primary-paste.sh skipped (not applicable on Nix).
+
+**Remaining gaps from this sync (intentional)**:
+- `omarchy-install-{browser,terminal,zed,helix,gaming-retroarch}`, `-remove-{browser,gaming-retroarch}`: Arch-only installers; declarative path on Nix.
+- `omarchy-pkg-add` / `omarchy-update-keyring` / `omarchy-reinstall-git` / `omarchy-refresh-applications`: keep prior Nix-deviating stubs; no upstream merge.
+- `omarchy-voxtype-install`: relies on `omarchy-pkg-add` + `voxtype setup systemd`; both already covered declaratively.
+- `default/themed/helix.toml.tpl`, `omarchy-theme-set-templates`: template runtime still unported (rendered configs live in `config/themes/<theme>/`).
+- Migrations (1777929468 et al.): all Arch-side; Nix rebuilds declaratively.
+- Dell XPS haptic touchpad (`omarchy-haptic-touchpad`, `dell-xps-touchpad-haptics`): no Nix package yet; not toggleable via `omarchy.hardware`.
+
+**Previous sync** (a3aedb0c, v3.7.1): see git history below for details.
+
+---
+
+**Pre-3.7.1 sync notes** (`a3aedb0c`, May 7, 2026; 318 commits from 236a34b2):
 - ✅ Script renames (cmd-screenshot→capture-screenshot, cmd-screenrecord→capture-screenrecording, cmd-screensaver→screensaver, cmd-share→menu-share, cmd-first-run→first-run, cmd-audio-switch→audio-output-switch, lock-screen→system-lock, cmd-mic-mute→audio-input-mute) and references in bin/omarchy-menu, bin/omarchy-launch-screensaver, modules/home-manager/hypridle.nix, modules/home-manager/hyprland/bindings.nix
 - ✅ Toggle framework: omarchy-toggle{,-enabled}, omarchy-hyprland-toggle{,-enabled,-disabled}; companion configs default/hypr/toggles/{flags,single-window-aspect-ratio,window-no-gaps}.conf; home.activation seeds ~/.local/state/omarchy/toggles/hypr/
 - ✅ Hardware helpers: omarchy-hw-{external-monitors,hybrid-gpu,touchpad,touchscreen,recover-internal-monitor,asus-expertbook-b9406,nvidia-gsp,nvidia-without-gsp,intel-ptl,match}
@@ -130,7 +162,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: We track the **`master`** branch (v3.7.1 release)
+**Branch tracking**: We track the **`master`** branch (v3.8.2 release)
 
 **To check current Omarchy status**:
 ```bash
@@ -525,7 +557,7 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
 
 Core inputs defined in `flake.nix`:
 - `nixpkgs`: Main package repository (nixos-unstable)
-- `hyprland`: Hyprland compositor from upstream (pinned to v0.52.2)
+- `hyprland`: Hyprland compositor from upstream (pinned to v0.55.2)
 - `nix-colors`: Base16 color scheme integration
 - `home-manager`: User configuration management
 
@@ -555,7 +587,7 @@ The flake expects to be used alongside a user's existing NixOS configuration wit
 - base16 color variables are accessed via `config.colorScheme.palette.base00` through `base0F`
 
 **Hyprland Configuration**:
-- Hyprland is pinned to v0.54.3 via the omarchy-nix flake input - update carefully
+- Hyprland is pinned to v0.55.2 via the omarchy-nix flake input - update carefully
 - Environment variables are set in `modules/home-manager/hyprland/envs.nix`
 - Keybindings support metadata (description) as 3rd parameter: `"SUPER, B, Browser, exec, $browser"`
 
