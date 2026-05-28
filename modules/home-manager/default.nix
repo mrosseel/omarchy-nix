@@ -151,6 +151,12 @@ in {
       source = ../../default/nautilus-python/extensions;
       recursive = true;
     };
+    # WirePlumber drop-ins (Bluetooth A2DP auto-connect) — upstream
+    # install/config/hardware/bluetooth.sh deploys this directory.
+    ".config/wireplumber/wireplumber.conf.d" = {
+      source = ../../default/wireplumber/wireplumber.conf.d;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 

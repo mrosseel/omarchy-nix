@@ -44,4 +44,24 @@ in {
       background-color: @progress;
     }
   '';
+
+  # Run swayosd-server as a session systemd unit instead of an
+  # exec-once in autostart.conf (upstream commit fa1ed01c). Pairs with
+  # the omarchy-restart-swayosd update from the bulk re-port, which now
+  # prefers `systemctl --user restart swayosd-server.service` when the
+  # unit is enabled.
+  systemd.user.services.swayosd-server = {
+    Unit = {
+      Description = "SwayOSD server";
+      PartOf = ["graphical-session.target"];
+      After = ["graphical-session.target"];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.swayosd}/bin/swayosd-server";
+      Restart = "always";
+      RestartSec = 2;
+    };
+    Install.WantedBy = ["graphical-session.target"];
+  };
 }

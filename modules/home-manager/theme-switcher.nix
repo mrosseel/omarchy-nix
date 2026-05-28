@@ -64,8 +64,10 @@
         # Restart components that need reload
         ${pkgs.procps}/bin/pkill -SIGUSR2 waybar 2>/dev/null || true
         ${pkgs.procps}/bin/pkill -SIGUSR2 ghostty 2>/dev/null || true
-        ${pkgs.procps}/bin/pkill swayosd-server 2>/dev/null || true
-        ${pkgs.util-linux}/bin/setsid uwsm-app -- swayosd-server &>/dev/null &
+        # swayosd-server is now a systemd user unit (see modules/home-manager/swayosd.nix);
+        # systemctl restart honors the unit's Restart=always backoff and avoids the
+        # orphaned-process churn from pkill + setsid.
+        ${pkgs.systemd}/bin/systemctl --user restart swayosd-server.service 2>/dev/null || true
         ${pkgs.mako}/bin/makoctl reload 2>/dev/null || true
         ${pkgs.hyprland}/bin/hyprctl reload 2>/dev/null || true
 

@@ -11,7 +11,6 @@
       "systemctl --user start hyprpolkitagent"
       "wl-clip-persist --clipboard regular & clipse -listen"
       "pkill -x waybar; uwsm-app -- waybar"
-      "uwsm-app -- swayosd-server"
       "omarchy-powerprofiles-init"
       "uwsm-app -- omarchy-hyprland-monitor-watch"
 
