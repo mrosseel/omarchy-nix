@@ -3,25 +3,23 @@
     enable = true;
     settings = {
       general = {
-        lock_cmd = "omarchy-system-lock";
-        before_sleep_cmd = "loginctl lock-session";
-        after_sleep_cmd = "hyprctl dispatch dpms on";
+        lock_cmd = "omarchy-system-lock";                                       # lock screen and 1password
+        before_sleep_cmd = "OMARCHY_LOCK_ONLY=true omarchy-system-lock";        # lock before suspend without scheduling display off
+        after_sleep_cmd = "sleep 1 && omarchy-system-wake";                     # delay for PAM readiness, then turn on display
         ignore_dbus_inhibit = false;
-        inhibit_sleep = 3; # wait until screen is locked before sleep
+        inhibit_sleep = 3;                                                      # wait until screen is locked
       };
+      # Start screensaver after 2.5 minutes
       listener = [
         {
-          timeout = 150; # 2.5 minutes
+          timeout = 150;
           on-timeout = "pidof hyprlock || omarchy-launch-screensaver";
         }
+        # Lock system after 5 minutes (screensaver resets idle timer, so just do half + 2s margin)
         {
-          timeout = 151; # just after screensaver starts
-          on-timeout = "loginctl lock-session";
-        }
-        {
-          timeout = 330; # 5.5 minutes
-          on-timeout = "hyprctl dispatch dpms off";
-          on-resume = "hyprctl dispatch dpms on && brightnessctl -r";
+          timeout = 152;
+          on-timeout = "omarchy-system-lock";
+          on-resume = "omarchy-system-wake";
         }
       ];
     };
