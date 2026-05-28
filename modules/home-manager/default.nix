@@ -142,6 +142,12 @@ in {
       source = ../../default/waybar;
       recursive = true;
     };
+    # Nautilus-python extensions (Send via LocalSend, Transcode) — upstream
+    # install/config/nautilus-python.sh copies these to the same location.
+    ".local/share/nautilus-python/extensions" = {
+      source = ../../default/nautilus-python/extensions;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 
