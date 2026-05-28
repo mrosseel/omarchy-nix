@@ -136,6 +136,12 @@ in {
       source = ../../config/omarchy/hooks;
       recursive = true;
     };
+    # Waybar helper scripts referenced from the static waybar config via
+    # $OMARCHY_PATH/default/waybar/...
+    ".local/share/omarchy/default/waybar" = {
+      source = ../../default/waybar;
+      recursive = true;
+    };
   };
   home.packages = packages.homePackages;
 
