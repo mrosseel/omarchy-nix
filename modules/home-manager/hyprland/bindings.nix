@@ -19,6 +19,12 @@
   # Dictation bindings (only when voxtype is enabled)
   dictationBindings = lib.optionals cfg.voxtype.enable [
     "SUPER CTRL, X, Toggle dictation, exec, voxtype record toggle"
+    ", F9, Start dictation (push-to-talk), exec, voxtype record start"
+  ];
+
+  # Push-to-talk release for voxtype (only when enabled)
+  dictationReleaseBindings = lib.optionals cfg.voxtype.enable [
+    ", F9, Stop dictation (push-to-talk), exec, voxtype record stop"
   ];
 
   # Main descriptive bindings
@@ -308,6 +314,7 @@ in {
 
       # Dictation bindings
       ${mkBindd dictationBindings}
+      ${mkBinddr dictationReleaseBindings}
 
       # Mouse bindings
       ${mkBindmd mouseBindings}
