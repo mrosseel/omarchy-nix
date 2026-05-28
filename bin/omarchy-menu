@@ -81,12 +81,49 @@ show_learn_menu() {
 }
 
 show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n  Share\n󰔎  Toggle") in
+  case $(menu "Trigger" "󰔛  Reminder\n  Capture\n󰧸  Transcode\n  Share\n󰔎  Toggle") in
+  *Reminder*) show_reminder_menu ;;
   *Capture*) show_capture_menu ;;
+  *Transcode*) omarchy-transcode || back_to show_trigger_menu ;;
   *Share*) show_share_menu ;;
   *Toggle*) show_toggle_menu ;;
   *) show_main_menu ;;
   esac
+}
+
+show_reminder_menu() {
+  case $(menu "Reminder" "󰔛  Set one\n󰔛  Show all\n󰔛  Clear all") in
+  *Set*) show_custom_reminder_input ;;
+  *"Show all"*) omarchy-reminder show ;;
+  *"Clear all"*) omarchy-reminder clear ;;
+  *) back_to show_trigger_menu ;;
+  esac
+}
+
+show_custom_reminder_input() {
+  local minutes
+  minutes=$(omarchy-menu-input "Remind in minutes")
+
+  if [[ $minutes =~ ^[0-9]+$ ]] && ((minutes > 0)); then
+    show_reminder_message_input "$minutes"
+  elif [[ -n $minutes ]]; then
+    omarchy-notification-send "󰔛" "Invalid reminder" "Enter the number of minutes" -u critical
+    show_custom_reminder_input
+  else
+    back_to show_reminder_menu
+  fi
+}
+
+show_reminder_message_input() {
+  local minutes="$1"
+  local message
+  message=$(omarchy-menu-input "Reminder message")
+
+  if [[ -n $message ]]; then
+    omarchy-reminder "$minutes" "$message"
+  else
+    omarchy-reminder "$minutes"
+  fi
 }
 
 show_capture_menu() {
@@ -171,9 +208,27 @@ show_style_menu() {
   case $(menu "Style" "󰸌  Theme\n  Background\n󱄄  Screensaver\n  About") in
   *Theme*) show_theme_menu ;;
   *Background*) show_background_menu ;;
-  *Screensaver*) open_in_editor ~/.config/omarchy/branding/screensaver.txt ;;
-  *About*) open_in_editor ~/.config/omarchy/branding/about.txt ;;
+  *Screensaver*) show_screensaver_menu ;;
+  *About*) show_about_menu ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_about_menu() {
+  case $(menu "About" "  Edit Text\n  Set From Image\n  Restore Default") in
+  *Text*) omarchy-branding-about text ;;
+  *Image*) omarchy-branding-about image ;;
+  *Default*) omarchy-branding-about reset ;;
+  *) show_style_menu ;;
+  esac
+}
+
+show_screensaver_menu() {
+  case $(menu "Screensaver" "  Edit Text\n  Set From Image\n  Restore Default") in
+  *Text*) omarchy-branding-screensaver text ;;
+  *Image*) omarchy-branding-screensaver image ;;
+  *Default*) omarchy-branding-screensaver reset ;;
+  *) show_style_menu ;;
   esac
 }
 
@@ -186,12 +241,13 @@ show_background_menu() {
 }
 
 show_setup_menu() {
-  local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n  System Sleep\n󰍹  Monitors"
+  local options="  Defaults\n  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n  System Sleep\n󰍹  Monitors"
   [[ -f ~/.config/hypr/bindings.conf ]] && options="$options\n  Keybindings"
   [[ -f ~/.config/hypr/input.conf ]] && options="$options\n  Input"
-  options="$options\n  Config\n  Update Omarchy\n  Timezone\n  Password"
+  options="$options\n  Security\n  Config\n  Update Omarchy\n  Timezone\n  Password"
 
   case $(menu "Setup" "$options") in
+  *Defaults*) show_setup_default_menu ;;
   *Audio*) omarchy-launch-audio ;;
   *Wifi*) omarchy-launch-wifi ;;
   *Bluetooth*) omarchy-launch-bluetooth ;;
@@ -200,11 +256,122 @@ show_setup_menu() {
   *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
+  *Security*) show_setup_security_menu ;;
   *Config*) show_setup_config_menu ;;
   *"Update Omarchy"*) present_terminal omarchy-update ;;
   *Timezone*) present_terminal omarchy-tz-select ;;
   *Password*) present_terminal passwd ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_setup_default_menu() {
+  case $(menu "Default" "  Browser\n  Terminal\n  Editor") in
+  *Browser*) show_setup_default_browser_menu ;;
+  *Terminal*) show_setup_default_terminal_menu ;;
+  *Editor*) show_setup_default_editor_menu ;;
+  *) show_setup_menu ;;
+  esac
+}
+
+browser_desktop_exists() {
+  [[ -f ~/.local/share/applications/$1 \
+    || -f ~/.nix-profile/share/applications/$1 \
+    || -f /etc/profiles/per-user/$USER/share/applications/$1 \
+    || -f /run/current-system/sw/share/applications/$1 \
+    || -f /usr/share/applications/$1 ]]
+}
+
+show_setup_default_browser_menu() {
+  local options=""
+  browser_desktop_exists chromium.desktop          && options="$options  Chromium"
+  browser_desktop_exists google-chrome.desktop     && options="${options:+$options\n}󰊯  Chrome"
+  browser_desktop_exists brave-browser.desktop     && options="${options:+$options\n}󰖟  Brave"
+  browser_desktop_exists brave-origin-beta.desktop && options="${options:+$options\n}󰖟  Brave Origin"
+  browser_desktop_exists microsoft-edge.desktop    && options="${options:+$options\n}󰇩  Edge"
+  browser_desktop_exists firefox.desktop           && options="${options:+$options\n}󰈹  Firefox"
+  browser_desktop_exists zen.desktop               && options="${options:+$options\n}󰰷  Zen"
+
+  local current=""
+  case "$(omarchy-default-browser)" in
+  chromium)     current="  Chromium" ;;
+  chrome)       current="󰊯  Chrome" ;;
+  brave)        current="󰖟  Brave" ;;
+  brave-origin) current="󰖟  Brave Origin" ;;
+  edge)         current="󰇩  Edge" ;;
+  firefox)      current="󰈹  Firefox" ;;
+  zen)          current="󰰷  Zen" ;;
+  esac
+
+  case $(menu "Default Browser" "$options" "" "$current") in
+  *Chromium*)       omarchy-default-browser chromium ;;
+  *Chrome*)         omarchy-default-browser chrome ;;
+  *"Brave Origin"*) omarchy-default-browser brave-origin ;;
+  *Brave*)          omarchy-default-browser brave ;;
+  *Edge*)           omarchy-default-browser edge ;;
+  *Firefox*)        omarchy-default-browser firefox ;;
+  *Zen*)            omarchy-default-browser zen ;;
+  *) show_setup_default_menu ;;
+  esac
+}
+
+show_setup_default_terminal_menu() {
+  local options=""
+  omarchy-cmd-present alacritty && options="$options  Alacritty"
+  omarchy-cmd-present foot      && options="${options:+$options\n}  Foot"
+  omarchy-cmd-present ghostty   && options="${options:+$options\n}  Ghostty"
+  omarchy-cmd-present kitty     && options="${options:+$options\n}  Kitty"
+
+  local current=""
+  case "$(omarchy-default-terminal)" in
+  alacritty) current="  Alacritty" ;;
+  foot)      current="  Foot" ;;
+  ghostty)   current="  Ghostty" ;;
+  kitty)     current="  Kitty" ;;
+  esac
+
+  case $(menu "Default Terminal" "$options" "" "$current") in
+  *Alacritty*) omarchy-default-terminal alacritty ;;
+  *Foot*)      omarchy-default-terminal foot ;;
+  *Ghostty*)   omarchy-default-terminal ghostty ;;
+  *Kitty*)     omarchy-default-terminal kitty ;;
+  *) show_setup_default_menu ;;
+  esac
+}
+
+show_setup_default_editor_menu() {
+  local options=""
+  omarchy-cmd-present nvim         && options="$options  Neovim"
+  omarchy-cmd-present code         && options="${options:+$options\n}  VSCode"
+  omarchy-cmd-present cursor       && options="${options:+$options\n}  Cursor"
+  omarchy-cmd-present zeditor      && options="${options:+$options\n}  Zed"
+  omarchy-cmd-present sublime_text && options="${options:+$options\n}  Sublime Text"
+  omarchy-cmd-present helix        && options="${options:+$options\n}  Helix"
+  omarchy-cmd-present vim          && options="${options:+$options\n}  Vim"
+  omarchy-cmd-present emacs        && options="${options:+$options\n}  Emacs"
+
+  local current=""
+  case "$(omarchy-default-editor)" in
+  nvim)            current="  Neovim" ;;
+  code)            current="  VSCode" ;;
+  cursor)          current="  Cursor" ;;
+  zed | zeditor)   current="  Zed" ;;
+  sublime_text)    current="  Sublime Text" ;;
+  helix)           current="  Helix" ;;
+  vim)             current="  Vim" ;;
+  emacs)           current="  Emacs" ;;
+  esac
+
+  case $(menu "Default Editor" "$options" "" "$current") in
+  *Neovim*)   omarchy-default-editor nvim ;;
+  *VSCode*)   omarchy-default-editor code ;;
+  *Cursor*)   omarchy-default-editor cursor ;;
+  *Zed*)      omarchy-default-editor zed ;;
+  *Sublime*)  omarchy-default-editor sublime_text ;;
+  *Helix*)    omarchy-default-editor helix ;;
+  *Vim*)      omarchy-default-editor vim ;;
+  *Emacs*)    omarchy-default-editor emacs ;;
+  *) show_setup_default_menu ;;
   esac
 }
 
@@ -326,6 +493,8 @@ go_to_menu() {
   *restart*) show_restart_menu ;;
   *about*) show_about ;;
   *system*) show_system_menu ;;
+  *reminder-set*) show_custom_reminder_input ;;
+  *reminder*) show_reminder_menu ;;
   esac
 }
 
