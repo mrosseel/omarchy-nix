@@ -39,5 +39,39 @@ in {
     (lib.mkIf hw.intel_ptl_fred.enable {
       boot.kernelParams = [ "fred=on" ];
     })
+
+    # ASUS Zenbook UX5406AA (Panther Lake / Xe3) display backlight
+    # Mirrors install/config/hardware/asus/fix-asus-ptl-display-backlight.sh.
+    # Without xe.enable_dpcd_backlight=1 the panel reads as PWM-only from VBT
+    # but actually wants DPCD AUX, so brightness is effectively binary.
+    (lib.mkIf hw.asus_zenbook_ux5406aa.enable {
+      boot.kernelParams = [ "xe.enable_dpcd_backlight=1" ];
+    })
+
+    # Intel Panther Lake hardware video acceleration
+    # Mirrors install/config/hardware/intel/video-acceleration.sh
+    (lib.mkIf hw.intel_ptl_video_accel.enable {
+      hardware.graphics = {
+        enable = true;
+        extraPackages = with pkgs; [
+          intel-media-driver
+          vpl-gpu-rt
+        ];
+      };
+    })
+
+    # Sound Open Firmware for non-XPS Intel PTL audio DSP
+    # Mirrors install/config/hardware/intel/sof-firmware.sh
+    (lib.mkIf hw.intel_ptl_sof_firmware.enable {
+      hardware.firmware = [ pkgs.sof-firmware ];
+    })
+
+    # Lenovo Yoga Pro 7 14IAH10 bass speaker pin quirk
+    # Mirrors install/config/hardware/lenovo/fix-yoga-pro7-bass-speakers.sh
+    (lib.mkIf hw.lenovo_yoga_pro7_bass.enable {
+      boot.extraModprobeConfig = ''
+        options snd-sof-intel-hda-generic hda_model=alc287-yoga9-bass-spk-pin
+      '';
+    })
   ];
 }

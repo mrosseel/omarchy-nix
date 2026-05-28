@@ -329,10 +329,30 @@ lib: {
             default = false;
             description = "ASUS ROG Flow Z13 (GZ302) detachable keyboard touchpad fix (mark touchpad as internal so libinput dwt pairs it with the keyboard).";
           };
+          asus_zenbook_ux5406aa.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "ASUS Zenbook UX5406AA Panther Lake / Xe3 display backlight fix (xe.enable_dpcd_backlight=1).";
+          };
           intel_ptl_fred.enable = lib.mkOption {
             type = lib.types.bool;
             default = false;
             description = "Enable Intel Panther Lake Flexible Return and Event Delivery (fred=on kernel parameter).";
+          };
+          intel_ptl_video_accel.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Intel Panther Lake (and modern HD/UHD/Iris/Xe/Arc) hardware video acceleration via intel-media-driver + libvpl + vpl-gpu-rt.";
+          };
+          intel_ptl_sof_firmware.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Install Sound Open Firmware for the audio DSP on non-XPS Intel Panther Lake systems (mainline kernel only optdeps it).";
+          };
+          lenovo_yoga_pro7_bass.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Lenovo Yoga Pro 7 14IAH10: route audio to the AMP bass speakers via the alc287-yoga9-bass-spk-pin model quirk on snd-sof-intel-hda-generic.";
           };
         };
       };
