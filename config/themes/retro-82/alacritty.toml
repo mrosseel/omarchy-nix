@@ -20,11 +20,11 @@ text = "#05182e"
 cursor = "#f6dcac"
 
 [colors.selection]
-text = "#00172e"
+text = "#303442"
 background = "#faa968"
 
 [colors.normal]
-black = "#00172e"
+black = "#303442"
 red = "#f85525"
 green = "#028391"
 yellow = "#e97b3c"
