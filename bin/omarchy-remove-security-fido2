@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# omarchy:summary=Remove the user's FIDO2 key registration
+# omarchy:requires-sudo=true
+
+set -e
+
+# Nix deviation: PAM and package removal are declarative on NixOS.
+# Set omarchy.fido2_auth.enable = false; this script only deletes the
+# user keyfile (and any legacy /etc/fido2/fido2 left over from
+# upstream omarchy's setup script).
+
+U2F_KEYS_FILE="$HOME/.config/Yubico/u2f_keys"
+
+echo -e "\e[32mRemoving FIDO2 registration.\n\e[0m"
+
+if [[ -f $U2F_KEYS_FILE ]]; then
+  echo "Removing user FIDO2 keyfile..."
+  rm -f "$U2F_KEYS_FILE"
+fi
+
+if [[ -d /etc/fido2 ]]; then
+  echo "Removing legacy /etc/fido2 configuration..."
+  sudo rm -rf /etc/fido2
+fi
+
+echo -e "\e[32mFIDO2 registration removed. Drop pam-u2f from your"
+echo -e "NixOS config to fully disable the PAM stack.\e[0m"

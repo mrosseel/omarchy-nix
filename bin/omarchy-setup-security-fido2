@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# omarchy:summary=Set up FIDO2 authentication for sudo and polkit
+# omarchy:requires-sudo=true
+
+set -e
+
+# Nix deviation: package install (libfido2, pam-u2f) and PAM config
+# (/etc/pam.d/sudo, /etc/pam.d/polkit-1) are declarative on NixOS.
+# Enable via omarchy.fido2_auth.enable = true; this script only
+# enrolls the key into the user keyfile.
+
+U2F_KEYS_FILE="$HOME/.config/Yubico/u2f_keys"
+
+check_fido2_hardware() {
+  tokens=$(fido2-token -L 2>/dev/null)
+  if [[ -z $tokens ]]; then
+    echo -e "\e[31m\nNo FIDO2 device detected. Please plug it in (you may need to unlock it as well).\e[0m"
+    return 1
+  fi
+  return 0
+}
+
+echo -e "\e[32mSetting up FIDO2 device for authentication.\n\e[0m"
+
+if ! check_fido2_hardware; then
+  exit 1
+fi
+
+mkdir -p "$(dirname "$U2F_KEYS_FILE")"
+
+echo -e "\e[32m\nLet's setup your device by confirming on the device now.\e[0m"
+echo -e "Touch your FIDO2 key when it lights up...\n"
+
+if pamu2fcfg >"$U2F_KEYS_FILE"; then
+  echo -e "\e[32mFIDO2 device registered successfully!\e[0m"
+  echo "Configuration saved to: $U2F_KEYS_FILE"
+else
+  echo -e "\e[31m\nFIDO2 registration failed. Please try again.\e[0m"
+  rm -f "$U2F_KEYS_FILE"
+  exit 1
+fi
+
+echo -e "\nTesting FIDO2 authentication with sudo..."
+echo -e "Touch your FIDO2 key when prompted.\n"
+
+if sudo echo "FIDO2 authentication test successful"; then
+  echo -e "\e[32m\nPerfect! FIDO2 authentication is now configured.\e[0m"
+  echo "You can use your FIDO2 key for sudo and polkit authentication."
+else
+  echo -e "\e[31m\nVerification failed. You may want to check your configuration.\e[0m"
+fi

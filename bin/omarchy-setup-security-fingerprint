@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# omarchy:summary=Set up fingerprint authentication for sudo, polkit, and lock screen
+# omarchy:requires-sudo=true
+
+set -e
+
+# Nix deviation: package install (libfprint, fprintd) and PAM config
+# (/etc/pam.d/sudo, /etc/pam.d/polkit-1) are declarative on NixOS.
+# Enable them via omarchy.fido2_auth.fingerprint_support = true and
+# services.fprintd in your nixos-config; this script only enrolls and
+# wires up the hyprlock placeholder.
+
+check_fingerprint_hardware() {
+  devices=$(fprintd-list "$USER" 2>/dev/null)
+
+  if [[ -z $devices ]]; then
+    echo -e "\e[31m\nNo fingerprint sensor detected.\e[0m"
+    return 1
+  fi
+  return 0
+}
+
+add_hyprlock_fingerprint_icon() {
+  if [[ ! -f ~/.config/hypr/hyprlock.conf ]]; then
+    return 0
+  fi
+
+  # hyprlock.conf is symlinked to /nix/store on NixOS; replace with a
+  # writable copy before editing so the OS doesn't reject the sed.
+  if [[ -L ~/.config/hypr/hyprlock.conf ]]; then
+    real=$(readlink -f ~/.config/hypr/hyprlock.conf)
+    rm ~/.config/hypr/hyprlock.conf
+    cp "$real" ~/.config/hypr/hyprlock.conf
+    chmod u+w ~/.config/hypr/hyprlock.conf
+  fi
+
+  echo "Adding fingerprint icon to hyprlock placeholder text..."
+  sed -i 's/placeholder_text = .*/placeholder_text = <span> Enter Password 󰈷 <\/span>/' ~/.config/hypr/hyprlock.conf
+  sed -i 's/fingerprint:enabled = .*/fingerprint:enabled = true/' ~/.config/hypr/hyprlock.conf
+}
+
+echo -e "\e[32mSetting up fingerprint scanner for authentication.\n\e[0m"
+
+if ! check_fingerprint_hardware; then
+  exit 1
+fi
+
+add_hyprlock_fingerprint_icon
+
+echo -e "\e[32m\nLet's setup your right index finger as the first fingerprint.\e[0m"
+echo -e "Keep moving the finger around on sensor until the process completes.\n"
+
+if sudo fprintd-enroll "$USER"; then
+  echo -e "\e[32m\nFingerprint enrolled successfully!\e[0m"
+
+  echo -e "\nNow let's verify that it's working correctly.\n"
+  if fprintd-verify; then
+    echo -e "\e[32m\nPerfect! Fingerprint authentication is now configured.\e[0m"
+    echo "You can use your fingerprint for sudo, polkit, and lock screen (Super + Escape)."
+  else
+    echo -e "\e[31m\nVerification failed. You may want to try enrolling again.\e[0m"
+  fi
+else
+  echo -e "\e[31m\nEnrollment failed. Please try again.\e[0m"
+  exit 1
+fi
