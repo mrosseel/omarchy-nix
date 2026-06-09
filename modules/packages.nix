@@ -138,7 +138,7 @@ in {
 
     # Qt Wayland and theming
     kdePackages.qtwayland
-    libsForQt5.qt5.qtwayland
+    qt5.qtwayland
     libsForQt5.qtstyleplugin-kvantum
     kdePackages.qtstyleplugin-kvantum
   ];
