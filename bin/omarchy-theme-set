@@ -23,15 +23,12 @@ ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
 # Change background with theme
 omarchy-theme-bg-next
 
-# Restart components to apply new theme
-if pgrep -f "(^|/)\.?waybar(-wrapped)?( |\$)" >/dev/null; then
-  omarchy-restart-waybar
-fi
-omarchy-restart-swayosd
+# Restart components to apply new theme. Under Omarchy 4 the bar/notifications/
+# osd live in omarchy-shell, so one shell restart repaints them.
+omarchy-restart-shell
 omarchy-restart-terminal
 omarchy-restart-hyprctl
 omarchy-restart-btop
-omarchy-restart-mako
 
 # Change app-specific themes
 omarchy-theme-set-gnome

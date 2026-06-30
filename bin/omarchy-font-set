@@ -26,16 +26,12 @@ if [[ -n $font_name ]]; then
       sed -i "s/^font=.*/font=$font_name:size=9/g" ~/.config/foot/foot.ini
     fi
 
-    sed -i "s/font_family = .*/font_family = $font_name/g" ~/.config/hypr/hyprlock.conf
-    sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/waybar/style.css
-    sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/swayosd/style.css
     xmlstarlet ed -L \
       -u '//match[@target="pattern"][test/string="monospace"]/edit[@name="family"]/string' \
       -v "$font_name" \
       ~/.config/fontconfig/fonts.conf
 
-    omarchy-restart-waybar
-    omarchy-restart-swayosd
+    omarchy-restart-shell
 
     if pgrep -x ghostty; then
       notify-send -u low "    You must restart Ghostty to see font change"

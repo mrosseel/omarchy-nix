@@ -6,10 +6,11 @@
 set -e
 
 # Nix deviation: package install (libfprint, fprintd) and PAM config
-# (/etc/pam.d/sudo, /etc/pam.d/polkit-1) are declarative on NixOS.
-# Enable them via omarchy.fido2_auth.fingerprint_support = true and
-# services.fprintd in your nixos-config; this script only enrolls and
-# wires up the hyprlock placeholder.
+# (/etc/pam.d/sudo, /etc/pam.d/polkit-1, omarchy-lock-fingerprint) are
+# declarative on NixOS. Enable them via omarchy.fido2_auth.fingerprint_support
+# = true and services.fprintd in your nixos-config; this script only enrolls.
+# Omarchy 4: the omarchy-shell lock plugin auto-detects the enrolled print via
+# the omarchy-lock-fingerprint PAM service, so there's no lock config to edit.
 
 check_fingerprint_hardware() {
   devices=$(fprintd-list "$USER" 2>/dev/null)
@@ -21,32 +22,11 @@ check_fingerprint_hardware() {
   return 0
 }
 
-add_hyprlock_fingerprint_icon() {
-  if [[ ! -f ~/.config/hypr/hyprlock.conf ]]; then
-    return 0
-  fi
-
-  # hyprlock.conf is symlinked to /nix/store on NixOS; replace with a
-  # writable copy before editing so the OS doesn't reject the sed.
-  if [[ -L ~/.config/hypr/hyprlock.conf ]]; then
-    real=$(readlink -f ~/.config/hypr/hyprlock.conf)
-    rm ~/.config/hypr/hyprlock.conf
-    cp "$real" ~/.config/hypr/hyprlock.conf
-    chmod u+w ~/.config/hypr/hyprlock.conf
-  fi
-
-  echo "Adding fingerprint icon to hyprlock placeholder text..."
-  sed -i 's/placeholder_text = .*/placeholder_text = <span> Enter Password 󰈷 <\/span>/' ~/.config/hypr/hyprlock.conf
-  sed -i 's/fingerprint:enabled = .*/fingerprint:enabled = true/' ~/.config/hypr/hyprlock.conf
-}
-
 echo -e "\e[32mSetting up fingerprint scanner for authentication.\n\e[0m"
 
 if ! check_fingerprint_hardware; then
   exit 1
 fi
-
-add_hyprlock_fingerprint_icon
 
 echo -e "\e[32m\nLet's setup your right index finger as the first fingerprint.\e[0m"
 echo -e "Keep moving the finger around on sensor until the process completes.\n"

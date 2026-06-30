@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# omarchy:summary=Remove enrolled fingerprints and revert hyprlock placeholder
+# omarchy:summary=Remove enrolled fingerprints
 # omarchy:requires-sudo=true
 
 set -e
 
 # Nix deviation: PAM and package removal are declarative on NixOS.
-# Set omarchy.fido2_auth.fingerprint_support = false; this script
-# unenrolls the user's prints and reverts the hyprlock placeholder.
+# Set omarchy.fido2_auth.fingerprint_support = false; this script just
+# unenrolls the user's prints. Omarchy 4: the omarchy-shell lock plugin
+# stops offering fingerprint automatically once there are no enrolled prints.
 
 remove_enrolled_prints() {
   if command -v fprintd-delete >/dev/null 2>&1; then
@@ -18,27 +19,9 @@ remove_enrolled_prints() {
   fi
 }
 
-remove_hyprlock_fingerprint_icon() {
-  if [[ ! -f ~/.config/hypr/hyprlock.conf ]]; then
-    return 0
-  fi
-
-  if [[ -L ~/.config/hypr/hyprlock.conf ]]; then
-    real=$(readlink -f ~/.config/hypr/hyprlock.conf)
-    rm ~/.config/hypr/hyprlock.conf
-    cp "$real" ~/.config/hypr/hyprlock.conf
-    chmod u+w ~/.config/hypr/hyprlock.conf
-  fi
-
-  echo "Removing fingerprint icon from hyprlock placeholder text..."
-  sed -i 's/placeholder_text = .*/placeholder_text = Enter Password/' ~/.config/hypr/hyprlock.conf
-  sed -i 's/fingerprint:enabled = .*/fingerprint:enabled = false/' ~/.config/hypr/hyprlock.conf
-}
-
 echo -e "\e[32mRemoving fingerprint authentication.\n\e[0m"
 
 remove_enrolled_prints
-remove_hyprlock_fingerprint_icon
 
 echo -e "\e[32mEnrolled fingerprints removed. Drop fprintd from your"
 echo -e "NixOS config to fully disable the PAM stack.\e[0m"
