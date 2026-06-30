@@ -115,6 +115,21 @@ in {
       source = ../../default/omarchy;
       recursive = true;
     };
+    # Per-terminal screensaver configs. omarchy-launch-screensaver loads
+    # $OMARCHY_PATH/default/<terminal>/screensaver* for whatever xdg-terminal-exec
+    # resolves as default; missing = ghostty/foot/etc. "error opening" on launch.
+    ".local/share/omarchy/default/ghostty" = {
+      source = ../../default/ghostty;
+      recursive = true;
+    };
+    ".local/share/omarchy/default/alacritty" = {
+      source = ../../default/alacritty;
+      recursive = true;
+    };
+    ".local/share/omarchy/default/foot" = {
+      source = ../../default/foot;
+      recursive = true;
+    };
     # Hook sample tree (read-only source under $OMARCHY_PATH); the activation
     # below seeds copies into ~/.config/omarchy/hooks/ so users can rename
     # *.sample to enable a hook.
