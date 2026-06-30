@@ -18,6 +18,54 @@ git log -1 --format='%h %ci' origin/omarchy-4
 git rev-list --count origin/dev..origin/omarchy-4
 ```
 
+> **Decided (June 30, 2026):** `omarchy-shell` **replaces** the existing stack
+> (waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent) — no coexist/switch
+> path — to stay as close to Omarchy as possible.
+
+## Progress
+
+Foundation for the Quickshell shell has landed on this branch (gated off by
+`omarchy.shell.enable`, default false, so the branch stays buildable while the
+old stack is still present):
+
+- ✅ Vendored the upstream `shell/` Quickshell tree (164 files) + the default
+  `config/omarchy/shell.json`, pinned to omarchy-4 `17f024d4`.
+- ✅ `modules/home-manager/omarchy-shell.nix` (new, gated): adds `pkgs.quickshell`
+  (nixpkgs 0.3.0), deploys `shell/` → `~/.local/share/omarchy/shell` and the
+  defaults → `~/.local/share/omarchy/config/omarchy/shell.json`, autostarts
+  `quickshell -n -p $OMARCHY_PATH/shell`, and adds the layer/window rules
+  translated from upstream `default/hypr/apps/omarchy-shell.lua`.
+- ✅ `omarchy.shell.enable` option in `config.nix`.
+- ✅ Vendored the shell bin scripts: `omarchy-shell` (IPC forwarder),
+  `omarchy-restart-shell`, `omarchy-refresh-shell`, `omarchy-refresh-config`,
+  `omarchy-config-shell-bar`, `omarchy-shell-bar-text-color`.
+  - Nix deviations: `omarchy-restart-shell` uses `pkill -f` (nixpkgs wraps
+    `quickshell`, so its comm is `.quickshell-wrapped` and `pkill -x quickshell`
+    never matches); `omarchy-refresh-config` falls back to `$OMARCHY_PATH/config/`
+    when `/etc/skel/.config/` is absent (Nix has no populated skel).
+- ✅ `nix flake check` passes (shell off). Formatted with alejandra.
+
+**Not yet validated:** the *enabled* path hasn't been built end-to-end —
+needs a full `home-manager` build on a v4-style session (the flake exposes only
+modules, no test config). Likely follow-ups when first enabled: confirm
+`quickshell` 0.3.0 is new enough for these QML imports, and that the en-dash
+window-rule + layer rules parse under the pinned Hyprland.
+
+### Launch / deploy facts (reference)
+- Launch: `quickshell -n -p $OMARCHY_PATH/shell` (upstream `default/hypr/autostart.lua`).
+- Shell reads: `$OMARCHY_PATH/shell/shell.qml`, plugins from `shell/plugins/`,
+  defaults `$OMARCHY_PATH/config/omarchy/shell.json`, user override `~/.config/omarchy/shell.json`.
+- IPC: `omarchy-shell <target> <method> [args]` over the quickshell instance
+  socket under `$XDG_RUNTIME_DIR/quickshell/`. Keybindings call e.g.
+  `omarchy-shell shell toggle omarchy.launcher`.
+
+### Big separate workstream discovered: Hyprland config is now Lua
+omarchy-4 converted Hyprland config from hyprlang `.conf` to **Lua**
+(`default/hypr/*.lua`, `bindings/*.lua`, `apps/*.lua`). omarchy-nix currently
+generates hyprlang via `modules/home-manager/hyprland/*.nix` (and the June-1 fix
+pins `configType = "hyprlang"`). The v4 keybindings are all `omarchy-shell ...`
+IPC calls. This is its own large port, tracked separately from the shell.
+
 ## What Omarchy 4 is
 
 Omarchy 4 is an architectural rewrite, not a feature bump. Three big shifts:
@@ -73,7 +121,7 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
 
 | Upstream area | Nix mapping | Effort |
 |---|---|---|
-| `omarchy-shell` (Quickshell) | Package `quickshell`; deploy `shell/` QML tree; Hyprland autostart for the shell; decide fate of `waybar.nix`/`walker.nix`/`mako.nix`/swayosd/`hyprlock.nix` (replace vs keep as fallback) | **Large** |
+| `omarchy-shell` (Quickshell) | Package `quickshell`; deploy `shell/` QML tree; Hyprland autostart for the shell; **replace** `waybar.nix`/`walker.nix`/`mako.nix`/swayosd/`hyprlock.nix` (decided). Foundation landed (gated off). | **Large** |
 | `omarchy` / `omarchy-settings` packaging | Mostly N/A — Nix already deploys config declaratively. Port the *content* (which `/etc` drop-ins, `/usr/share` files, configs ship), not the PKGBUILD/skel mechanism | Medium |
 | seed → finalize → resync | Maps to home-manager activation + `home.file`; `omarchy-finalize-user` logic → activation scripts | Medium |
 | `$OMARCHY_PATH` decoupling | Minor — omarchy-nix already sets `OMARCHY_PATH` (`modules/nixos/system.nix`); keep but stop assuming it equals `~/.local/share/omarchy` | Small |
@@ -84,25 +132,36 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
 
 ## Suggested order of work
 
-1. **Spike the Quickshell shell** — package `quickshell`, deploy `shell/` read-only
-   to its expected path, wire one Hyprland autostart, get `omarchy-shell` to
-   start and render the bar plugin. Everything else hangs off this.
-2. Port plugins incrementally, retiring the matching old module as each lands:
-   bar → waybar, launcher → walker, notifications → mako, osd → swayosd,
-   lock → hyprlock, polkit → hyprpolkitagent.
-3. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
+1. ✅ **Spike the Quickshell shell** — package `quickshell`, deploy `shell/` to
+   `$OMARCHY_PATH/shell`, wire the Hyprland autostart + layer rules, port the
+   shell bin scripts. (Foundation landed, gated off — see Progress.)
+2. **Bring up the shell on a real session** — enable `omarchy.shell.enable`,
+   `home-manager switch`, confirm `quickshell` starts and the bar renders;
+   debug QML/quickshell-version issues. (Next.)
+3. Port plugins / flip behavior incrementally, retiring the matching old module
+   as each lands (decision below: full replace): bar → waybar, launcher →
+   walker, notifications → mako, osd → swayosd, lock → hyprlock,
+   polkit → hyprpolkitagent. Rewire keybindings to `omarchy-shell ...` IPC.
+4. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
    `/usr/share`) with the existing Nix modules.
-4. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal).
+5. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal).
 
-## Open decisions (ask before committing to one)
+## Decisions
 
-- **Replace vs. coexist**: do we cut waybar/walker/mako/swayosd entirely in
-  favor of `omarchy-shell`, or keep them behind a config switch during the
-  transition? (Affects every dependent module + keybindings.)
-- **Quickshell packaging**: nixpkgs `quickshell` vs. pinning the exact upstream
-  revision Omarchy 4 targets.
-- **When to start**: omarchy-4 is unreleased and moving fast — consider waiting
-  for a `v4.0` tag before deep porting, to avoid chasing a moving target.
+- ✅ **Replace, don't coexist** (June 30, 2026): `omarchy-shell` fully replaces
+  waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent — stay close to Omarchy.
+  During the transition the new module is gated behind `omarchy.shell.enable`
+  (default off) purely to keep the branch buildable; the end state removes the
+  old modules.
+
+## Open decisions
+
+- **Quickshell packaging**: nixpkgs `quickshell` (0.3.0) vs. pinning the exact
+  upstream revision Omarchy 4 targets — revisit once the shell is brought up and
+  we know whether 0.3.0's QML API matches.
+- **When to go deep**: omarchy-4 is unreleased and moving fast — the foundation
+  is cheap to carry, but hold large plugin/keybinding ports until a `v4.0` tag
+  to avoid chasing a moving target.
 
 ## Reference (upstream docs on the `omarchy-4` branch)
 

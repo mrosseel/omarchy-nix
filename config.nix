@@ -81,6 +81,19 @@ lib: {
       default = {};
       description = "Office suite configuration";
     };
+    shell = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable the Omarchy 4 Quickshell desktop shell (omarchy-shell). WIP: it is intended to replace waybar/walker/mako/swayosd/hyprlock as the port matures. Off by default while the v4 port is in progress.";
+          };
+        };
+      };
+      default = {};
+      description = "Omarchy Quickshell desktop shell (Omarchy 4).";
+    };
     gaming = lib.mkOption {
       type = lib.types.submodule ({config, ...}: {
         options = {

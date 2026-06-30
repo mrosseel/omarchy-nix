@@ -53,6 +53,7 @@ in {
     ./hyprland-preview-share-picker.nix
     ./hyprsunset.nix
     ./desktop-entries.nix
+    ./omarchy-shell.nix
     ./light-theme-monitor.nix
     ./battery-monitor.nix
     ./voxtype.nix
@@ -223,14 +224,14 @@ in {
   systemd.user.services.omarchy-recover-internal-monitor = {
     Unit = {
       Description = "Recover the internal monitor toggle when no external display is connected";
-      Before = [ "graphical-session-pre.target" ];
+      Before = ["graphical-session-pre.target"];
       ConditionPathExists = "%h/.local/state/omarchy/toggles/hypr/internal-monitor-disable.conf";
     };
     Service = {
       Type = "oneshot";
       ExecStart = "%h/.local/share/omarchy/bin/omarchy-hw-recover-internal-monitor";
     };
-    Install.WantedBy = [ "graphical-session-pre.target" ];
+    Install.WantedBy = ["graphical-session-pre.target"];
   };
 
   # XDG user directories (omarchy install/config/user-dirs.sh equivalent)
@@ -252,7 +253,10 @@ in {
 
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      color-scheme = if isLightModeEnabled then "prefer-light" else "prefer-dark";
+      color-scheme =
+        if isLightModeEnabled
+        then "prefer-light"
+        else "prefer-dark";
     };
   };
 
@@ -260,11 +264,17 @@ in {
     enable = true;
     gtk4.theme = null;
     theme = {
-      name = if isLightModeEnabled then "Adwaita" else "Adwaita-dark";
+      name =
+        if isLightModeEnabled
+        then "Adwaita"
+        else "Adwaita-dark";
       package = pkgs.gnome-themes-extra;
     };
     cursorTheme = {
-      name = if isLightModeEnabled then "Bibata-Modern-Classic" else "Bibata-Modern-Ice";
+      name =
+        if isLightModeEnabled
+        then "Bibata-Modern-Classic"
+        else "Bibata-Modern-Ice";
       package = pkgs.bibata-cursors;
       size = 24;
     };
@@ -272,7 +282,10 @@ in {
 
   home.pointerCursor = {
     gtk.enable = true;
-    name = if isLightModeEnabled then "Bibata-Modern-Classic" else "Bibata-Modern-Ice";
+    name =
+      if isLightModeEnabled
+      then "Bibata-Modern-Classic"
+      else "Bibata-Modern-Ice";
     package = pkgs.bibata-cursors;
     size = 24;
   };
