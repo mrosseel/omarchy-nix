@@ -24,6 +24,23 @@ in {
       startupNotify = true;
     };
 
+    # btop - system monitor in the launcher. Quattro ships
+    # applications/hidden/btop.desktop (NoDisplay) and dropped the waybar CPU
+    # button, so btop has no UI hook; surface it like Disk Usage. Uses
+    # omarchy-launch-or-focus-tui (app-id org.omarchy.btop, floated + focus-or-launch).
+    btop = {
+      name = "btop";
+      genericName = "System Monitor";
+      comment = "Monitor CPU, memory and processes";
+      exec = "omarchy-launch-or-focus-tui btop";
+      icon = "utilities-system-monitor";
+      type = "Application";
+      terminal = false;
+      startupNotify = true;
+      categories = ["System"];
+      settings.Keywords = "cpu;system;monitor;activity;process;resources;top;";
+    };
+
     # IMV - Image viewer with custom MIME types
     imv = {
       name = "Image Viewer";

@@ -24,7 +24,12 @@ in {
   # notifications, OSD, lock and polkit as plugins under $OMARCHY_PATH/shell.
   # This is THE desktop on Omarchy 4 — it fully replaces
   # waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent/swaybg.
-  home.packages = [quickshellPkg];
+  #
+  # gtk3 provides `gtk-launch`, which the launcher uses to spawn apps
+  # (Launcher.qml: `gtk-launch <desktopId>`). It's always present on Arch but not
+  # on Nix, so without it EVERY launcher app-launch silently fails ("Launching
+  # <app>…" with nothing opening).
+  home.packages = [quickshellPkg pkgs.gtk3];
 
   # Deploy the upstream Quickshell tree to $OMARCHY_PATH/shell and the default
   # shell.json to $OMARCHY_PATH/config/omarchy/shell.json. The quickshell
