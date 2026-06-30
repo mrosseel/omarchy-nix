@@ -207,11 +207,26 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
    `configType="lua"` and convert our existing nix-generated config to Lua (keeps the
    nix config model, less faithful to upstream's file layout).
 
-## Hyprland Lua conversion: ATTEMPTED, REVERTED (dead-end for HM users)
+## Hyprland Lua conversion: SOLVED via an HM→Lua translator
 
-Converted Hyprland config to upstream's Lua framework (commit `97de2c5`), then
-**reverted it** (`git revert` → branch is back on hyprlang). A live
-`nixos-rebuild switch` on nixtop exposed a fatal incompatibility:
+First attempt shipped a bare `hyprland.lua`, which a live switch proved fatal
+(see "the trap" below). **The fix:** omarchy-nix reads the merged
+`config.wayland.windowManager.hyprland.{settings,extraConfig}` and **translates
+them into Lua** (`modules/home-manager/hyprland.nix`, `hmLua`): structured
+`settings` → `hl.config({...})`, and `extraConfig` / `settings.bind*` parsed into
+`o.bind()`/`hl.bind()` (flags d/e/l/r/m → description/repeating/locked/release/
+mouse). The result is `~/.config/hypr/hm.lua`, required **after** the Omarchy
+defaults so the user's overrides win. HM still writes `hyprland.conf` — harmless,
+since Hyprland loads the `.lua` and ignores it. **No nixos-config changes.**
+Validated end-to-end: a real `nixos-rebuild build` of nixtop generates an
+`hm.lua` carrying Mike's Dvorak + all 5 personal binds (incl. the `binddr`
+voxtype-stop as `{ release = true }`) with correct shell-in-lua escaping.
+
+Round-trips faithfully because `builtins.toJSON` escaping of a command produces a
+Lua double-quoted string Lua parses back to the identical bash (e.g.
+`awk "{print \$2}"` → `awk \"{print \\$2}\"` → `awk "{print \$2}"`).
+
+### The trap (why a bare hyprland.lua failed)
 
 - Hyprland 0.55 `ConfigManager`: if `~/.config/hypr/hyprland.lua` exists it loads
   **only** the lua and ignores `hyprland.conf` entirely (verified in the

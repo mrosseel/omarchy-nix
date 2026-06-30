@@ -131,6 +131,125 @@ inputs: {
     o.launch_on_start("clipse -listen")
   '';
 
+  ##########################################################################
+  # HM → Lua bridge. Hyprland 0.55 loads ONLY hyprland.lua when present, so a
+  # user's personal `wayland.windowManager.hyprland.settings`/`extraConfig`
+  # (which HM writes to the now-ignored hyprland.conf) would be lost. We read
+  # those merged values here and translate them into Lua, required AFTER the
+  # Omarchy defaults so the user's overrides win. No nixos-config changes.
+  ##########################################################################
+  hmHypr = config.wayland.windowManager.hyprland;
+  userSettings = hmHypr.settings or {};
+  userExtra = hmHypr.extraConfig or "";
+
+  toLua = v:
+    if builtins.isBool v
+    then
+      (
+        if v
+        then "true"
+        else "false"
+      )
+    else if builtins.isInt v
+    then toString v
+    else if builtins.isFloat v
+    then toString v
+    else if builtins.isString v
+    then builtins.toJSON v
+    else if builtins.isList v
+    then "{" + lib.concatMapStringsSep ", " toLua v + "}"
+    else if builtins.isAttrs v
+    then "{ " + lib.concatStringsSep ", " (lib.mapAttrsToList (k: val: "[${builtins.toJSON k}] = ${toLua val}") v) + " }"
+    else "nil";
+
+  asList = v:
+    if builtins.isList v
+    then v
+    else [v];
+  isBindKey = k: lib.hasPrefix "bind" k;
+  specialNonBind = ["exec" "exec-once" "execr" "exec-shutdown" "monitor" "env" "windowrule" "windowrulev2" "layerrule" "layerrulev2" "source"];
+  isSpecialKey = k: isBindKey k || lib.elem k specialNonBind || lib.hasPrefix "$" k;
+  regularSettings = lib.filterAttrs (k: _: !(isSpecialKey k)) userSettings;
+
+  # Translate a hyprlang bind value ("MODS, KEY[, desc], dispatcher, args…")
+  # for directive `bindX`, where the X letters are flags (d=description,
+  # e=repeat, l=locked, r=release, m=mouse). exec dispatchers become o.bind
+  # exec-commands; other dispatchers are passed through as a raw dispatcher.
+  mkBindFrom = directive: s: let
+    flags = lib.removePrefix "bind" directive;
+    hasDesc = lib.hasInfix "d" flags;
+    optList =
+      lib.optional (lib.hasInfix "r" flags) "release = true"
+      ++ lib.optional (lib.hasInfix "e" flags) "repeating = true"
+      ++ lib.optional (lib.hasInfix "l" flags) "locked = true"
+      ++ lib.optional (lib.hasInfix "m" flags) "mouse = true";
+    optStr =
+      if optList == []
+      then ""
+      else ", { ${lib.concatStringsSep ", " optList} }";
+    parts = map lib.strings.trim (lib.splitString "," s);
+    mods = lib.replaceStrings [" "] [" + "] (builtins.elemAt parts 0);
+    key = builtins.elemAt parts 1;
+    combo =
+      if mods == ""
+      then key
+      else if key == ""
+      then mods
+      else "${mods} + ${key}";
+    dispIdx =
+      if hasDesc
+      then 3
+      else 2;
+    descArg =
+      if hasDesc
+      then builtins.toJSON (builtins.elemAt parts 2)
+      else "nil";
+    dispatcher = builtins.elemAt parts dispIdx;
+    rest = lib.strings.trim (lib.concatStringsSep "," (lib.drop (dispIdx + 1) parts));
+  in
+    if dispatcher == "exec"
+    then "o.bind(${builtins.toJSON combo}, ${descArg}, ${builtins.toJSON rest}${optStr})"
+    else "hl.bind(${builtins.toJSON combo}, hl.dsp.${dispatcher}(${
+      if rest == ""
+      then ""
+      else builtins.toJSON rest
+    })${optStr})";
+
+  # settings.bind* / exec-once / env (lists) → lua
+  settingsBinds = lib.concatLists (lib.mapAttrsToList (k: v: lib.optionals (isBindKey k) (map (mkBindFrom k) (asList v))) userSettings);
+  settingsExec = lib.concatLists (lib.mapAttrsToList (k: v: lib.optionals (k == "exec-once" || k == "exec") (map (s: "o.exec_on_start(${builtins.toJSON s})") (asList v))) userSettings);
+  settingsEnv = lib.concatLists (lib.mapAttrsToList (k: v: lib.optionals (k == "env") (map (s: let p = lib.splitString "," s; in "hl.env(${builtins.toJSON (builtins.head p)}, ${builtins.toJSON (lib.concatStringsSep "," (builtins.tail p))})") (asList v))) userSettings);
+
+  # raw extraConfig hyprlang → lua, line by line
+  parseExtraLine = line: let
+    t = lib.strings.trim line;
+    m = builtins.match "([a-z-]+)[[:space:]]*=[[:space:]]*(.*)" t;
+  in
+    if t == "" || lib.hasPrefix "#" t
+    then ""
+    else if m == null
+    then "-- [hm-untranslated] ${t}"
+    else let
+      directive = builtins.elemAt m 0;
+      rest = builtins.elemAt m 1;
+    in
+      if isBindKey directive
+      then mkBindFrom directive rest
+      else if directive == "exec-once" || directive == "exec"
+      then "o.exec_on_start(${builtins.toJSON rest})"
+      else "-- [hm-untranslated '${directive}'] ${t}";
+
+  hmLua = ''
+    -- Generated from your Home-Manager wayland.windowManager.hyprland.settings
+    -- and extraConfig, translated to Lua (Hyprland 0.55 loads only hyprland.lua).
+    -- Edit your nix config, not this file.
+    ${lib.optionalString (regularSettings != {}) "hl.config(${toLua regularSettings})"}
+    ${lib.concatStringsSep "\n" settingsBinds}
+    ${lib.concatStringsSep "\n" settingsExec}
+    ${lib.concatStringsSep "\n" settingsEnv}
+    ${lib.concatMapStringsSep "\n" parseExtraLine (lib.splitString "\n" userExtra)}
+  '';
+
   # Entry point Hyprland loads (~/.config/hypr/hyprland.lua). Mirrors upstream's
   # skel loader, with an extra require for our generated envs override.
   hyprlandLua = ''
@@ -156,14 +275,20 @@ inputs: {
     require("hypr.looknfeel")
     require("hypr.autostart")
 
+    -- Your personal HM config (settings/extraConfig) translated to Lua, loaded
+    -- last so it overrides the Omarchy defaults.
+    require("hypr.hm")
+
     require("default.hypr.toggles")
   '';
 in {
   wayland.windowManager.hyprland = {
     enable = true;
     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    # We ship a Lua config (Hyprland 0.55 auto-loads ~/.config/hypr/hyprland.lua);
-    # leave HM's settings/extraConfig empty so it writes no hyprland.conf.
+    # We ship a Lua config; Hyprland 0.55 auto-loads ~/.config/hypr/hyprland.lua
+    # and ignores hyprland.conf when the .lua exists. HM may still write a
+    # hyprland.conf from any settings/extraConfig — it's harmless (ignored), and
+    # we translate those same values into Lua (hmLua) so they take effect.
   };
   # No hyprpolkitagent: omarchy-shell owns the polkit agent (polkit plugin).
 
@@ -180,5 +305,6 @@ in {
     "hypr/input.lua".text = inputLua;
     "hypr/monitors.lua".text = monitorsLua;
     "hypr/autostart.lua".text = autostartLua;
+    "hypr/hm.lua".text = hmLua;
   };
 }
