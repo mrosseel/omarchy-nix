@@ -35,13 +35,14 @@
     "SUPER ALT, SPACE, Omarchy menu, exec, omarchy-menu"
     "SUPER SHIFT, code:201, Omarchy menu, exec, omarchy-menu"
     "SUPER, ESCAPE, System menu, exec, omarchy-menu system"
-    "SUPER, K, Show key bindings, exec, omarchy-show-keybindings"
+    "SUPER, K, Show key bindings, exec, omarchy-menu-keybindings"
+    "SUPER ALT, K, Show Tmux key bindings, exec, omarchy-menu-tmux-keybindings"
 
     # Aesthetics
     "SUPER SHIFT, SPACE, Toggle top bar, exec, omarchy-toggle-bar"
     "SUPER CTRL, SPACE, Theme background menu, exec, omarchy-menu background"
     "SUPER SHIFT CTRL, SPACE, Theme menu, exec, omarchy-menu theme"
-    "SUPER, BACKSPACE, Toggle window transparency, exec, omarchy-hyprland-active-window-transparency-toggle"
+    "SUPER, BACKSPACE, Toggle window transparency, exec, omarchy-hyprland-window-transparency-toggle"
     "SUPER SHIFT, BACKSPACE, Toggle window gaps, exec, omarchy-hyprland-window-gaps-toggle"
     "SUPER CTRL, BACKSPACE, Toggle single-window square aspect, exec, omarchy-hyprland-window-single-square-aspect-toggle"
 
