@@ -24,11 +24,12 @@ in {
       startupNotify = true;
     };
 
-    # btop - system monitor in the launcher. Quattro ships
-    # applications/hidden/btop.desktop (NoDisplay) and dropped the waybar CPU
-    # button, so btop has no UI hook; surface it like Disk Usage. Uses
-    # omarchy-launch-or-focus-tui (app-id org.omarchy.btop, floated + focus-or-launch).
-    btop = {
+    # System monitor (btop) in the launcher. Quattro HIDES the desktop id "btop"
+    # via default/omarchy/launcher.hides (it kept btop on the now-removed waybar
+    # CPU button), so an entry with id `btop` never shows. Use a non-hidden id
+    # (system-monitor) but keep the visible name "btop". Floating TUI via
+    # omarchy-launch-or-focus-tui (app-id org.omarchy.btop, focus-or-launch).
+    system-monitor = {
       name = "btop";
       genericName = "System Monitor";
       comment = "Monitor CPU, memory and processes";
