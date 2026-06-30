@@ -253,10 +253,27 @@ inputs: {
   # Entry point Hyprland loads (~/.config/hypr/hyprland.lua). Mirrors upstream's
   # skel loader, with an extra require for our generated envs override.
   hyprlandLua = ''
-    -- Omarchy's bootstrap (quattro) sets package.path (~/.local/state, ~/.config,
-    -- $OMARCHY_PATH) and drops cached omarchy/theme modules so hyprctl reload
-    -- re-reads them. Replaces our hand-rolled path setup to stay in lockstep.
-    dofile((os.getenv("OMARCHY_PATH") or "/usr/share/omarchy") .. "/default/hypr/bootstrap.lua")
+    -- OMARCHY_PATH is NOT reliably exported into Hyprland's config-parse
+    -- environment, so we cannot dofile bootstrap.lua via $OMARCHY_PATH (it would
+    -- fall back to /usr/share/omarchy, which does not exist on Nix -> emergency
+    -- mode). Inline bootstrap.lua's logic (quattro) with a HOME-based fallback.
+    local omarchy = os.getenv("OMARCHY_PATH")
+    if not omarchy or omarchy == "" then
+      omarchy = os.getenv("HOME") .. "/.local/share/omarchy"
+    end
+
+    -- Module search path: generated state, user config, then Omarchy defaults.
+    package.path = os.getenv("HOME") .. "/.local/state/?.lua;"
+      .. os.getenv("HOME") .. "/.config/?.lua;"
+      .. omarchy .. "/?.lua;"
+      .. package.path
+
+    -- Drop cached omarchy/theme modules so hyprctl reload re-reads from disk.
+    for k in pairs(package.loaded) do
+      if k:match("^default%.hypr") or k:match("^hypr%.") or k:match("^omarchy%.current%.theme") then
+        package.loaded[k] = nil
+      end
+    end
 
     require("default.hypr.omarchy")
 
