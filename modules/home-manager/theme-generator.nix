@@ -6,7 +6,6 @@ inputs: {
 }: let
   themes = import ../themes.nix;
   themeNames = builtins.attrNames themes;
-  customSchemes = import ../custom-base16-schemes.nix;
 
   # Map theme names to their actual directory (some themes share directories)
   themeSourceMap = {
@@ -21,72 +20,50 @@ inputs: {
     then themeSourceMap.${themeName}
     else themeName;
 
-  # base16 palette for a theme (custom scheme or nix-colors), # stripped.
-  # Custom schemes (custom-base16-schemes.nix) hold base00..base0F at the top
-  # level; nix-colors schemes nest them under `.palette`.
-  paletteFor = themeName: let
-    t = themes.${themeName};
-    custom = t ? custom-scheme && t.custom-scheme;
-    scheme =
-      if custom
-      then customSchemes.${t.base16-theme}
-      else inputs.nix-colors.colorSchemes.${t.base16-theme};
-    raw =
-      if custom
-      then scheme
-      else scheme.palette;
-  in builtins.mapAttrs (_: v: lib.removePrefix "#" v) raw;
-
-  # foot per-theme colors, rendered from the base16 palette (mirrors upstream
-  # default/themed/foot.ini.tpl). The omarchy-nix theme dirs ship alacritty/
-  # ghostty/kitty configs but historically no foot.ini, so the foot `include=
-  # current/theme/foot.ini` resolved to nothing — foot never followed the theme.
-  mkFootIni = p: ''
+  # Generate foot's per-theme colors from the SAME source the other terminals
+  # use — the theme's pre-rendered alacritty.toml — so foot matches ghostty/
+  # alacritty/kitty exactly. Deriving from base16 base00 diverged for themes
+  # whose terminal background isn't base00 (e.g. vantablack: bg #0d0d0d vs base00
+  # #000000). This also works for every theme, including flexoki-light which has
+  # no base16 scheme.
+  strip = v: lib.removePrefix "0x" (lib.removePrefix "#" v);
+  mkFootIni = themeName: let
+    alac = builtins.fromTOML (builtins.readFile ../../config/themes/${getThemeSource themeName}/alacritty.toml);
+    c = alac.colors;
+    p = c.primary;
+    n = c.normal;
+    b = c.bright;
+  in ''
     [colors-dark]
-    foreground=${p.base05}
-    background=${p.base00}
-    selection-foreground=${p.base00}
-    selection-background=${p.base05}
-    cursor=${p.base00} ${p.base05}
-    regular0=${p.base00}
-    regular1=${p.base08}
-    regular2=${p.base0B}
-    regular3=${p.base0A}
-    regular4=${p.base0D}
-    regular5=${p.base0E}
-    regular6=${p.base0C}
-    regular7=${p.base05}
-    bright0=${p.base03}
-    bright1=${p.base08}
-    bright2=${p.base0B}
-    bright3=${p.base0A}
-    bright4=${p.base0D}
-    bright5=${p.base0E}
-    bright6=${p.base0C}
-    bright7=${p.base07}
+    foreground=${strip p.foreground}
+    background=${strip p.background}
+    regular0=${strip n.black}
+    regular1=${strip n.red}
+    regular2=${strip n.green}
+    regular3=${strip n.yellow}
+    regular4=${strip n.blue}
+    regular5=${strip n.magenta}
+    regular6=${strip n.cyan}
+    regular7=${strip n.white}
+    bright0=${strip b.black}
+    bright1=${strip b.red}
+    bright2=${strip b.green}
+    bright3=${strip b.yellow}
+    bright4=${strip b.blue}
+    bright5=${strip b.magenta}
+    bright6=${strip b.cyan}
+    bright7=${strip b.white}
   '';
 
-  # Whether a theme's base16 palette is resolvable (custom or in nix-colors).
-  # flexoki-light is neither (partially ported), so it gets no generated foot.ini.
-  hasScheme = themeName: let
-    t = themes.${themeName};
-    custom = t ? custom-scheme && t.custom-scheme;
-  in
-    if custom
-    then builtins.hasAttr t.base16-theme customSchemes
-    else builtins.hasAttr t.base16-theme inputs.nix-colors.colorSchemes;
-
-  # Theme dir = the checked-in pre-rendered configs + a generated foot.ini
-  # (when the palette resolves; otherwise just the plain source dir).
+  # Theme dir = the checked-in pre-rendered configs + a foot.ini derived from the
+  # theme's alacritty.toml (the foot port shipped no foot.ini, so foot never
+  # followed the theme).
   themeDir = themeName:
-    if hasScheme themeName
-    then
-      pkgs.runCommand "omarchy-theme-${themeName}" {} ''
-        cp -r ${../../config/themes/${getThemeSource themeName}} $out
-        chmod -R u+w $out
-        cp ${pkgs.writeText "foot-${themeName}.ini" (mkFootIni (paletteFor themeName))} $out/foot.ini
-      ''
-    else ../../config/themes/${getThemeSource themeName};
+    pkgs.runCommand "omarchy-theme-${themeName}" {} ''
+      cp -r ${../../config/themes/${getThemeSource themeName}} $out
+      chmod -R u+w $out
+      cp ${pkgs.writeText "foot-${themeName}.ini" (mkFootIni themeName)} $out/foot.ini
+    '';
 in {
   # Install each theme directory individually (source + generated foot.ini)
   home.file = lib.listToAttrs (map (themeName: {
