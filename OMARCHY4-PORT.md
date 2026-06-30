@@ -207,6 +207,32 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
    `configType="lua"` and convert our existing nix-generated config to Lua (keeps the
    nix config model, less faithful to upstream's file layout).
 
+## Hyprland Lua conversion: ATTEMPTED, REVERTED (dead-end for HM users)
+
+Converted Hyprland config to upstream's Lua framework (commit `97de2c5`), then
+**reverted it** (`git revert` → branch is back on hyprlang). A live
+`nixos-rebuild switch` on nixtop exposed a fatal incompatibility:
+
+- Hyprland 0.55 `ConfigManager`: if `~/.config/hypr/hyprland.lua` exists it loads
+  **only** the lua and ignores `hyprland.conf` entirely (verified in the
+  Hyprland source — `getMainConfigPath` returns the `.lua` when present).
+- Home-Manager writes the user's personal Hyprland config (set via
+  `wayland.windowManager.hyprland.settings`/`extraConfig` in *their* nixos-config
+  — e.g. Dvorak `kb_variant`, custom binds, screenshot keys) to `hyprland.conf`.
+- Hyprland's lua `hl` API has **no `source`/`keyword`/`parse`** — there is no way
+  to pull a hyprlang `.conf` into the lua config.
+
+⇒ Shipping `hyprland.lua` silently discards every omarchy-nix user's personal
+HM-based Hyprland config. No clean bridge exists, so **omarchy-nix stays on
+hyprlang** (where omarchy's config and the user's HM settings merge in one
+`hyprland.conf`). The "nix-generates-lua-overrides" link was elegant but only
+covered omarchy's *own* options, not arbitrary user HM settings. Don't re-attempt
+the lua port unless Hyprland adds a lua→hyprlang source or HM gains a lua emitter.
+
+The v4 IPC bindings, shell autostart, and window rules all live in hyprlang
+(`hyprland/bindings.nix`, `omarchy-shell.nix`) and dry-build clean against the
+real nixtop config.
+
 ## Major-alignment status (June 30, 2026)
 The legacy stack is fully removed and omarchy-shell is the only desktop (commits
 `d16403a`, `0929a46`): waybar/walker/mako/swayosd/hyprlock/hypridle/swaybg +
