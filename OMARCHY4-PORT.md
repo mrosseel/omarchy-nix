@@ -58,6 +58,22 @@ old stack is still present):
   system-stats/theme-switcher/…). Arch-ism audit: only
   `omarchy-remove-launcher-entry` uses `pacman` (package removal — needs a Nix
   adaptation/stub; edge feature). The other 23 are clean (jq/hyprctl/nmcli).
+- ✅ Vendored the 9 remaining bin scripts the v4 **keybindings/autostart** call
+  that we didn't already have (`omarchy-audio-output-volume`,
+  `-audio-source-switch`, `-hyprland-window-{transparency,tiled-fullscreen,width}-toggle`/`-width`,
+  `-menu-tmux-keybindings`, `-notification-{battery,time,weather}`); zero Arch-isms.
+  → The v4 desktop's **script layer is now essentially complete** (33 v4 scripts
+  vendored). Note: some scripts that exist in *both* trees changed in v4
+  (e.g. `omarchy-brightness-display` arg style); those still need a
+  same-name reconciliation pass before the bindings behave exactly like v4.
+
+### Eval/build validation note
+The home-manager module is driven by the NixOS module via `osConfig`; it is not
+designed for standalone `homeManagerConfiguration` eval (that path errors on
+`omarchy.light_theme_detection` being null **regardless of `shell.enable`** —
+confirmed by an A/B with the shell off, so it's a harness limit, not a shell
+defect). True end-to-end build validation = enable `omarchy.shell.enable` in a
+real NixOS+HM config and `home-manager build`. That's the gate before any switch.
 
 **Still to confirm on a real `home-manager switch`:** the two startup pollers
 (`omarchy-network-status`, `omarchy-monitor-state`) logged a QProcess
@@ -152,16 +168,39 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
 1. ✅ **Spike the Quickshell shell** — package `quickshell`, deploy `shell/` to
    `$OMARCHY_PATH/shell`, wire the Hyprland autostart + layer rules, port the
    shell bin scripts. (Foundation landed, gated off — see Progress.)
-2. **Bring up the shell on a real session** — enable `omarchy.shell.enable`,
-   `home-manager switch`, confirm `quickshell` starts and the bar renders;
-   debug QML/quickshell-version issues. (Next.)
-3. Port plugins / flip behavior incrementally, retiring the matching old module
-   as each lands (decision below: full replace): bar → waybar, launcher →
-   walker, notifications → mako, osd → swayosd, lock → hyprlock,
-   polkit → hyprpolkitagent. Rewire keybindings to `omarchy-shell ...` IPC.
-4. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
+2. ✅ **Complete the script layer** — vendor every bin script the shell + v4
+   keybindings/autostart call (33 vendored). Remaining: reconcile the handful of
+   *same-name-but-changed* scripts to their v4 versions.
+3. **Validate the enabled path on a real switch** ← *the gate. Needs you.* Enable
+   `omarchy.shell.enable` in a real config, `home-manager build` then `switch`,
+   confirm the bar renders and the two startup pollers resolve. Everything below
+   is best done *after* this, because it can only be validated live and the
+   upstream branch is still moving (no `v4.0` tag yet).
+4. **Retire the old stack** (gated on `shell.enable`): stand down
+   `waybar`/`walker`/`mako`/`swayosd`/`hyprlock`/`hyprpolkitagent` + their
+   autostart entries; the shell owns those surfaces. (Structural, ~6 modules.)
+5. **Rewire keybindings to the v4 IPC model** — port `default/hypr/bindings/*.lua`:
+   `omarchy-shell shell toggle omarchy.{launcher,emojis,clipboard}`,
+   `omarchy-shell {audio,bluetooth,monitor,network,power} toggle`,
+   `omarchy-shell notifications {dismissOne,dismissAll,...}`,
+   `omarchy-menu toggle <view>`, `omarchy-shell media {next,playPause,...}`.
+   Large + churn-prone until v4 tags — hold until step 3 passes.
+6. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
    `/usr/share`) with the existing Nix modules.
-5. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal).
+7. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal,
+   optional Hyprland hyprlang→Lua conversion — orthogonal; the shell works under
+   either, so not required).
+
+### Test-switch recipe (for step 3, on a real NixOS+HM host)
+```nix
+# in your host's omarchy config:
+omarchy.shell.enable = true;   # adds quickshell, deploys shell/, autostarts it
+```
+```bash
+home-manager build --flake <yourflake>   # eval/build the enabled path first
+home-manager switch --flake <yourflake>  # then switch; bar should render
+omarchy-restart-shell                     # bounce the shell after edits
+```
 
 ## Decisions
 
