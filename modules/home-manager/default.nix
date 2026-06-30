@@ -79,9 +79,22 @@ in {
       source = ../../config/webapp-icons;
       recursive = true;
     };
-    ".config/xdg-terminals.list" = {
-      source = ../../config/xdg-terminals.list;
-    };
+    # Terminal preference for xdg-terminal-exec, generated from omarchy.terminal so
+    # the screensaver and any xdg-terminal-exec launch use the configured terminal
+    # (previously hardcoded to ghostty, which is why the screensaver ran ghostty).
+    ".config/xdg-terminals.list".text = ''
+      # Terminal emulator preference order for xdg-terminal-exec
+      # Generated from omarchy.terminal
+      ${
+        {
+          ghostty = "com.mitchellh.ghostty.desktop";
+          alacritty = "Alacritty.desktop";
+          kitty = "kitty.desktop";
+          foot = "foot.desktop";
+        }
+        .${config.omarchy.terminal}
+      }
+    '';
     # Disable bluetooth GUI tray apps - we use bluetui TUI instead
     ".config/autostart/blueberry-tray.desktop".text = ''
       [Desktop Entry]

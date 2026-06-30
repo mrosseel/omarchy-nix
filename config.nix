@@ -64,9 +64,9 @@ lib: {
       description = "Browser to use for web browsing";
     };
     terminal = lib.mkOption {
-      type = lib.types.enum ["ghostty" "alacritty" "kitty"];
+      type = lib.types.enum ["ghostty" "alacritty" "kitty" "foot"];
       default = "ghostty";
-      description = "Terminal emulator to use";
+      description = "Terminal emulator to use. foot is Omarchy 4 (quattro)'s default; it accepts xterm-style `-e` so the terminal keybinds work unchanged.";
     };
     office_suite = lib.mkOption {
       type = lib.types.submodule {
