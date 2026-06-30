@@ -22,13 +22,20 @@ inputs: {
     else themeName;
 
   # base16 palette for a theme (custom scheme or nix-colors), # stripped.
+  # Custom schemes (custom-base16-schemes.nix) hold base00..base0F at the top
+  # level; nix-colors schemes nest them under `.palette`.
   paletteFor = themeName: let
     t = themes.${themeName};
+    custom = t ? custom-scheme && t.custom-scheme;
     scheme =
-      if (t ? custom-scheme && t.custom-scheme)
+      if custom
       then customSchemes.${t.base16-theme}
       else inputs.nix-colors.colorSchemes.${t.base16-theme};
-  in builtins.mapAttrs (_: v: lib.removePrefix "#" v) scheme.palette;
+    raw =
+      if custom
+      then scheme
+      else scheme.palette;
+  in builtins.mapAttrs (_: v: lib.removePrefix "#" v) raw;
 
   # foot per-theme colors, rendered from the base16 palette (mirrors upstream
   # default/themed/foot.ini.tpl). The omarchy-nix theme dirs ship alacritty/
@@ -59,13 +66,27 @@ inputs: {
     bright7=${p.base07}
   '';
 
-  # Theme dir = the checked-in pre-rendered configs + a generated foot.ini.
+  # Whether a theme's base16 palette is resolvable (custom or in nix-colors).
+  # flexoki-light is neither (partially ported), so it gets no generated foot.ini.
+  hasScheme = themeName: let
+    t = themes.${themeName};
+    custom = t ? custom-scheme && t.custom-scheme;
+  in
+    if custom
+    then builtins.hasAttr t.base16-theme customSchemes
+    else builtins.hasAttr t.base16-theme inputs.nix-colors.colorSchemes;
+
+  # Theme dir = the checked-in pre-rendered configs + a generated foot.ini
+  # (when the palette resolves; otherwise just the plain source dir).
   themeDir = themeName:
-    pkgs.runCommand "omarchy-theme-${themeName}" {} ''
-      cp -r ${../../config/themes/${getThemeSource themeName}} $out
-      chmod -R u+w $out
-      cp ${pkgs.writeText "foot-${themeName}.ini" (mkFootIni (paletteFor themeName))} $out/foot.ini
-    '';
+    if hasScheme themeName
+    then
+      pkgs.runCommand "omarchy-theme-${themeName}" {} ''
+        cp -r ${../../config/themes/${getThemeSource themeName}} $out
+        chmod -R u+w $out
+        cp ${pkgs.writeText "foot-${themeName}.ini" (mkFootIni (paletteFor themeName))} $out/foot.ini
+      ''
+    else ../../config/themes/${getThemeSource themeName};
 in {
   # Install each theme directory individually (source + generated foot.ini)
   home.file = lib.listToAttrs (map (themeName: {
