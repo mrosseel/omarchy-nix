@@ -109,6 +109,12 @@ in {
       source = ../../default/themed;
       recursive = true;
     };
+    # omarchy-shell menu definition + launcher hides (the shell menu plugin reads
+    # $OMARCHY_PATH/default/omarchy/omarchy-menu.jsonc; missing = "Nothing here yet").
+    ".local/share/omarchy/default/omarchy" = {
+      source = ../../default/omarchy;
+      recursive = true;
+    };
     # Hook sample tree (read-only source under $OMARCHY_PATH); the activation
     # below seeds copies into ~/.config/omarchy/hooks/ so users can rename
     # *.sample to enable a hook.
