@@ -42,7 +42,7 @@ inputs: {
   # ghostty/kitty configs but historically no foot.ini, so the foot `include=
   # current/theme/foot.ini` resolved to nothing — foot never followed the theme.
   mkFootIni = p: ''
-    [colors]
+    [colors-dark]
     foreground=${p.base05}
     background=${p.base00}
     selection-foreground=${p.base00}
