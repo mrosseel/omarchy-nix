@@ -21,7 +21,7 @@ in {
       font-size = 9;
 
       # Load theme from runtime config (allows dynamic theme switching)
-      config-file = "?~/.config/omarchy/current/theme/ghostty.conf";
+      config-file = "?~/.local/state/omarchy/current/theme/ghostty.conf";
 
       # Cursor styling
       cursor-style = "block";

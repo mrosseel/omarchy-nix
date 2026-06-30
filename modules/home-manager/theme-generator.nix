@@ -99,7 +99,7 @@ in {
 
   # Create initial symlink to current theme
   home.activation.omarchy-theme-symlink = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    THEME_SYMLINK="$HOME/.config/omarchy/current/theme"
+    THEME_SYMLINK="$HOME/.local/state/omarchy/current/theme"
     CURRENT_THEME="${config.omarchy.theme}"
 
     mkdir -p "$(dirname "$THEME_SYMLINK")"

@@ -10,7 +10,7 @@ in {
     enable = true;
     settings = {
       # Load theme from runtime config (allows dynamic theme switching)
-      general.import = ["~/.config/omarchy/current/theme/alacritty.toml"];
+      general.import = ["~/.local/state/omarchy/current/theme/alacritty.toml"];
 
       env.TERM = "xterm-256color";
 

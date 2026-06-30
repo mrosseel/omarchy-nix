@@ -24,5 +24,5 @@ in {
   # Load theme from runtime config (allows dynamic theme switching)
   xdg.configFile."zellij/themes/omarchy.kdl".source =
     config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.config/omarchy/current/theme/zellij.kdl";
+    "${config.home.homeDirectory}/.local/state/omarchy/current/theme/zellij.kdl";
 }

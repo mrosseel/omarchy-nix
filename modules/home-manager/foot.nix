@@ -14,7 +14,7 @@ in {
     # new foot windows (and via omarchy-theme-set-foot for live ones).
     settings = lib.mkDefault {
       main = {
-        include = "~/.config/omarchy/current/theme/foot.ini";
+        include = "~/.local/state/omarchy/current/theme/foot.ini";
         term = "xterm-256color";
         font = "JetBrainsMono Nerd Font:size=9";
         pad = "14x14";

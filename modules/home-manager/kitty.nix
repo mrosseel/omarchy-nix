@@ -16,7 +16,7 @@ in {
 
     settings = lib.mkDefault {
       # Load theme from runtime config (allows dynamic theme switching)
-      include = "~/.config/omarchy/current/theme/kitty.conf";
+      include = "~/.local/state/omarchy/current/theme/kitty.conf";
 
       # Window appearance
       window_padding_width = 10;
