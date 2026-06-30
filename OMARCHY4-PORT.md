@@ -1,22 +1,32 @@
 # Omarchy 4 port tracking
 
-Working doc for porting the next-major Omarchy (the `omarchy-4` branch) to
-omarchy-nix. This branch (`omarchy-4`) is where that work happens; `main`
-stays on the v3.8.x / `dev` line until v4 lands.
+Working doc for porting the next-major Omarchy to omarchy-nix. The work lives on
+the **`omarchy-4` branch of omarchy-nix**; `main` stays on the v3.8.x / `dev`
+line until v4 lands.
 
 ## Upstream status (as of June 30, 2026)
 
-- **Branch**: `omarchy-4` @ `17f024d4` (2026-06-07) — **unreleased**, no `v4` tag yet, still churning.
-- **Diverged** from `dev` at `b911a6f8` (2026-05-21).
-- **Scope**: ~741 commits ahead of `dev`, ~1,197 files changed (+58.5k / −11.4k).
+> **Upstream renamed the v4 branch `omarchy-4` → `quattro`.** The old `omarchy-4`
+> branch is frozen at `17f024d4` (June 7); active daily development moved to
+> **`quattro`**. Track `quattro`, NOT `omarchy-4`. (Our omarchy-nix *branch* is
+> still named `omarchy-4` — that's just our branch name, unrelated to upstream's.)
+
+- **Branch**: `quattro` @ last commit `2026-06-29` (DHH, "Resolve launcher device icons") — **unreleased**, no `v4` tag, active daily.
+- **Scope**: ~984 commits ahead of `dev`. There is a **4.0 milestone** (1 issue open). Only ~5 open PRs, all additive.
+- **What gates the release** (from recent commits): shell UX polish, display/monitor edge-case hardening, and the package-backed channel model (dev → edge → rc → stable) + v3→v4 migration path.
+- **Port baseline**: re-synced from `omarchy-4` (June 7) onto **`quattro`** on June 30 — 246 commits: re-vendored `shell/` + `default/{hypr,omarchy,themed}` + `bin` (11 new / 82 updated / 4 removed), adopted `bootstrap.lua` (inlined with a HOME fallback — `OMARCHY_PATH` is NOT in Hyprland's parse env), and migrated `current/theme` to `~/.local/state/omarchy/current/theme`.
 - **omarchy-nix sync baseline**: `main` is at Omarchy `dev` `9cf1852` (v3.8.2 + 2 commits).
 
 Re-measure before each work session:
 ```bash
-cd ../omarchy && git fetch origin
-git log -1 --format='%h %ci' origin/omarchy-4
-git rev-list --count origin/dev..origin/omarchy-4
+cd ../omarchy && git fetch origin quattro:refs/remotes/origin/quattro
+git log -1 --format='%h %ci' origin/quattro
+git rev-list --count origin/omarchy-4..origin/quattro   # delta since last port baseline
 ```
+
+## Known follow-ups (quattro)
+- **Window-border theming is build-time only.** Runtime theme switches recolor foot/terminals + shell, but not Hyprland borders (our generated `hypr.looknfeel` sets borders from the build-time base16; quattro loads `require_optional("omarchy.current.theme.hyprland")`). To make borders follow runtime switches, generate a per-theme `hyprland.lua` (border colors) into each theme dir and stop hard-setting borders in `hypr.looknfeel`.
+- v4 `omarchy-theme-set` shells out to helpers we don't ship (`omarchy-theme-set-templates`, `-restart-helix/-opencode`, `-theme-set-tmux/-pi`) — harmless "command not found" noise.
 
 > **Decided (June 30, 2026):** `omarchy-shell` **replaces** the existing stack
 > (waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent) — no coexist/switch

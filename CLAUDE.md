@@ -170,7 +170,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: We track the **`dev`** branch (currently `9cf1852` = v3.8.2 + 2 commits). Releases are cut to `master`/tags; new feature work lands on `dev` first. Note: the next major version is being developed on the separate **`omarchy-4`** branch (unreleased, ~740 commits ahead of `dev`) — see the v4 port tracking doc.
+**Branch tracking**: `main` tracks the **`dev`** branch (currently `9cf1852` = v3.8.2 + 2 commits). Releases are cut to `master`/tags; new feature work lands on `dev` first. The **v4 port** (this `omarchy-4` branch of omarchy-nix) tracks upstream's **`quattro`** branch — the next major version, **renamed from `omarchy-4`** and where active daily development now happens (unreleased, ~984 commits ahead of `dev`, last upstream commit June 29 2026). The old upstream `omarchy-4` branch is frozen at June 7; **do not sync against it — use `quattro`**. See `OMARCHY4-PORT.md`.
 
 **To check current Omarchy status**:
 ```bash
