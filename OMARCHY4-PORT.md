@@ -192,9 +192,30 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
    Verified by evaluating the module's `extraConfig` for both flag states.
 6. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
    `/usr/share`) with the existing Nix modules.
-7. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal,
-   optional Hyprland hyprlang→Lua conversion — orthogonal; the shell works under
-   either, so not required).
+7. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal).
+8. **Hyprland hyprlang → Lua** (NOT done). Hyprland 0.55 loads `~/.config/hypr/hyprland.lua`
+   natively (`hl.*` API); v4 ships a whole Lua framework (`default/hypr/helpers.lua`
+   defines the `o` DSL, `omarchy.lua` `require`s `bindings/*`, `windows`, `input`,
+   `looknfeel`, `envs`, `apps/*`, `toggles/*`), with theme colours coming from
+   `omarchy.current.theme.hyprland`. omarchy-nix still generates **hyprlang** via the
+   `modules/home-manager/hyprland/*.nix` `extraConfig` strings (`configType="hyprlang"`).
+   The shell is agnostic to this, so it isn't required for v4 to work — but full
+   fidelity wants it. Real decision before starting: **(a)** vendor upstream's Lua
+   framework verbatim and deploy a `hyprland.lua` that `require`s it (true v4, but the
+   nix theme system must emit `current/theme/hyprland.lua` and we lose the nix-level
+   `quick_app_bindings`/voxtype-conditional config), vs **(b)** flip HM
+   `configType="lua"` and convert our existing nix-generated config to Lua (keeps the
+   nix config model, less faithful to upstream's file layout).
+
+## Major-alignment status (June 30, 2026)
+The legacy stack is fully removed and omarchy-shell is the only desktop (commits
+`d16403a`, `0929a46`): waybar/walker/mako/swayosd/hyprlock/hypridle/swaybg +
+elephant deleted (modules, assets, flake inputs, system.nix plumbing); shell is
+unconditional; bindings/autostart/PAM/theme-switcher all v4; the keybinding-bound
+scripts reconciled to their v4 shell-IPC versions. **Done bar two things:** the
+Lua conversion above, and the long tail of ~25 menu/feature scripts that only poke
+the removed daemons for a secondary indicator/OSD (reconcile case-by-case,
+preserving each script's Nix adaptations — not a bulk vendor).
 
 > **Next:** flip `omarchy.shell.enable = true` on a real host and `home-manager
 > switch` — the whole replace (shell bar/launcher/menu/notifications/osd/lock/
