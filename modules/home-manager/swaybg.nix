@@ -11,7 +11,8 @@
 
   # Auto-start swaybg with first wallpaper from current theme
   # omarchy-bg-next reads from ~/.config/omarchy/current/theme/backgrounds/
-  wayland.windowManager.hyprland.settings.exec-once = [
+  # Retired under Omarchy 4: the shell's background plugin owns the wallpaper.
+  wayland.windowManager.hyprland.settings.exec-once = lib.optionals (!config.omarchy.shell.enable) [
     "omarchy-bg-next"
   ];
 }

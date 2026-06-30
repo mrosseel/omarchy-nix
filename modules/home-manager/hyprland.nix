@@ -1,6 +1,7 @@
 inputs: {
   config,
   pkgs,
+  lib,
   ...
 }: {
   imports = [./hyprland/configuration.nix];
@@ -14,5 +15,7 @@ inputs: {
     # into structured settings = { ... } first.
     configType = "hyprlang";
   };
-  services.hyprpolkitagent.enable = true;
+  # Retired by the Omarchy 4 shell (omarchy-shell owns the polkit agent via its
+  # polkit plugin). Gated off when omarchy.shell.enable.
+  services.hyprpolkitagent.enable = lib.mkIf (!config.omarchy.shell.enable) true;
 }

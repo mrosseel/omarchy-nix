@@ -5,8 +5,17 @@
   ...
 }: let
   cfg = config.omarchy;
+  # Omarchy 4 shell mode: route launcher/menu/notifications/panels/OSD/media at
+  # the omarchy-shell IPC instead of walker/mako/swayosd (which are retired).
+  shell = cfg.shell.enable;
   # OSD client for the currently focused monitor
   osdclient = "swayosd-client --monitor \"$(omarchy-hyprland-monitor-focused)\"";
+  # Volume control: swayosd-client (classic) vs omarchy-audio-output-volume,
+  # which drives the shell's own OSD (Omarchy 4). Both take the same args.
+  volctl =
+    if shell
+    then "omarchy-audio-output-volume"
+    else "${osdclient} --output-volume";
 
   # Convert binding lists to extraConfig strings
   mkBindd = bindings: lib.concatMapStringsSep "\n" (binding: "bindd = ${binding}") bindings;
@@ -30,8 +39,16 @@
   # Main descriptive bindings
   mainBindings = [
     # Menus
-    "SUPER, SPACE, Launch apps, exec, omarchy-launch-walker"
-    "SUPER CTRL, E, Emoji picker, exec, omarchy-launch-walker -m symbols"
+    "SUPER, SPACE, Launch apps, exec, ${
+      if shell
+      then "omarchy-shell shell toggle omarchy.launcher \"{}\""
+      else "omarchy-launch-walker"
+    }"
+    "SUPER CTRL, E, Emoji picker, exec, ${
+      if shell
+      then "omarchy-shell shell toggle omarchy.emojis"
+      else "omarchy-launch-walker -m symbols"
+    }"
     "SUPER CTRL, C, Capture menu, exec, omarchy-menu capture"
     "SUPER CTRL, O, Toggle menu, exec, omarchy-menu toggle"
     "SUPER ALT, SPACE, Omarchy menu, exec, omarchy-menu"
@@ -40,7 +57,11 @@
     "SUPER, K, Show key bindings, exec, omarchy-show-keybindings"
 
     # Aesthetics
-    "SUPER SHIFT, SPACE, Toggle top bar, exec, omarchy-toggle-waybar"
+    "SUPER SHIFT, SPACE, Toggle top bar, exec, ${
+      if shell
+      then "omarchy-toggle-bar"
+      else "omarchy-toggle-waybar"
+    }"
     "SUPER CTRL, SPACE, Theme background menu, exec, omarchy-menu background"
     "SUPER SHIFT CTRL, SPACE, Theme menu, exec, omarchy-menu theme"
     "SUPER, BACKSPACE, Toggle window transparency, exec, omarchy-hyprland-active-window-transparency-toggle"
@@ -48,11 +69,27 @@
     "SUPER CTRL, BACKSPACE, Toggle single-window square aspect, exec, omarchy-hyprland-window-single-square-aspect-toggle"
 
     # Notifications
-    "SUPER, COMMA, Dismiss last notification, exec, makoctl dismiss"
-    "SUPER SHIFT, COMMA, Dismiss all notifications, exec, makoctl dismiss --all"
+    "SUPER, COMMA, Dismiss last notification, exec, ${
+      if shell
+      then "omarchy-shell notifications dismissOne"
+      else "makoctl dismiss"
+    }"
+    "SUPER SHIFT, COMMA, Dismiss all notifications, exec, ${
+      if shell
+      then "omarchy-shell notifications dismissAll"
+      else "makoctl dismiss --all"
+    }"
     "SUPER CTRL, COMMA, Toggle silencing notifications, exec, omarchy-toggle-notification-silencing"
-    "SUPER ALT, COMMA, Invoke last notification, exec, makoctl invoke"
-    "SUPER SHIFT ALT, COMMA, Restore last notification, exec, makoctl restore"
+    "SUPER ALT, COMMA, Invoke last notification, exec, ${
+      if shell
+      then "omarchy-shell notifications invokeLast"
+      else "makoctl invoke"
+    }"
+    "SUPER SHIFT ALT, COMMA, Restore last notification, exec, ${
+      if shell
+      then "omarchy-shell notifications showHistory"
+      else "makoctl restore"
+    }"
 
     # Toggles
     "SUPER CTRL, I, Toggle locking on idle, exec, omarchy-toggle-idle"
@@ -81,9 +118,21 @@
     "SUPER CTRL ALT, B, Show battery remaining, exec, notify-send -u low \"$(omarchy-battery-status)\""
 
     # Control panels
-    "SUPER CTRL, A, Audio controls, exec, omarchy-launch-audio"
-    "SUPER CTRL, B, Bluetooth controls, exec, omarchy-launch-bluetooth"
-    "SUPER CTRL, W, Wifi controls, exec, omarchy-launch-wifi"
+    "SUPER CTRL, A, Audio controls, exec, ${
+      if shell
+      then "omarchy-shell omarchy.audio toggle"
+      else "omarchy-launch-audio"
+    }"
+    "SUPER CTRL, B, Bluetooth controls, exec, ${
+      if shell
+      then "omarchy-shell omarchy.bluetooth toggle"
+      else "omarchy-launch-bluetooth"
+    }"
+    "SUPER CTRL, W, Wifi controls, exec, ${
+      if shell
+      then "omarchy-shell omarchy.network toggle"
+      else "omarchy-launch-wifi"
+    }"
     "SUPER CTRL, T, Activity, exec, omarchy-launch-tui btop"
 
     # Zoom
@@ -246,7 +295,17 @@
     "SUPER, C, Universal copy, sendshortcut, CTRL, Insert, activewindow"
     "SUPER, V, Universal paste, sendshortcut, SHIFT, Insert, activewindow"
     "SUPER, X, Universal cut, sendshortcut, CTRL, X, activewindow"
-    "SUPER CTRL, V, Clipboard manager, exec, omarchy-launch-walker -m clipboard"
+    "SUPER CTRL, V, Clipboard manager, exec, ${
+      if shell
+      then "omarchy-shell shell toggle omarchy.clipboard"
+      else "omarchy-launch-walker -m clipboard"
+    }"
+  ];
+
+  # Shell-only panel bindings new in Omarchy 4 (Display + Power popouts).
+  shellOnlyBindings = lib.optionals shell [
+    "SUPER CTRL, D, Display, exec, omarchy-shell omarchy.monitor toggle"
+    "SUPER CTRL, P, Power, exec, omarchy-shell omarchy.power toggle"
   ];
 
   # Mouse bindings (bindmd)
@@ -257,9 +316,9 @@
 
   # Multimedia bindings (bindeld - repeat enabled, works when locked)
   multimediaBindings = [
-    ",XF86AudioRaiseVolume, Volume up, exec, ${osdclient} --output-volume raise"
-    ",XF86AudioLowerVolume, Volume down, exec, ${osdclient} --output-volume lower"
-    ",XF86AudioMute, Mute, exec, ${osdclient} --output-volume mute-toggle"
+    ",XF86AudioRaiseVolume, Volume up, exec, ${volctl} raise"
+    ",XF86AudioLowerVolume, Volume down, exec, ${volctl} lower"
+    ",XF86AudioMute, Mute, exec, ${volctl} mute-toggle"
     ",XF86AudioMicMute, Mute microphone, exec, omarchy-audio-input-mute"
     ",XF86MonBrightnessUp, Brightness up, exec, omarchy-brightness-display +5%"
     ",XF86MonBrightnessDown, Brightness down, exec, omarchy-brightness-display 5%-"
@@ -267,8 +326,8 @@
     ",XF86KbdBrightnessDown, Keyboard brightness down, exec, omarchy-brightness-keyboard down"
 
     # Precise 1% multimedia adjustments with Alt modifier
-    "ALT, XF86AudioRaiseVolume, Volume up precise, exec, ${osdclient} --output-volume +1"
-    "ALT, XF86AudioLowerVolume, Volume down precise, exec, ${osdclient} --output-volume -1"
+    "ALT, XF86AudioRaiseVolume, Volume up precise, exec, ${volctl} +1"
+    "ALT, XF86AudioLowerVolume, Volume down precise, exec, ${volctl} -1"
     "ALT, XF86MonBrightnessUp, Brightness up precise, exec, omarchy-brightness-display +1%"
     "ALT, XF86MonBrightnessDown, Brightness down precise, exec, omarchy-brightness-display 1%-"
   ];
@@ -289,10 +348,26 @@
 
   # Media player bindings (bindld - works when locked)
   mediaPlayerBindings = [
-    ", XF86AudioNext, Next track, exec, ${osdclient} --playerctl next"
-    ", XF86AudioPause, Pause, exec, ${osdclient} --playerctl play-pause"
-    ", XF86AudioPlay, Play, exec, ${osdclient} --playerctl play-pause"
-    ", XF86AudioPrev, Previous track, exec, ${osdclient} --playerctl previous"
+    ", XF86AudioNext, Next track, exec, ${
+      if shell
+      then "omarchy-shell media next"
+      else "${osdclient} --playerctl next"
+    }"
+    ", XF86AudioPause, Pause, exec, ${
+      if shell
+      then "omarchy-shell media playPause"
+      else "${osdclient} --playerctl play-pause"
+    }"
+    ", XF86AudioPlay, Play, exec, ${
+      if shell
+      then "omarchy-shell media playPause"
+      else "${osdclient} --playerctl play-pause"
+    }"
+    ", XF86AudioPrev, Previous track, exec, ${
+      if shell
+      then "omarchy-shell media previous"
+      else "${osdclient} --playerctl previous"
+    }"
 
     # Switch audio output with Super + Mute
     "SUPER, XF86AudioMute, Switch audio output, exec, omarchy-audio-output-switch"
@@ -310,7 +385,7 @@ in {
       ${mkBindd cfg.quick_app_bindings}
 
       # Main descriptive bindings
-      ${mkBindd mainBindings}
+      ${mkBindd (mainBindings ++ shellOnlyBindings)}
 
       # Dictation bindings
       ${mkBindd dictationBindings}

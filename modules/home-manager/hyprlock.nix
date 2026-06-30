@@ -10,8 +10,11 @@ inputs: {
   surfaceRgb = "rgb(${convert ", " palette.base02})";
   foregroundRgb = "rgb(${convert ", " palette.base05})";
   foregroundMutedRgb = "rgb(${convert ", " palette.base04})";
+  cfg = config.omarchy;
 in {
-  programs.hyprlock = {
+  # Retired by the Omarchy 4 shell (omarchy-shell owns the lock screen via its
+  # lock plugin). Gated off when omarchy.shell.enable.
+  programs.hyprlock = lib.mkIf (!cfg.shell.enable) {
     enable = true;
     settings = {
       general = {

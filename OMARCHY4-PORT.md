@@ -176,20 +176,31 @@ Plus standalone `omarchy-keyring` and `omarchy-nvim`.
    confirm the bar renders and the two startup pollers resolve. Everything below
    is best done *after* this, because it can only be validated live and the
    upstream branch is still moving (no `v4.0` tag yet).
-4. **Retire the old stack** (gated on `shell.enable`): stand down
-   `waybar`/`walker`/`mako`/`swayosd`/`hyprlock`/`hyprpolkitagent` + their
-   autostart entries; the shell owns those surfaces. (Structural, ~6 modules.)
-5. **Rewire keybindings to the v4 IPC model** — port `default/hypr/bindings/*.lua`:
-   `omarchy-shell shell toggle omarchy.{launcher,emojis,clipboard}`,
-   `omarchy-shell {audio,bluetooth,monitor,network,power} toggle`,
-   `omarchy-shell notifications {dismissOne,dismissAll,...}`,
-   `omarchy-menu toggle <view>`, `omarchy-shell media {next,playPause,...}`.
-   Large + churn-prone until v4 tags — hold until step 3 passes.
+4. ✅ **Retire the old stack** (gated on `shell.enable`): `waybar`/`mako`/
+   `swayosd`/`hyprlock`/`hyprpolkitagent`/`swaybg` configs + their autostart
+   exec-once entries now stand down when `shell.enable`. `walker` needs no gate
+   (empty stub; nothing invokes it once the bindings are rewired). Verified by
+   eval: shell-on autostart drops waybar/swaybg/polkit, `services.mako` is unset.
+5. ✅ **Rewire keybindings to the v4 IPC model** — `bindings.nix` now switches
+   the affected binds on `shell.enable`: `omarchy-shell shell toggle
+   omarchy.{launcher,emojis,clipboard}`, `omarchy-shell {audio,bluetooth,monitor,
+   network,power} toggle` (+ new Display/Power binds),
+   `omarchy-shell notifications {dismissOne,dismissAll,invokeLast,showHistory}`,
+   `omarchy-shell media {next,playPause,previous}`, volume via
+   `omarchy-audio-output-volume`, top-bar via `omarchy-toggle-bar`. Classic
+   (walker/mako/swayosd) bindings are kept verbatim when the shell is off.
+   Verified by evaluating the module's `extraConfig` for both flag states.
 6. Reconcile config content moved into `omarchy-settings` (`/etc` drop-ins,
    `/usr/share`) with the existing Nix modules.
 7. Fold in the smaller items (udiskie, `$OMARCHY_PATH` cleanup, default-terminal,
    optional Hyprland hyprlang→Lua conversion — orthogonal; the shell works under
    either, so not required).
+
+> **Next:** flip `omarchy.shell.enable = true` on a real host and `home-manager
+> switch` — the whole replace (shell bar/launcher/menu/notifications/osd/lock/
+> polkit + rewired keybindings) is now wired and gated; this is the live
+> validation pass. Some same-name-but-changed scripts (e.g. transparency toggle,
+> `omarchy-brightness-display` arg style) may still need a reconciliation pass.
 
 ### Test-switch recipe (for step 3, on a real NixOS+HM host)
 ```nix
