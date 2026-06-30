@@ -148,12 +148,18 @@ in {
     fi
   '';
 
-  # Seed Hyprland toggle state dir (omarchy install/config/omarchy-toggles.sh equivalent)
+  # Seed the Hyprland toggle state dir with the default .lua toggle modules
+  # (Omarchy 4: default.hypr.toggles require_all's ~/.local/state/omarchy/toggles/hypr).
   home.activation.seedHyprToggles = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    mkdir -p "$HOME/.local/state/omarchy/toggles/hypr"
-    if [ ! -f "$HOME/.local/state/omarchy/toggles/hypr/flags.conf" ]; then
-      cp "$HOME/.local/share/omarchy/default/hypr/toggles/flags.conf" \
-         "$HOME/.local/state/omarchy/toggles/hypr/flags.conf"
+    src="$HOME/.local/share/omarchy/default/hypr/toggles"
+    dst="$HOME/.local/state/omarchy/toggles/hypr"
+    mkdir -p "$dst"
+    if [ -d "$src" ]; then
+      for f in "$src"/*.lua; do
+        [ -e "$f" ] || continue
+        base="$(basename "$f")"
+        [ -e "$dst/$base" ] || cp "$f" "$dst/$base"
+      done
     fi
   '';
 
