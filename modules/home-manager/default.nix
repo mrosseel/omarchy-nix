@@ -148,19 +148,23 @@ in {
     fi
   '';
 
-  # Seed the Hyprland toggle state dir with the default .lua toggle modules
-  # (Omarchy 4: default.hypr.toggles require_all's ~/.local/state/omarchy/toggles/hypr).
+  # Seed the Hyprland toggle state dir (Omarchy 4: default.hypr.toggles
+  # require_all's the *.lua under ~/.local/state/omarchy/toggles/hypr).
+  # Seed ONLY the flags.lua keep-file (the dir needs >=1 file). The effect
+  # toggles (window-no-gaps, single-window-aspect-ratio, …) are turned on by
+  # RUNNING omarchy-toggle, never pre-seeded — seeding them all forced every
+  # toggle ON (0 gaps, square single windows). voxtype.lua carries the F9
+  # dictation binds, so seed it only when voxtype is enabled.
   home.activation.seedHyprToggles = lib.hm.dag.entryAfter ["writeBoundary"] ''
     src="$HOME/.local/share/omarchy/default/hypr/toggles"
     dst="$HOME/.local/state/omarchy/toggles/hypr"
     mkdir -p "$dst"
-    if [ -d "$src" ]; then
-      for f in "$src"/*.lua; do
-        [ -e "$f" ] || continue
-        base="$(basename "$f")"
-        [ -e "$dst/$base" ] || cp "$f" "$dst/$base"
-      done
-    fi
+    [ -e "$dst/flags.lua" ] || cp "$src/flags.lua" "$dst/flags.lua" 2>/dev/null || true
+    ${lib.optionalString config.omarchy.voxtype.enable ''
+      [ -e "$dst/voxtype.lua" ] || cp "$src/voxtype.lua" "$dst/voxtype.lua" 2>/dev/null || true
+    ''}
+    # One-time cleanup of stale v3 .conf toggles from earlier builds.
+    rm -f "$dst"/*.conf 2>/dev/null || true
   '';
 
   # Seed ~/.config/omarchy/hooks/ with .sample files from the read-only source
