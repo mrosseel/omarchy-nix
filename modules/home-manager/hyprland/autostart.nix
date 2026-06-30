@@ -1,30 +1,15 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}: let
-  cfg = config.omarchy;
-in {
-  wayland.windowManager.hyprland.settings = {
-    exec-once =
-      [
-        "wl-clip-persist --clipboard regular & clipse -listen"
-        "omarchy-powerprofiles-init"
-        "uwsm-app -- omarchy-hyprland-monitor-watch"
+{...}: {
+  # Mirrors Omarchy 4 default/hypr/autostart.lua. The shell itself
+  # (quickshell) is launched by omarchy-shell.nix; the bar/launcher/menu/
+  # notifications/osd/lock/polkit/background all live inside it, so nothing
+  # for waybar/swaybg/mako/swayosd/hyprpolkitagent is started here.
+  wayland.windowManager.hyprland.settings.exec-once = [
+    "uwsm-app -- fcitx5 --disable notificationitem"
+    "omarchy-powerprofiles-init"
+    "uwsm-app -- omarchy-hyprland-monitor-watch"
+    "uwsm-app -- udiskie --automount --notify --no-tray"
+    "wl-clip-persist --clipboard regular & clipse -listen"
 
-        # "dropbox-cli start"  # Uncomment to run Dropbox
-      ]
-      # Background, polkit agent and waybar are owned by omarchy-shell under
-      # Omarchy 4; only launch them on the classic (non-shell) stack.
-      ++ lib.optionals (!cfg.shell.enable) [
-        "uwsm-app -- swaybg -i ~/.config/omarchy/current/background -m fill"
-        "systemctl --user start hyprpolkitagent"
-        "pkill -x waybar; uwsm-app -- waybar"
-      ];
-
-    exec = lib.optionals (!cfg.shell.enable) [
-      "pkill -SIGUSR2 waybar"
-    ];
-  };
+    # "dropbox-cli start"  # Uncomment to run Dropbox
+  ];
 }

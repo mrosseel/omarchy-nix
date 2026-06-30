@@ -6,41 +6,6 @@ inputs: {
 }: let
   cfg = config.omarchy;
   packages = import ../packages.nix {inherit pkgs config lib;};
-
-  elephantPkg = inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant;
-
-  providersPkg = inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant-providers;
-
-  elephantCombined = pkgs.stdenv.mkDerivation {
-    pname = "elephant-with-providers";
-    version = "2.17.2-patched";
-    dontUnpack = true;
-
-    buildInputs = [
-      elephantPkg
-      providersPkg
-    ];
-
-    nativeBuildInputs = with pkgs; [ makeWrapper ];
-
-    installPhase = ''
-      mkdir -p $out/bin $out/lib/elephant
-      cp ${elephantPkg}/bin/elephant $out/bin/
-      cp -r ${providersPkg}/lib/elephant/providers $out/lib/elephant/
-    '';
-
-    postFixup = ''
-      wrapProgram $out/bin/elephant \
-        --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [
-          bash  # Required for executing desktop entries (sh command)
-          wl-clipboard
-          libqalculate
-          imagemagick
-          bluez
-        ])} \
-        --suffix PATH : /run/current-system/sw/bin:/etc/profiles/per-user/${cfg.username}/bin:/run/wrappers/bin
-    '';
-  };
 in {
   # Create /bin/bash symlink for Omarchy script compatibility
   systemd.tmpfiles.rules = [
@@ -48,9 +13,6 @@ in {
   ];
 
   security.rtkit.enable = true;
-
-  # PAM configuration for hyprlock (required for authentication)
-  security.pam.services.hyprlock = {};
 
   services.pulseaudio.enable = false;
   services.pipewire = {
@@ -89,12 +51,14 @@ in {
   # Login configuration (matches upstream omarchy: SDDM Wayland greeter on Hyprland).
   # Autologin path mirrors /etc/sddm.conf.d/autologin.conf from upstream install/login/sddm.sh.
   services.displayManager = let
-    sddmHyprlandConf = pkgs.writeText "sddm-hyprland.conf"
+    sddmHyprlandConf =
+      pkgs.writeText "sddm-hyprland.conf"
       (builtins.readFile ../../default/sddm/hyprland.conf);
     hyprlandPkg = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    loginUser = if cfg.seamless_boot.username != null
-                then cfg.seamless_boot.username
-                else cfg.username;
+    loginUser =
+      if cfg.seamless_boot.username != null
+      then cfg.seamless_boot.username
+      else cfg.username;
   in {
     sddm = {
       enable = true;
@@ -124,51 +88,26 @@ in {
   security.pam.services.sddm.enableGnomeKeyring = false;
   security.pam.services.sddm-autologin.enableGnomeKeyring = false;
 
-  # Binary cache for Walker (speeds up builds)
-  nix.settings = {
-    extra-substituters = ["https://walker.cachix.org" "https://walker-git.cachix.org"];
-    extra-trusted-public-keys = [
-      "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
-      "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
-    ];
-  };
+  # Omarchy 4 shell lock screen authenticates against this PAM service
+  # (shell/plugins/lock PamContext config:"omarchy-lock-password"). The default
+  # NixOS PAM stack provides the unix password auth it needs; the fingerprint
+  # counterpart (omarchy-lock-fingerprint) is added in fido2.nix when enabled.
+  security.pam.services.omarchy-lock-password = {};
 
   # Install packages
-  environment.systemPackages = packages.systemPackages ++ [
-    inputs.walker.packages.${pkgs.stdenv.hostPlatform.system}.default
-    elephantCombined
-  ];
+  environment.systemPackages = packages.systemPackages;
   programs.direnv.enable = true;
 
   # nix-ld for running unpatched binaries (e.g., Python venvs with native deps)
   programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [ stdenv.cc.cc ];
+  programs.nix-ld.libraries = with pkgs; [stdenv.cc.cc];
 
-  # Set ELEPHANT_PROVIDER_DIR globally so walker can find providers when running elephant listproviders
   environment.sessionVariables = {
-    ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
     OMARCHY_PATH = "$HOME/.local/share/omarchy";
   };
 
   # Raise soft fd limit (omarchy install/config/increase-fd-limit.sh equivalent)
   systemd.settings.Manager.DefaultLimitNOFILESoft = 65536;
-
-  # Elephant systemd service
-  systemd.user.services.elephant = {
-    description = "Elephant launcher backend";
-    wantedBy = ["graphical-session.target"];
-    after = ["graphical-session.target"];
-    partOf = ["graphical-session.target"];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${elephantCombined}/bin/elephant";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-    environment = {
-      ELEPHANT_PROVIDER_DIR = "${elephantCombined}/lib/elephant/providers";
-    };
-  };
 
   # Network service discovery and file manager network browsing
   # (Arch provides these implicitly with most desktop setups)
@@ -176,7 +115,7 @@ in {
     enable = true;
     nssmdns4 = true;
     nssmdns6 = true;
-    browseDomains = [ "local" ];
+    browseDomains = ["local"];
     openFirewall = true;
     publish = {
       enable = true;
@@ -198,7 +137,6 @@ in {
   # Credential storage for apps (gnome-keyring); SDDM PAM lines configured above.
   services.gnome.gnome-keyring.enable = true;
 
-
   # Networking
   services.resolved.enable = true;
   hardware.bluetooth.enable = true;
@@ -208,7 +146,7 @@ in {
   networking = {
     networkmanager = {
       enable = true;
-      wifi.backend = "iwd";  # Use iwd as wifi backend for NetworkManager
+      wifi.backend = "iwd"; # Use iwd as wifi backend for NetworkManager
     };
   };
 

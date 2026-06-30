@@ -6,22 +6,22 @@
 }: let
   themes = import ../themes.nix;
   availableThemes = builtins.attrNames themes;
-  
+
   themeUpdateScript = pkgs.writeShellScript "omarchy-theme-update" ''
     set -euo pipefail
-    
+
     THEME_FILE="$HOME/.config/omarchy/current-theme"
     CONFIG_PATH="$HOME/nixos-config"
-    
+
     # Check if theme file exists
     if [[ ! -f "$THEME_FILE" ]]; then
       echo "No theme file found at $THEME_FILE"
       exit 0
     fi
-    
+
     # Read the requested theme
     THEME_NAME=$(cat "$THEME_FILE")
-    
+
     # Validate theme
     AVAILABLE_THEMES=(${lib.concatStringsSep " " (map (t: ''"${t}"'') availableThemes)})
     if [[ ! " ''${AVAILABLE_THEMES[@]} " =~ " $THEME_NAME " ]]; then
@@ -29,29 +29,29 @@
       echo "Available themes: ''${AVAILABLE_THEMES[*]}"
       exit 1
     fi
-    
+
     echo "Switching to theme: $THEME_NAME"
-    
+
     # Update configuration file
     if [[ ! -d "$CONFIG_PATH" ]]; then
       echo "Error: NixOS configuration directory not found at $CONFIG_PATH"
       exit 1
     fi
-    
+
     cd "$CONFIG_PATH"
-    
+
     # Find the configuration file that contains theme setting
     CONFIG_FILE=$(${pkgs.gnugrep}/bin/grep -r -l "theme.*=" . --include="*.nix" | head -1)
     if [[ -z "$CONFIG_FILE" ]]; then
       echo "Error: Could not find theme setting in configuration"
       exit 1
     fi
-    
+
     echo "Found configuration file: $CONFIG_FILE"
-    
+
     # Create backup
     ${pkgs.coreutils}/bin/cp "$CONFIG_FILE" "$CONFIG_FILE.backup.$(${pkgs.coreutils}/bin/date +%s)"
-    
+
     # Update the theme in the config file
     if ${pkgs.gnused}/bin/sed -i "s/theme = \"[^\"]*\"/theme = \"$THEME_NAME\"/g" "$CONFIG_FILE"; then
       echo "Configuration updated successfully"
@@ -61,18 +61,12 @@
       if /run/wrappers/bin/sudo -n /run/current-system/sw/bin/nixos-rebuild switch --flake .; then
         echo "Theme switched to $THEME_NAME successfully!"
 
-        # Restart components that need reload
-        ${pkgs.procps}/bin/pkill -SIGUSR2 waybar 2>/dev/null || true
+        # Restart components that need reload. Under Omarchy 4 the bar/
+        # notifications/osd all live in omarchy-shell, so one shell restart
+        # repaints them; only ghostty + Hyprland need a separate nudge.
         ${pkgs.procps}/bin/pkill -SIGUSR2 ghostty 2>/dev/null || true
-        # swayosd-server is now a systemd user unit (see modules/home-manager/swayosd.nix);
-        # systemctl restart honors the unit's Restart=always backoff and avoids the
-        # orphaned-process churn from pkill + setsid.
-        ${pkgs.systemd}/bin/systemctl --user restart swayosd-server.service 2>/dev/null || true
-        ${pkgs.mako}/bin/makoctl reload 2>/dev/null || true
         ${pkgs.hyprland}/bin/hyprctl reload 2>/dev/null || true
-
-        # Update wallpaper
-        "$HOME/.local/share/omarchy/bin/omarchy-bg-next" 2>/dev/null || true
+        "$HOME/.local/share/omarchy/bin/omarchy-restart-shell" 2>/dev/null || true
 
         # Send notification
         ${pkgs.libnotify}/bin/notify-send "Theme changed to $THEME_NAME" -t 3000 2>/dev/null || true
@@ -92,7 +86,7 @@ in {
     services.omarchy-theme-switcher = {
       Unit = {
         Description = "Omarchy theme switcher service";
-        After = [ "graphical-session.target" ];
+        After = ["graphical-session.target"];
       };
       Service = {
         Type = "oneshot";
@@ -104,10 +98,8 @@ in {
             pkgs.coreutils
             pkgs.procps
             pkgs.util-linux
-            pkgs.mako
             pkgs.hyprland
             pkgs.libnotify
-            pkgs.swayosd
           ]}"
         ];
       };
@@ -123,7 +115,7 @@ in {
         Unit = "omarchy-theme-switcher.service";
       };
       Install = {
-        WantedBy = [ "paths.target" ];
+        WantedBy = ["paths.target"];
       };
     };
   };

@@ -1,7 +1,6 @@
 inputs: {
   config,
   pkgs,
-  lib,
   ...
 }: {
   imports = [./hyprland/configuration.nix];
@@ -15,7 +14,8 @@ inputs: {
     # into structured settings = { ... } first.
     configType = "hyprlang";
   };
-  # Retired by the Omarchy 4 shell (omarchy-shell owns the polkit agent via its
-  # polkit plugin). Gated off when omarchy.shell.enable.
-  services.hyprpolkitagent.enable = lib.mkIf (!config.omarchy.shell.enable) true;
+  # No hyprpolkitagent: omarchy-shell owns the polkit agent (polkit plugin).
+
+  # State dir for the active theme (was created by the now-removed swaybg.nix).
+  home.file.".config/omarchy/current/.keep".text = "";
 }

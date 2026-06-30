@@ -29,10 +29,6 @@ inputs: {
 in {
   imports = [
     (import ./hyprland.nix inputs)
-    (import ./hyprlock.nix inputs)
-    (import ./swaybg.nix)
-    (import ./swayosd.nix)
-    (import ./hypridle.nix)
     (import ./ghostty.nix)
     (import ./alacritty.nix)
     (import ./kitty.nix)
@@ -40,11 +36,8 @@ in {
     (import ./btop.nix)
     (import ./direnv.nix)
     (import ./git.nix)
-    (import ./mako.nix)
     (import ./starship.nix)
     (import ./vscode.nix)
-    (import ./waybar.nix inputs)
-    (import ./walker.nix)
     (import ./zoxide.nix)
     (import ./zsh.nix)
     ./chromium.nix
@@ -86,17 +79,6 @@ in {
       source = ../../config/webapp-icons;
       recursive = true;
     };
-    ".config/elephant/menus" = {
-      source = ../../default/elephant;
-      recursive = true;
-    };
-    ".local/share/omarchy/default/walker/themes" = {
-      source = ../../default/walker/themes;
-      recursive = true;
-    };
-    ".config/walker/config.toml" = {
-      source = ../../config/walker/config.toml;
-    };
     ".config/xdg-terminals.list" = {
       source = ../../config/xdg-terminals.list;
     };
@@ -114,12 +96,6 @@ in {
       [Desktop Entry]
       Hidden=true
     '';
-    ".config/elephant/calc.toml" = {
-      source = ../../config/elephant/calc.toml;
-    };
-    ".config/elephant/desktopapplications.toml" = {
-      source = ../../config/elephant/desktopapplications.toml;
-    };
     ".local/share/omarchy/default/bash" = {
       source = ../../default/bash;
       recursive = true;
@@ -138,12 +114,6 @@ in {
     # *.sample to enable a hook.
     ".local/share/omarchy/default/hooks" = {
       source = ../../config/omarchy/hooks;
-      recursive = true;
-    };
-    # Waybar helper scripts referenced from the static waybar config via
-    # $OMARCHY_PATH/default/waybar/...
-    ".local/share/omarchy/default/waybar" = {
-      source = ../../default/waybar;
       recursive = true;
     };
     # Nautilus-python extensions (Send via LocalSend, Transcode) — upstream
@@ -205,18 +175,13 @@ in {
     fi
   '';
 
-  # Restart walker / elephant daemons after every switch so they pick up
-  # the new binaries instead of holding onto a stale /nix/store path. Without
-  # this, any walker --dmenu the user opens after an update would talk to a
-  # daemon from before the switch — accumulating zombies that the menu's
-  # toggle logic can't close, and breaking the menu until manual cleanup.
-  # Using -f (match command line) instead of -x (match comm), because Nix's
-  # wrapper binary has comm `.walker-wrapped` rather than `walker`.
-  # `.elephant-wrapped` is the matching token for elephant's wrapper.
-  home.activation.restartWalkerStack = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    pkill -9 -f "walker.*--dmenu" 2>/dev/null || true
-    pkill -f "walker --gapplication-service" 2>/dev/null || true
-    pkill -9 -f "\.elephant-wrapped" 2>/dev/null || true
+  # Restart the Omarchy shell after every switch so it picks up the new
+  # binaries instead of holding onto a stale /nix/store path. omarchy-restart-shell
+  # uses pkill -f (Nix wraps quickshell to comm `.quickshell-wrapped`).
+  home.activation.restartOmarchyShell = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if command -v omarchy-restart-shell >/dev/null 2>&1; then
+      $DRY_RUN_CMD omarchy-restart-shell 2>/dev/null || true
+    fi
   '';
 
   # Recover internal display when no external monitor is attached at session start.

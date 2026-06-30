@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   cfg = config.omarchy;
 in {
   config = lib.mkIf (cfg ? fido2_auth && cfg.fido2_auth.enable) {
@@ -16,7 +19,7 @@ in {
     # Required packages for FIDO2 support
     environment.systemPackages = with pkgs; [
       libfido2
-      pamu2fcfg  # Tool for mapping FIDO2 devices
+      pamu2fcfg # Tool for mapping FIDO2 devices
       yubikey-manager
       yubikey-personalization
     ];
@@ -53,7 +56,9 @@ in {
       login = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
         fprintAuth = true;
       };
-      hyprlock = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
+      # Omarchy 4 shell lock authenticates against the omarchy-lock-fingerprint
+      # PAM service (shell/plugins/lock PamContext config:"omarchy-lock-fingerprint").
+      omarchy-lock-fingerprint = lib.mkIf (cfg.fido2_auth.fingerprint_support) {
         fprintAuth = true;
       };
     };

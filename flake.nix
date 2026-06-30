@@ -5,8 +5,6 @@
     # Use v0.53.0+ for start-hyprland script support
     hyprland.url = "github:hyprwm/Hyprland/v0.55.3";
     nix-colors.url = "github:misterio77/nix-colors";
-    elephant.url = "github:abenz1267/elephant";
-    walker.url = "github:abenz1267/walker/v2.15.2";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,8 +15,6 @@
     nixpkgs,
     hyprland,
     nix-colors,
-    elephant,
-    walker,
     home-manager,
   }: {
     nixosModules = {
