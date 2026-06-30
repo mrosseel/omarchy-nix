@@ -19,7 +19,6 @@ Item {
   property string filterText: ""
   property int selectedIndex: 0
   property bool cursorActive: true
-  property bool hoverArmed: false
   property var filteredEntries: []
   property int launchSerial: 0
   property int launchToplevelCount: 0
@@ -30,6 +29,13 @@ Item {
   property var desktopHiddenEntryIds: ({})
   property bool deleteConfirmOpen: false
   property var deleteEntry: null
+
+  // Maps an icon name to a file on disk (e.g. "omacut" -> ".../apps/omacut.svg").
+  // Used as a fallback for icons that Qt's themed lookup misses because they were
+  // installed after this process started (its icon cache never re-scans). Refreshed
+  // whenever the app list changes, so newly installed apps get their icon live.
+  property var iconIndex: ({})
+  property var pendingIconIndex: ({})
 
   // Bound to the central [launcher] section in shell.toml via Color.qml.
   // Each color already includes its alpha companion (composed in the
@@ -72,7 +78,7 @@ Item {
     root.filterText = payload.query || ""
     root.selectedIndex = 0
     root.cursorActive = true
-    root.hoverArmed = false
+    root.disarmHover()
     root.rebuildDisplay()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
@@ -83,6 +89,7 @@ Item {
 
   function dismiss() {
     root.deleteConfirmOpen = false
+    root.deleteEntry = null
     root.opened = false
     if (root.shell && typeof root.shell.hide === "function")
       root.shell.hide((root.manifest && root.manifest.id) || "omarchy.launcher")
@@ -93,7 +100,13 @@ Item {
     if (value.length === 0) return Quickshell.iconPath("application-x-executable", true)
     if (value.indexOf("file://") === 0 || value.indexOf("image://") === 0) return value
     if (value.charAt(0) === "/") return Util.fileUrl(value)
-    return Quickshell.iconPath(value, true)
+    var themed = Quickshell.iconPath(value, true)
+    if (themed.length > 0) return themed
+    // Qt's themed lookup missed (commonly a just-installed app whose icon landed
+    // after our icon cache warmed). Fall back to the on-disk index we scanned.
+    var found = root.iconIndex[value]
+    if (found) return Util.fileUrl(found)
+    return Quickshell.iconPath("application-x-executable", true)
   }
 
   function entryName(entry) {
@@ -114,6 +127,16 @@ Item {
 
   function entrySearchText(entry) {
     return LauncherSearch.entrySearchText(entry)
+  }
+
+  function disarmHover() {
+    pointerGate.reset()
+  }
+
+  function selectFromPointer(index, item, mouse) {
+    if (!pointerGate.moved(item, mouse)) return
+    root.cursorActive = true
+    root.selectedIndex = index
   }
 
   function isHiddenEntry(entry) {
@@ -147,6 +170,34 @@ Item {
     }
     root.desktopHiddenEntryIds = next
     if (root.opened) root.rebuildDisplay()
+  }
+
+  function iconIndexScanCommand() {
+    // List app/device icons across the XDG icon dirs and /usr/share/pixmaps as
+    // "<path>" lines. Some desktop entries, such as Print Settings, use device
+    // icons like "printer" instead of app icons. SVGs are emitted before PNGs
+    // so the parser, which keeps the first hit per name, prefers scalable icons.
+    return [
+      'dirs="$HOME/.icons $HOME/.local/share/icons";',
+      'IFS=":"; for d in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do dirs="$dirs $d/icons"; done; unset IFS;',
+      'for ext in svg png; do',
+      '  for base in $dirs; do',
+      '    [[ -d $base ]] && find "$base" \\( -path "*/apps/*" -o -path "*/devices/*" \\) -name "*.$ext" 2>/dev/null;',
+      '  done;',
+      '  find /usr/share/pixmaps -maxdepth 1 -name "*.$ext" 2>/dev/null;',
+      'done'
+    ].join(' ')
+  }
+
+  function indexIconLine(path) {
+    var value = String(path || "").trim()
+    if (value.length === 0) return
+    var slash = value.lastIndexOf("/")
+    var file = slash >= 0 ? value.slice(slash + 1) : value
+    var dot = file.lastIndexOf(".")
+    var name = dot > 0 ? file.slice(0, dot) : file
+    if (name.length > 0 && root.pendingIconIndex[name] === undefined)
+      root.pendingIconIndex[name] = value
   }
 
   function hiddenEntryScanCommand() {
@@ -193,12 +244,14 @@ Item {
     root.filterText = nextFilter
     root.selectedIndex = 0
     root.cursorActive = true
+    root.disarmHover()
     root.rebuildDisplay()
   }
 
   function select(delta) {
     if (displayModel.count === 0) return
     root.cursorActive = true
+    root.disarmHover()
     root.selectedIndex = (root.selectedIndex + delta + displayModel.count) % displayModel.count
     resultList.positionViewAtIndex(root.selectedIndex, ListView.Contain)
   }
@@ -208,9 +261,12 @@ Item {
     if (index < 0 || index >= root.filteredEntries.length) return
     var entry = root.filteredEntries[index]
     if (!entry) return
+    var desktopId = String(entry.id || "")
+    if (!desktopId) return
+
     root.beginLaunchFeedback(entry)
     root.dismiss()
-    entry.execute()
+    Quickshell.execDetached(Util.hyprExecCommand("gtk-launch " + Util.shellQuote(desktopId)))
   }
 
   function requestDeleteIndex(index) {
@@ -226,6 +282,7 @@ Item {
     root.deleteConfirmOpen = false
     root.deleteEntry = null
     deleteConfirm.selectedIndex = 1
+    root.disarmHover()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
 
@@ -235,9 +292,9 @@ Item {
 
     var desktopId = String(entry.id || "")
     var name = root.entryName(entry)
-    root.cancelDelete()
+    var command = Util.shellQuote(root.omarchyPath + "/bin/omarchy-remove-launcher-entry") + " " + Util.shellQuote(desktopId) + " " + Util.shellQuote(name)
     root.dismiss()
-    Quickshell.execDetached([root.omarchyPath + "/bin/omarchy-remove-launcher-entry", desktopId, name])
+    Quickshell.execDetached(Util.hyprExecCommand(command))
   }
 
   function beginLaunchFeedback(entry) {
@@ -276,6 +333,24 @@ Item {
     onExited: root.loadDesktopHiddenEntries(hiddenEntryOutput.text)
   }
 
+  Process {
+    id: iconIndexScan
+    command: ["bash", "-lc", root.iconIndexScanCommand()]
+    stdout: SplitParser { onRead: function(line) { root.indexIconLine(line) } }
+    onStarted: root.pendingIconIndex = ({})
+    // Swapping the property re-evaluates every iconSource() binding, so
+    // newly found icons appear without rebuilding the list.
+    onExited: root.iconIndex = root.pendingIconIndex
+  }
+
+  // Coalesces bursts of app-list changes (a package install touches many
+  // entries) into a single rescan.
+  Timer {
+    id: iconIndexDebounce
+    interval: 750
+    onTriggered: if (!iconIndexScan.running) iconIndexScan.running = true
+  }
+
   QtObject {
     id: hiddenEntryOutput
     property string text: ""
@@ -289,6 +364,11 @@ Item {
     onLoaded: root.loadConfiguredHides(text())
     onFileChanged: root.loadConfiguredHides(text())
     onLoadFailed: root.loadConfiguredHides("")
+  }
+
+  PointerMoveGate {
+    id: pointerGate
+    referenceItem: card
   }
 
   Connections {
@@ -321,11 +401,15 @@ Item {
     target: DesktopEntries.applications
     function onValuesChanged() {
       hiddenEntryScan.running = true
+      iconIndexDebounce.restart()
       if (root.opened) root.rebuildDisplay()
     }
   }
 
-  Component.onCompleted: hiddenEntryScan.running = true
+  Component.onCompleted: {
+    hiddenEntryScan.running = true
+    iconIndexScan.running = true
+  }
 
   PanelWindow {
     id: panel
@@ -395,6 +479,7 @@ Item {
           } else if (event.key === Qt.Key_Home) {
             if (displayModel.count > 0) {
               root.cursorActive = true
+              root.disarmHover()
               root.selectedIndex = 0
               resultList.positionViewAtIndex(root.selectedIndex, ListView.Contain)
             }
@@ -402,6 +487,7 @@ Item {
           } else if (event.key === Qt.Key_End) {
             if (displayModel.count > 0) {
               root.cursorActive = true
+              root.disarmHover()
               root.selectedIndex = displayModel.count - 1
               resultList.positionViewAtIndex(root.selectedIndex, ListView.Contain)
             }
@@ -541,13 +627,7 @@ Item {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onPositionChanged: function(mouse) {
-                  root.hoverArmed = true
-                  root.cursorActive = true
-                  root.selectedIndex = row.index
-                }
-                onContainsMouseChanged: if (containsMouse && root.hoverArmed) {
-                  root.cursorActive = true
-                  root.selectedIndex = row.index
+                  root.selectFromPointer(row.index, row, mouse)
                 }
                 onClicked: {
                   root.cursorActive = true

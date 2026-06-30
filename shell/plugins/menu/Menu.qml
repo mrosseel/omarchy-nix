@@ -410,6 +410,7 @@ Item {
         itemId: "dmenu." + i,
         kind: "dmenu",
         icon: "",
+        iconFont: "",
         label: label,
         target: "",
         detail: "",
@@ -501,6 +502,7 @@ Item {
   function select(delta) {
     if (displayModel.count === 0) return
 
+    root.disarmPointer()
     if (!cursorActive) {
       cursorActive = true
       selectedIndex = delta < 0 ? displayModel.count - 1 : 0
@@ -514,6 +516,7 @@ Item {
     root.filterText = nextFilter
     root.selectedIndex = 0
     root.cursorActive = root.mode !== "input"
+    root.disarmPointer()
     if (!root.dmenuActive && root.filterText.trim()) root.loadProvidersForSearch()
     root.rebuildDisplay()
   }
@@ -525,6 +528,7 @@ Item {
     root.filterText = ""
     root.selectedIndex = 0
     root.cursorActive = true
+    root.disarmPointer()
     root.rebuildDisplay()
     root.loadProviderForMenu(id)
   }
@@ -598,6 +602,7 @@ Item {
     filterText = ""
     selectedIndex = 0
     cursorActive = true
+    root.disarmPointer()
     root.evaluateGuards()
     opened = true
     rebuildDisplay()
@@ -621,6 +626,7 @@ Item {
     filterText = ""
     selectedIndex = 0
     cursorActive = mode !== "input"
+    root.disarmPointer()
     opened = true
     rebuildDisplay()
 
@@ -667,6 +673,16 @@ Item {
     return "ok"
   }
 
+  function disarmPointer() {
+    pointerGate.reset()
+  }
+
+  function selectFromPointer(index, item, mouse) {
+    if (!pointerGate.moved(item, mouse)) return
+    root.cursorActive = true
+    root.selectedIndex = index
+  }
+
   Process {
     id: providerProc
     property string menuId: ""
@@ -691,6 +707,11 @@ Item {
       if (root.applySerial === root.requestSerial)
         root.opened = false
     }
+  }
+
+  PointerMoveGate {
+    id: pointerGate
+    referenceItem: card
   }
 
   // The JSONC sources are watched so live edits to the default file (or the
@@ -912,6 +933,7 @@ Item {
               required property string itemId
               required property string kind
               required property string icon
+              required property string iconFont
               required property string label
               required property string target
               required property string detail
@@ -944,7 +966,7 @@ Item {
                 visible: row.hasIcon
                 text: row.icon
                 color: row.hasCursor ? root.selectedText : root.foreground
-                font.family: root.fontFamily
+                font.family: row.iconFont.length > 0 ? row.iconFont : root.fontFamily
                 font.pixelSize: Style.font.iconLarge
                 width: Style.space(36)
                 horizontalAlignment: Text.AlignHCenter
@@ -1020,11 +1042,14 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onPositionChanged: {
+                onPositionChanged: function(mouse) {
+                  root.selectFromPointer(row.index, row, mouse)
+                }
+                onClicked: {
                   root.cursorActive = true
                   root.selectedIndex = row.index
+                  root.activateIndex(row.index)
                 }
-                onClicked: root.activateIndex(row.index)
               }
             }
           }

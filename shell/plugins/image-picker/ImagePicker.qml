@@ -12,7 +12,8 @@ Item {
 
   // Injected by omarchy-shell; defaults to the session OMARCHY_PATH.
   property string omarchyPath: Quickshell.env("OMARCHY_PATH")
-  property string imageDirs: Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIRS") || Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIR") || Quickshell.env("OMARCHY_STOCK_BACKGROUNDS_DIR") || (Quickshell.env("HOME") + "/.config/omarchy/current/theme/backgrounds")
+  property string stateHome: Quickshell.env("HOME") + "/.local/state"
+  property string imageDirs: Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIRS") || Quickshell.env("OMARCHY_IMAGE_SELECTOR_DIR") || Quickshell.env("OMARCHY_STOCK_BACKGROUNDS_DIR") || (stateHome + "/omarchy/current/theme/backgrounds")
   property string imageRows: ""
   property string loadedImageRows: ""
   property string selectionFile: Quickshell.env("OMARCHY_IMAGE_SELECTOR_SELECTION_FILE") || Quickshell.env("OMARCHY_BACKGROUND_SELECTION_FILE")
@@ -301,9 +302,8 @@ Item {
 
   // Lifecycle hooks invoked by omarchy-shell summon/hide. shell.summon(id,
   // payloadJson) hands the JSON to open() here; shell.hide(id) calls close().
-  // External CLI callers can either go through `shell summon omarchy.image-
-  // picker` (JSON payload), or hit the dedicated `image-selector` IpcHandler
-  // below for the lower-level positional call that omarchy-menu-images uses.
+  // The shell host owns the stable `image-selector` IPC target and forwards
+  // those lower-level positional calls here.
   function open(payload) {
     var args = {}
     if (payload) {
@@ -343,44 +343,6 @@ Item {
       imagesLoaded = true
     } else if (imageRows) {
       loadRows(imageRows, false)
-    }
-  }
-
-  // IPC surface. All arguments are strings (Quickshell IPC marshalling).
-  // imageRows can contain newlines/tabs, so the CLI caller base64-encodes
-  // it; everything else passes through verbatim. The two boolean-like
-  // fields use the literal strings "true" or "false".
-  IpcHandler {
-    target: "image-selector"
-
-    function open(imageDirs: string,
-                  imageRowsB64: string,
-                  selectedImage: string,
-                  selectionFile: string,
-                  doneFile: string,
-                  showLabels: string,
-                  filterable: string): string {
-      var rows = Util.decodeBase64(imageRowsB64)
-      root.openSelector(imageDirs, rows, selectedImage, selectionFile, doneFile,
-                        showLabels, filterable)
-      return "ok"
-    }
-
-    function preload(imageRowsB64: string,
-                     selectedImage: string,
-                     showLabels: string,
-                     filterable: string): string {
-      var rows = Util.decodeBase64(imageRowsB64)
-      root.preloadRows(rows, selectedImage, showLabels, filterable)
-      return "ok"
-    }
-
-    function cancel(doneFile: string): void {
-      root.closeSelector(doneFile || "")
-    }
-
-    function ping(): string {
-      return "ok"
     }
   }
 
@@ -546,7 +508,7 @@ Item {
                   // selection moves through the carousel.
                   source: item.sourceActivated && item.thumbnailPath ? Util.fileUrl(item.thumbnailPath) : ""
                   fillMode: Image.PreserveAspectCrop
-                  asynchronous: true
+                  asynchronous: false
                   cache: true
                   smooth: true
                 }

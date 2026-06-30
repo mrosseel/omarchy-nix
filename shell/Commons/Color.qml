@@ -4,13 +4,18 @@ import Quickshell
 import Quickshell.Io
 import "BorderGeometry.js" as Geometry
 
-// Color surfaces for the shell. Foundational palette (foreground, background,
-// accent, urgent) comes from theme/colors.toml. Per-surface roles come from
+// Color surfaces for the shell. Foundational palette (fg, bg, accent,
+// urgent) comes from theme/colors.toml and is exposed here as
+// foreground/background/accent/urgent. Per-surface roles come from
 // theme/shell.toml — generated per theme from default/themed/shell.toml.tpl,
 // or shipped directly by a theme to replace the generated file. Surfaces that
 // don't appear in shell.toml fall back to the foundational palette.
 QtObject {
   id: root
+
+  readonly property string home: Quickshell.env("HOME")
+  readonly property string stateHome: home + "/.local/state"
+  readonly property string currentThemePath: stateHome + "/omarchy/current/theme"
 
   property color foreground: "#cacccc"
   property color background: "#101315"
@@ -141,22 +146,34 @@ QtObject {
     var lines = String(raw || "").split("\n")
     var foundAccent = false
     var foundMuted = false
+    var foundForeground = false
+    var foundBackground = false
+    var loadedForeground = false
+    var loadedBackground = false
+    var color0Value = ""
     var color4Value = ""
+    var color7Value = ""
     var color8Value = ""
     for (var i = 0; i < lines.length; i++) {
       var match = lines[i].match(/^\s*([A-Za-z0-9_-]+)\s*=\s*["']?(#[0-9A-Fa-f]{6})/)
       if (!match) continue
-      if (match[1] === "foreground") foreground = match[2]
-      else if (match[1] === "background") background = match[2]
+      if (match[1] === "foreground") { foreground = match[2]; foundForeground = true; loadedForeground = true }
+      else if (match[1] === "background") { background = match[2]; foundBackground = true; loadedBackground = true }
+      else if (match[1] === "fg" && !foundForeground) { foreground = match[2]; loadedForeground = true }
+      else if (match[1] === "bg" && !foundBackground) { background = match[2]; loadedBackground = true }
       // Prefer the explicit `accent` key; only fall back to color4 when the
       // theme doesn't define a separate accent. color4 appears later in the
       // file so the old single-property approach clobbered accent with it.
       else if (match[1] === "accent") { accent = match[2]; foundAccent = true }
       else if (match[1] === "muted") { muted = match[2]; foundMuted = true }
+      else if (match[1] === "color0") color0Value = match[2]
       else if (match[1] === "color4") color4Value = match[2]
+      else if (match[1] === "color7") color7Value = match[2]
       else if (match[1] === "color8") color8Value = match[2]
       else if (match[1] === "red" || match[1] === "color1") urgent = match[2]
     }
+    if (!loadedBackground && color0Value.length > 0) background = color0Value
+    if (!loadedForeground && color7Value.length > 0) foreground = color7Value
     if (!foundAccent && color4Value.length > 0) accent = color4Value
     if (!foundMuted) muted = color8Value.length > 0 ? color8Value : foreground
   }
@@ -194,14 +211,14 @@ QtObject {
   // through shell IPC.
   property FileView colorsFile: FileView {
     id: colorsFile
-    path: Quickshell.env("HOME") + "/.config/omarchy/current/theme/colors.toml"
+    path: root.currentThemePath + "/colors.toml"
     watchChanges: false
     printErrors: false
     onLoaded: root.loadColors(text())
   }
   property FileView shellFile: FileView {
     id: shellFile
-    path: Quickshell.env("HOME") + "/.config/omarchy/current/theme/shell.toml"
+    path: root.currentThemePath + "/shell.toml"
     watchChanges: false
     printErrors: false
     onLoaded: root.loadShell(text())

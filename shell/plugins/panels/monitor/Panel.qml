@@ -287,7 +287,7 @@ Panel {
 
   Process {
     id: stateProc
-    command: [root.bar ? root.bar.omarchyPath + "/bin/omarchy-monitor-state" : "omarchy-monitor-state"]
+    command: ["omarchy-monitor-state"]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
@@ -382,7 +382,12 @@ Panel {
         anchors.fill: parent
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: panelColumn.implicitHeight > height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+        Binding {
+          target: scrollArea.contentItem
+          property: "interactive"
+          value: panelColumn.implicitHeight > scrollArea.height
+        }
 
         Column {
           id: panelColumn
@@ -438,6 +443,11 @@ Panel {
           }
 
           // ---------- Brightness ----------
+          PanelSeparator {
+            visible: root.brightnessAvailable
+            foreground: root.bar.foreground
+          }
+
           Column {
             visible: root.brightnessAvailable
             width: parent.width
@@ -515,6 +525,10 @@ Panel {
           }
 
           // ---------- Scale ----------
+          PanelSeparator {
+            foreground: root.bar.foreground
+          }
+
           Column {
             width: parent.width
             spacing: Style.space(10)
@@ -551,6 +565,11 @@ Panel {
           }
 
           // ---------- Monitors ----------
+          PanelSeparator {
+            visible: root.displays.length > 1
+            foreground: root.bar.foreground
+          }
+
           Column {
             width: parent.width
             spacing: Style.space(10)

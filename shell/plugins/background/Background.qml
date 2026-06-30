@@ -10,7 +10,8 @@ Item {
   id: root
 
   readonly property string home: Quickshell.env("HOME")
-  readonly property string currentBackgroundLink: home + "/.config/omarchy/current/background"
+  readonly property string stateHome: home + "/.local/state"
+  readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
 
   property string currentBackground: ""
   property string displayedBackground: ""
@@ -65,10 +66,14 @@ Item {
     pendingColorsRaw = Util.decodeBase64(colorsB64)
     pendingShellRaw = Util.decodeBase64(shellB64)
     pendingThemeVersion = backgroundVersion
+    pendingThemeFallbackTimer.restart()
   }
 
   function applyPendingTheme() {
-    if (pendingThemeVersion !== backgroundVersion) return
+    // Background polling can advance backgroundVersion while a theme switch is
+    // pending; the latest theme payload should still apply.
+    if (pendingThemeVersion < 0) return
+    pendingThemeFallbackTimer.stop()
     Color.loadColors(pendingColorsRaw)
     // Color.loadShell also refreshes Style so the type scale flips with the
     // background reveal instead of waiting for a separate reload path.
@@ -151,6 +156,13 @@ Item {
     running: true
     repeat: true
     onTriggered: root.refreshBackground()
+  }
+
+  Timer {
+    id: pendingThemeFallbackTimer
+    interval: 300
+    repeat: false
+    onTriggered: root.applyPendingTheme()
   }
 
   NumberAnimation {

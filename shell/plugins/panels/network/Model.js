@@ -97,6 +97,78 @@ function throughputState(previous, next, now) {
   }
 }
 
+function pingSampleValue(raw) {
+  var value = parseFloat(raw)
+  if (!isFinite(value) || value < 0) return null
+  return value
+}
+
+function appendPingSample(samples, raw, limit) {
+  var values = Array.isArray(samples) ? samples.slice() : []
+
+  values.push(pingSampleValue(raw))
+  while (values.length > limit) values.shift()
+
+  return values
+}
+
+function averagePingLatency(samples, limit) {
+  var values = Array.isArray(samples) ? samples : []
+  var sampleLimit = Math.max(1, parseInt(limit, 10) || values.length || 1)
+  var total = 0
+  var count = 0
+
+  for (var i = Math.max(0, values.length - sampleLimit); i < values.length; i++) {
+    var value = values[i]
+    if (typeof value !== "number" || !isFinite(value) || value < 0) continue
+    total += value
+    count++
+  }
+
+  return count > 0 ? total / count : -1
+}
+
+function pingPacketLossPercent(samples) {
+  var values = Array.isArray(samples) ? samples : []
+  if (values.length === 0) return 0
+
+  var lost = 0
+  for (var i = 0; i < values.length; i++) {
+    if (values[i] === null) lost++
+  }
+
+  return Math.round((lost / values.length) * 100)
+}
+
+function formatPacketLoss(percent) {
+  var value = parseInt(percent, 10)
+  if (!value || value < 0) return "0%"
+  return value + "%"
+}
+
+function pingLatencyState(previous, next, limit, averageLimit) {
+  var prev = previous || {}
+  var sample = next || {}
+  var iface = sample.iface || ""
+  var window = Math.max(1, parseInt(limit, 10) || 5)
+  var averageWindow = Math.max(1, parseInt(averageLimit, 10) || window)
+  var reset = iface === "" || iface !== (prev.pingIface || "")
+  var routerSamples = reset ? [] : prev.routerPingSamples
+  var internetSamples = reset ? [] : prev.internetPingSamples
+
+  routerSamples = sample.router_ping_ms === undefined ? [] : appendPingSample(routerSamples, sample.router_ping_ms, window)
+  internetSamples = sample.internet_ping_ms === undefined ? [] : appendPingSample(internetSamples, sample.internet_ping_ms, window)
+
+  return {
+    pingIface: iface,
+    routerPingSamples: routerSamples,
+    internetPingSamples: internetSamples,
+    routerPingLatency: averagePingLatency(routerSamples, averageWindow),
+    internetPingLatency: averagePingLatency(internetSamples, averageWindow),
+    internetPingPacketLoss: pingPacketLossPercent(internetSamples)
+  }
+}
+
 function formatBytes(bytes) {
   var n = Number(bytes)
   if (!isFinite(n) || n < 0) n = 0
@@ -108,6 +180,18 @@ function formatBytes(bytes) {
 
 function formatRate(bytesPerSec) {
   return formatBytes(bytesPerSec) + "/s"
+}
+
+function formatSpeedMbps(mbps) {
+  var value = parseFloat(mbps)
+  if (!isFinite(value) || value <= 0) return "--"
+  return value.toFixed(value > 0 && value < 10 ? 1 : 0) + " Mbps"
+}
+
+function formatPingLatency(ms) {
+  var value = parseFloat(ms)
+  if (!isFinite(value) || value < 0) return "Timeout"
+  return value.toFixed(value > 0 && value < 10 ? 1 : 0) + " ms"
 }
 
 function wifiRow(network) {
@@ -168,8 +252,13 @@ if (typeof module !== "undefined") {
     headerDetail: headerDetail,
     parseKeyValue: parseKeyValue,
     throughputState: throughputState,
+    pingLatencyState: pingLatencyState,
+    pingPacketLossPercent: pingPacketLossPercent,
+    formatPacketLoss: formatPacketLoss,
     formatBytes: formatBytes,
     formatRate: formatRate,
+    formatSpeedMbps: formatSpeedMbps,
+    formatPingLatency: formatPingLatency,
     wifiRow: wifiRow,
     sortWifiRows: sortWifiRows,
     wifiSectionTitle: wifiSectionTitle,

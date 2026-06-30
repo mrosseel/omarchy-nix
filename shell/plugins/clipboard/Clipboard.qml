@@ -45,6 +45,7 @@ Item {
     root.filterText = ""
     root.selectedIndex = 0
     root.cursorActive = true
+    root.disarmPointer()
     root.rebuildDisplay()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
@@ -97,6 +98,7 @@ Item {
 
   function cancelClearHistory() {
     root.clearConfirmOpen = false
+    root.disarmPointer()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
 
@@ -105,6 +107,7 @@ Item {
     root.saveHistory()
     root.selectedIndex = 0
     root.cursorActive = false
+    root.disarmPointer()
     root.clearConfirmOpen = false
     root.rebuildDisplay()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
@@ -124,6 +127,7 @@ Item {
       root.selectedIndex = displayModel.count - 2
     }
 
+    root.disarmPointer()
     root.rebuildDisplay()
   }
 
@@ -155,6 +159,7 @@ Item {
 
   function select(delta) {
     if (displayModel.count === 0) return
+    root.disarmPointer()
     if (!cursorActive) {
       cursorActive = true
       selectedIndex = delta < 0 ? displayModel.count - 1 : 0
@@ -164,11 +169,30 @@ Item {
     resultList.positionViewAtIndex(selectedIndex, ListView.Contain)
   }
 
+  function selectAbsolute(index) {
+    if (displayModel.count === 0) return
+    root.disarmPointer()
+    root.cursorActive = true
+    root.selectedIndex = Math.max(0, Math.min(index, displayModel.count - 1))
+    resultList.positionViewAtIndex(root.selectedIndex, ListView.Contain)
+  }
+
   function setFilter(nextFilter) {
     root.filterText = nextFilter
     root.selectedIndex = 0
     root.cursorActive = true
+    root.disarmPointer()
     root.rebuildDisplay()
+  }
+
+  function disarmPointer() {
+    pointerGate.reset()
+  }
+
+  function selectFromPointer(index, item, mouse) {
+    if (!pointerGate.moved(item, mouse)) return
+    root.cursorActive = true
+    root.selectedIndex = index
   }
 
   function activateIndex(index) {
@@ -218,6 +242,11 @@ Item {
   Component.onCompleted: initProc.running = true
 
   ListModel { id: displayModel }
+
+  PointerMoveGate {
+    id: pointerGate
+    referenceItem: card
+  }
 
   FileView {
     id: historyFile
@@ -324,6 +353,12 @@ Item {
           } else if (event.key === Qt.Key_PageDown) {
             root.select(6)
             event.accepted = true
+          } else if (event.key === Qt.Key_Home) {
+            root.selectAbsolute(0)
+            event.accepted = true
+          } else if (event.key === Qt.Key_End) {
+            root.selectAbsolute(displayModel.count - 1)
+            event.accepted = true
           } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
             if (root.cursorActive && (event.modifiers & Qt.AltModifier)) root.openIndex(root.selectedIndex)
             else if (root.cursorActive && (event.modifiers & Qt.ShiftModifier)) root.copyIndex(root.selectedIndex)
@@ -406,6 +441,7 @@ Item {
                 boundsBehavior: Flickable.StopAtBounds
 
                 delegate: Rectangle {
+                  id: row
                   required property int index
                   required property string entryType
                   required property string previewText
@@ -455,14 +491,13 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onContainsMouseChanged: if (containsMouse) {
-                      root.cursorActive = true
-                      root.selectedIndex = index
+                    onPositionChanged: function(mouse) {
+                      root.selectFromPointer(row.index, row, mouse)
                     }
                     onClicked: {
                       root.cursorActive = true
-                      root.selectedIndex = index
-                      root.activateIndex(index)
+                      root.selectedIndex = row.index
+                      root.activateIndex(row.index)
                     }
                   }
                 }

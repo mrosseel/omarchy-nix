@@ -1,0 +1,22 @@
+background = {{ bg }}
+foreground = {{ fg }}
+cursor-color = {{ bright_fg }}
+selection-background = {{ selection_background }}
+selection-foreground = {{ selection_foreground }}
+
+palette = 0={{ bg }}
+palette = 1={{ red }}
+palette = 2={{ green }}
+palette = 3={{ yellow }}
+palette = 4={{ blue }}
+palette = 5={{ magenta }}
+palette = 6={{ cyan }}
+palette = 7={{ fg }}
+palette = 8={{ muted }}
+palette = 9={{ bright_red }}
+palette = 10={{ bright_green }}
+palette = 11={{ bright_yellow }}
+palette = 12={{ bright_blue }}
+palette = 13={{ bright_magenta }}
+palette = 14={{ bright_cyan }}
+palette = 15={{ bright_fg }}

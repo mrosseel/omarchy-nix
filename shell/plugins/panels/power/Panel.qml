@@ -59,7 +59,7 @@ Panel {
   }
   readonly property bool discharging: {
     var device = UPower.displayDevice
-    return !!(device && device.isPresent && (UPower.onBattery || device.state === UPowerDeviceState.Discharging))
+    return !!(device && device.isPresent && UPower.onBattery)
   }
   readonly property bool chargeThresholdActive: {
     var device = UPower.displayDevice
@@ -76,7 +76,7 @@ Panel {
 
   readonly property bool charging: {
     var d = UPower.displayDevice
-    return d && d.isPresent && d.state === UPowerDeviceState.Charging && !root.chargeThresholdActive
+    return d && d.isPresent && !UPower.onBattery && !root.batteryFlowIdle
   }
 
   readonly property color batteryFillColor: {
@@ -183,19 +183,19 @@ Panel {
 
   Process {
     id: batteryProc
-    command: [root.bar ? root.bar.omarchyPath + "/bin/omarchy-battery-status" : "omarchy-battery-status", "--shell"]
+    command: ["omarchy-battery-status", "--shell"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateKeyValue(text, "battery") }
   }
 
   Process {
     id: profilesProc
-    command: [root.bar ? root.bar.omarchyPath + "/bin/omarchy-powerprofiles-list" : "omarchy-powerprofiles-list", "--active-state"]
+    command: ["omarchy-powerprofiles-list", "--active-state"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateProfiles(text) }
   }
 
   Process {
     id: systemProc
-    command: [root.bar ? root.bar.omarchyPath + "/bin/omarchy-system-stats" : "omarchy-system-stats"]
+    command: ["omarchy-system-stats"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: root.updateKeyValue(text, "system") }
   }
 

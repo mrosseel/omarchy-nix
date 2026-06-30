@@ -378,9 +378,9 @@ Panel {
   function setDefaultSink(node) {
     if (!node) return
     Pipewire.preferredDefaultAudioSink = node
-    if (root.bar && node.id !== undefined && node.name) {
+    if (node.id !== undefined && node.name) {
       Quickshell.execDetached([
-        root.bar.omarchyPath + "/bin/omarchy-audio-output-set-default",
+        "omarchy-audio-output-set-default",
         String(node.id),
         String(node.name)
       ])
@@ -390,9 +390,9 @@ Panel {
   function setDefaultSource(node) {
     if (!node) return
     Pipewire.preferredDefaultAudioSource = node
-    if (root.bar && node.id !== undefined && node.name) {
+    if (node.id !== undefined && node.name) {
       Quickshell.execDetached([
-        root.bar.omarchyPath + "/bin/omarchy-audio-input-set-default",
+        "omarchy-audio-input-set-default",
         String(node.id),
         String(node.name)
       ])
@@ -500,7 +500,7 @@ Panel {
 
   Process {
     id: sinkAvailabilityProc
-    command: [root.bar ? root.bar.omarchyPath + "/bin/omarchy-audio-sink-availability" : "omarchy-audio-sink-availability"]
+    command: ["omarchy-audio-sink-availability"]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: root.updateSinkAvailability(text)
@@ -584,7 +584,12 @@ Panel {
         anchors.fill: parent
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: panelColumn.implicitHeight > height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+        Binding {
+          target: scrollArea.contentItem
+          property: "interactive"
+          value: panelColumn.implicitHeight > scrollArea.height
+        }
 
         Column {
           id: panelColumn
@@ -650,6 +655,10 @@ Panel {
           }
 
           // ---- Output devices ----
+          PanelSeparator {
+            foreground: root.bar.foreground
+          }
+
           Column {
             width: parent.width
             spacing: Style.space(6)
@@ -729,6 +738,11 @@ Panel {
           }
 
           // ---- Input ----
+          PanelSeparator {
+            visible: root.displayAudioSources.length > 0 || !!root.source
+            foreground: root.bar.foreground
+          }
+
           Column {
             width: parent.width
             spacing: Style.space(6)
@@ -830,6 +844,11 @@ Panel {
           }
 
           // ---- Per-app streams ----
+          PanelSeparator {
+            visible: root.displayAudioStreams.length > 0
+            foreground: root.bar.foreground
+          }
+
           Column {
             width: parent.width
             spacing: Style.space(10)

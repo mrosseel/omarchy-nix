@@ -3,6 +3,7 @@
 # omarchy:summary=Open a clipboard history entry
 # omarchy:group=clipboard
 # omarchy:args=--history-index <index>
+# omarchy:hidden=true
 
 history_index=""
 history_path="$HOME/.local/state/omarchy/clipboard-history.json"
@@ -29,7 +30,7 @@ open_image() {
   local path="$1"
 
   [[ -r $path ]] || exit 1
-  exec satty --filename "$path" --output-filename "$path"
+  exec tensaku-edit "$path"
 }
 
 open_text() {

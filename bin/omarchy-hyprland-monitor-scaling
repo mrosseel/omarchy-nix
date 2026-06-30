@@ -43,22 +43,34 @@ set_scale() {
 scale_from_current() {
   local direction="${1:-}"
 
-  # Find the preset closest to the current scale (Hyprland may snap fractional
-  # scales to nearby values, so we can't match exactly).
   awk -v direction="$direction" -v list="${SCALES[*]}" '
     NR == 1 { scale = $0; found = 1 }
     END {
       if (!found) exit 1
 
       n = split(list, scales, " ")
+      if (direction == "next") {
+        for (i = 1; i <= n; i++) {
+          if (scale < scales[i]) { print scales[i]; exit }
+        }
+        print scales[n]
+        exit
+      }
+
+      if (direction == "previous") {
+        for (i = n; i >= 1; i--) {
+          if (scale > scales[i]) { print scales[i]; exit }
+        }
+        print scales[1]
+        exit
+      }
+
+      # Find the preset closest to the current scale.
       best = 1; best_diff = 1e9
       for (i = 1; i <= n; i++) {
         diff = scale - scales[i]; if (diff < 0) diff = -diff
         if (diff < best_diff) { best_diff = diff; best = i }
       }
-
-      if (direction == "next" && best < n) best++
-      else if (direction == "previous" && best > 1) best--
 
       print scales[best]
     }'

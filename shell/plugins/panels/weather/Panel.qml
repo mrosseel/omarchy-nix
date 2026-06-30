@@ -11,6 +11,7 @@ Panel {
   ipcTarget: "omarchy.weather"
   manageIpc: false
 
+  property string omarchyPath: Quickshell.env("OMARCHY_PATH")
   property var anchorItem: null
   property bool openedFromHotkey: false
 
@@ -61,14 +62,9 @@ Panel {
   readonly property var current: report && report.current_condition && report.current_condition[0] ? report.current_condition[0] : null
   readonly property var areaInfo: report && report.nearest_area && report.nearest_area[0] ? report.nearest_area[0] : null
   readonly property var forecastDays: buildForecastDays()
+  readonly property string reportCountry: areaInfo && areaInfo.country && areaInfo.country[0] ? areaInfo.country[0].value : ""
 
-  readonly property bool useImperial: {
-    var override = setting("unit", "")
-    if (override === "imperial") return true
-    if (override === "metric") return false
-    var name = String(Qt.locale().name || "")
-    return /^en_US/.test(name) || /^en_LR/.test(name) || /^my/.test(name)
-  }
+  readonly property bool useImperial: Model.shouldUseImperial(setting("unit", ""), Qt.locale().name, reportCountry)
 
   // Auto-refresh interval in minutes; clamped to a sane minimum.
   readonly property int refreshMinutes: Math.max(1, parseInt(setting("refreshMinutes", 15), 10) || 15)
@@ -245,6 +241,7 @@ Panel {
         contentHeight: weatherColumn.implicitHeight
         clip: true
         boundsBehavior: Flickable.StopAtBounds
+        interactive: contentHeight > height
 
         Column {
           id: weatherColumn
@@ -473,7 +470,7 @@ Panel {
   // Poll the weather pill text/class every minute. Local to this widget.
   Process {
     id: weatherProc
-    command: ["bash", "-lc", root.bar ? Util.shellQuote(root.bar.omarchyPath + "/shell/plugins/panels/weather/status.sh") : ""]
+    command: ["bash", "-lc", Util.shellQuote(root.omarchyPath + "/shell/plugins/panels/weather/status.sh")]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: root.updateWeather(text)

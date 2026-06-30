@@ -3,6 +3,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
+import Quickshell.Services.Pipewire
 import qs.Ui
 import qs.Commons
 import "Model.js" as Model
@@ -19,6 +20,9 @@ Panel {
 
   readonly property var adapter: Bluetooth.defaultAdapter
   readonly property var devices: Bluetooth.devices ? Bluetooth.devices.values : []
+  readonly property var pipewireNodes: Pipewire.nodes ? Pipewire.nodes.values : []
+  property var pendingAudioOutputDevice: null
+  property int pendingAudioOutputAttempts: 0
 
   function deviceLabel(device) {
     return Model.deviceLabel(device)
@@ -62,7 +66,7 @@ Panel {
   readonly property bool rotatingPhrases: adapter && adapter.enabled
   readonly property string heroStatusText: {
     if (!adapter) return "No adapter"
-    if (!adapter.enabled) return "Bluetooth off"
+    if (!adapter.enabled) return "Turned Off"
     return activePhrases[phraseIndex % activePhrases.length]
   }
 
@@ -112,6 +116,64 @@ Panel {
     return Model.sectionDevices(deviceGroups, section)
   }
 
+  function audioSinks() {
+    var sinks = []
+    for (var i = 0; i < pipewireNodes.length; i++) {
+      var node = pipewireNodes[i]
+      if (node && node.isSink && !node.isStream) sinks.push(node)
+    }
+    return sinks
+  }
+
+  function bluetoothAudioSink(device) {
+    var sinks = audioSinks()
+    for (var i = 0; i < sinks.length; i++) {
+      if (Model.bluetoothSinkMatchesDevice(sinks[i], device)) return sinks[i]
+    }
+    return null
+  }
+
+  function setDefaultAudioSink(sink) {
+    if (!sink) return
+    Pipewire.preferredDefaultAudioSink = sink
+    if (sink.id !== undefined && sink.name) {
+      Quickshell.execDetached([
+        "omarchy-audio-output-set-default",
+        String(sink.id),
+        String(sink.name)
+      ])
+    }
+  }
+
+  function scheduleAudioOutputSwitch(device) {
+    pendingAudioOutputDevice = {
+      address: device && device.address ? device.address : "",
+      name: device && device.name ? device.name : "",
+      deviceName: device && device.deviceName ? device.deviceName : ""
+    }
+    pendingAudioOutputAttempts = 0
+    audioSwitchTimer.restart()
+  }
+
+  function switchPendingAudioOutput() {
+    if (!pendingAudioOutputDevice) return
+
+    var sink = bluetoothAudioSink(pendingAudioOutputDevice)
+    if (sink) {
+      setDefaultAudioSink(sink)
+      pendingAudioOutputDevice = null
+      audioSwitchTimer.stop()
+      return
+    }
+
+    pendingAudioOutputAttempts += 1
+    if (pendingAudioOutputAttempts >= 8) {
+      pendingAudioOutputDevice = null
+      return
+    }
+    audioSwitchTimer.restart()
+  }
+
   function deviceAt(section, index) {
     var list = devicesForSection(section)
     return index >= 0 && index < list.length ? list[index] : null
@@ -132,10 +194,7 @@ Panel {
   }
 
   function deviceCommand(action, address) {
-    var command = root.bar && root.bar.omarchyPath
-      ? root.bar.omarchyPath + "/bin/omarchy-bluetooth-device"
-      : "omarchy-bluetooth-device"
-    return [command, action, address]
+    return ["omarchy-bluetooth-device", action, address]
   }
 
   function runDeviceAction(device, action, pending) {
@@ -179,9 +238,11 @@ Panel {
         }
       }
 
-      if ((action === "connecting" && found && found.connected)
+      var finishedConnecting = action === "connecting" && found && found.connected
+      if (finishedConnecting
           || (action === "disconnecting" && found && !found.connected)
           || (action === "forgetting" && (!found || (!found.paired && !found.bonded && !found.trusted)))) {
+        if (finishedConnecting) scheduleAudioOutputSwitch(found)
         delete next[address]
         changed = true
       }
@@ -361,6 +422,13 @@ Panel {
   }
 
   Timer {
+    id: audioSwitchTimer
+    interval: 500
+    repeat: false
+    onTriggered: root.switchPendingAudioOutput()
+  }
+
+  Timer {
     id: phraseTimer
     interval: 2800
     running: root.opened && root.rotatingPhrases
@@ -441,7 +509,7 @@ Panel {
       Column {
         id: column
         anchors.fill: parent
-        spacing: Style.space(10)
+        spacing: Style.space(14)
 
         // ---------- Hero: Bluetooth icon · status ----------
         Item {
@@ -508,6 +576,43 @@ Panel {
 
         // Scrollable device list — capped so a noisy neighborhood doesn't
         // grow the popup past the screen.
+        PanelSeparator {
+          foreground: root.bar.foreground
+        }
+
+        Column {
+          id: connectedList
+          visible: root.connectedDevices.length > 0
+          width: parent.width
+          spacing: Style.space(10)
+
+          PanelSectionHeader {
+            text: "CONNECTED"
+            foreground: root.bar.foreground
+            fontFamily: root.bar.fontFamily
+          }
+
+          Repeater {
+            model: root.connectedDevices
+            DeviceRow {
+              required property var modelData
+              required property int index
+              width: connectedList.width
+              dev: modelData
+              rowIndex: index
+              sectionName: "connected"
+              isDiscovered: false
+            }
+          }
+        }
+
+        PanelSeparator {
+          visible: root.connectedDevices.length > 0
+                   && (root.knownDevices.length > 0
+                       || (root.adapter && root.adapter.discovering && root.discoveredDevices.length > 0))
+          foreground: root.bar.foreground
+        }
+
         Flickable {
           id: deviceFlick
           width: parent.width
@@ -516,6 +621,7 @@ Panel {
           contentHeight: deviceList.implicitHeight
           clip: true
           boundsBehavior: Flickable.StopAtBounds
+          interactive: contentHeight > height
 
           ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
@@ -523,27 +629,6 @@ Panel {
             id: deviceList
             width: parent.width
             spacing: Style.space(10)
-
-            // Connected devices.
-            PanelSectionHeader {
-              visible: root.connectedDevices.length > 0
-              text: "CONNECTED"
-              foreground: root.bar.foreground
-              fontFamily: root.bar.fontFamily
-            }
-
-            Repeater {
-              model: root.connectedDevices
-              DeviceRow {
-                required property var modelData
-                required property int index
-                width: deviceList.width
-                dev: modelData
-                rowIndex: index
-                sectionName: "connected"
-                isDiscovered: false
-              }
-            }
 
             // Remembered devices.
             PanelSectionHeader {
@@ -567,6 +652,12 @@ Panel {
             }
 
             // Discovered (unpaired) devices, only shown while scanning.
+            PanelSeparator {
+              visible: root.adapter && root.adapter.discovering && root.discoveredDevices.length > 0
+                       && root.knownDevices.length > 0
+              foreground: root.bar.foreground
+            }
+
             PanelSectionHeader {
               visible: root.adapter && root.adapter.discovering && root.discoveredDevices.length > 0
               text: "AVAILABLE"
