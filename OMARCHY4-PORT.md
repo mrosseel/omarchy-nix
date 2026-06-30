@@ -44,12 +44,29 @@ old stack is still present):
     never matches); `omarchy-refresh-config` falls back to `$OMARCHY_PATH/config/`
     when `/etc/skel/.config/` is absent (Nix has no populated skel).
 - ✅ `nix flake check` passes (shell off). Formatted with alejandra.
+- ✅ **Brought up live** on a running Hyprland 0.55.3 session (ran
+  `quickshell -n -p $OMARCHY_PATH/shell` against the vendored tree):
+  - **quickshell 0.3.0 loads the shell cleanly** — `Configuration Loaded`,
+    **0 fatal QML errors**, no version/import mismatches. The bar + plugins
+    instantiate and render. This retires the biggest unknown (QML API match).
+  - Non-fatal warnings were all conflicts with the *running v3 stack* (mako
+    already owns notifications, hyprpolkitagent already owns polkit) — these
+    disappear once the shell replaces them — plus a couple of upstream QML
+    binding-loop warnings and cosmetic portal/UPower warnings.
+- ✅ Vendored the 24 runtime-backend bin scripts the bar/panels shell out to
+  (audio/battery/bluetooth/clipboard/dns/network-status/monitor-state/
+  system-stats/theme-switcher/…). Arch-ism audit: only
+  `omarchy-remove-launcher-entry` uses `pacman` (package removal — needs a Nix
+  adaptation/stub; edge feature). The other 23 are clean (jq/hyprctl/nmcli).
 
-**Not yet validated:** the *enabled* path hasn't been built end-to-end —
-needs a full `home-manager` build on a v4-style session (the flake exposes only
-modules, no test config). Likely follow-ups when first enabled: confirm
-`quickshell` 0.3.0 is new enough for these QML imports, and that the en-dash
-window-rule + layer rules parse under the pinned Hyprland.
+**Still to confirm on a real `home-manager switch`:** the two startup pollers
+(`omarchy-network-status`, `omarchy-monitor-state`) logged a QProcess
+"could not start" under the isolated test harness, yet both run fine standalone
+(`network-status` → `ethernet enp191s0`, `monitor-state` → `HDMI-A-1`) with a
+clean `#!/bin/bash` shebang. Almost certainly a test-invocation artifact (env/
+PATH/working-dir vs. a real uwsm session), not a defect — verify when the shell
+is enabled for real. Also still pending: an end-to-end `home-manager` build of
+the enabled path (flake exposes only modules, no test config).
 
 ### Launch / deploy facts (reference)
 - Launch: `quickshell -n -p $OMARCHY_PATH/shell` (upstream `default/hypr/autostart.lua`).
