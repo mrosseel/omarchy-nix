@@ -243,6 +243,9 @@ in {
     desktop = config.home.homeDirectory;
     publicShare = config.home.homeDirectory;
     templates = config.home.homeDirectory;
+    # Adopt the HM >= 26.05 default explicitly; otherwise legacy stateVersion
+    # users get a "default has changed" warning at evaluation time.
+    setSessionVariables = false;
   };
 
   colorScheme = selectedColorScheme;

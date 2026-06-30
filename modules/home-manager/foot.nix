@@ -30,11 +30,12 @@ in {
       };
 
       # Universal copy/paste — pairs with Hyprland's Super+C/V → Ctrl/Shift+Insert
-      # remap so the standard omarchy keystrokes hit the system clipboard.
+      # remap so the standard omarchy keystrokes hit the system clipboard, plus
+      # the conventional Ctrl+Shift+C/V terminal bindings (upstream fcde1057).
       key-bindings = {
-        clipboard-copy = "Control+Insert";
+        clipboard-copy = "Control+Insert Control+Shift+c XF86Copy";
         primary-paste = "none";
-        clipboard-paste = "Shift+Insert";
+        clipboard-paste = "Shift+Insert Control+Shift+v XF86Paste";
       };
     };
   };

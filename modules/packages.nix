@@ -66,6 +66,7 @@ in {
     # TUIs
     lazygit
     lazydocker
+    dua # Disk Usage TUI (upstream swapped dust -> dua-cli)
     btop
     powertop
     fastfetch

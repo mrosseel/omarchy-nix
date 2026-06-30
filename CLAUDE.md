@@ -73,9 +73,9 @@ When implementing features:
 
 ### Omarchy Sync Status
 
-**Last synced Omarchy commit**: `8e031516` (origin/master, v3.8.2)
+**Last synced Omarchy commit**: `9cf1852` (origin/dev; v3.8.2 + 2 dev commits)
 **Omarchy repository**: `https://github.com/basecamp/omarchy.git`
-**Last sync date**: May 28, 2026
+**Last sync date**: June 30, 2026
 **Sync notes**: Synced 170 commits from a3aedb0c..8e031516 (v3.7.1 → v3.8.2). Also bumped Hyprland v0.54.3 → v0.55.2 to fix a screenshare/sessionLock crash and the removed `dwindle.pseudotile` / `-1` gradient config options. Ported:
 - ✅ Hyprland 0.55.2 bump + config adjustments (commits 9c8f6cf2, 8e031516): pseudotile removed from `dwindle`, `col.border_locked_*` reuses `${activeBorder}` / `${inactiveBorder}` instead of `-1`. Existing `layoutmsg, togglesplit` binding already in place from prior sync.
 - ✅ SDDM Wayland greeter (commits 2cc4a263, 4eb3a919, 5cf83d20, 6f03b728, 25e6fe2e): replaces greetd entirely. New `packages/sddm-theme-omarchy.nix` packages the upstream Main.qml + assets; `services.displayManager.sddm` + `Wayland.CompositorCommand` runs a minimal Hyprland as the greeter compositor; autologin gated by `cfg.seamless_boot.enable`; `defaultSession = "hyprland-uwsm"` so the QML session-pick heuristic works. UWSM + the hyprland-uwsm.desktop override are now unconditional.
@@ -95,6 +95,14 @@ When implementing features:
 - ✅ Theme polish (commits 2a5db9ed, 4dd25423): retro-82 color0/black/selection text moved from `#00172e` to `#303442` (distinct from `#05182e` bg); matte-black selection bg `#333333` → `#515151` (distinct from color0); catppuccin neovim colorscheme renamed `catppuccin` → `catppuccin-nvim` for current LazyVim plugin compat. Helix template tweak skipped (template runtime unported).
 - ✅ Bulk re-port of 28 modified bin scripts that had no local divergence at last sync: `omarchy`, `-battery-monitor`, `-brightness-display-apple`, `-capture-{screenshot,screenrecording,text-extraction}`, `-debug`, `-dev-bin-metadata`, `-drive-select`, `-first-run`, `-font-set` (with foot integration), `-hyprland-monitor-{focused-apple,scaling-cycle}`, `-plymouth-{preview,set}`, `-restart-{pipewire,swayosd,trackpad,waybar}`, `-swayosd-{brightness,kbd-brightness}`, `-theme-{bg-set,colors-from-alacritty,refresh}`, `-theme-set-{browser,gnome,obsidian,vscode}`. Targeted merge for `-launch-screensaver` (foot case).
 - ✅ Misc small changes: Bluetooth A2DP auto-connect WirePlumber drop-in (commit 9c3520ca); swayosd-server as a systemd user unit instead of an exec-once (commit fa1ed01c) + theme-switcher uses `systemctl restart` instead of pkill+setsid; tmux `extended-keys on`/`csi-u`/`escape-time=10` (commit f2e38aa1); `decoration { rounding=0 }` block in window-no-gaps toggle (commit 22b25991); new `bin/omarchy-cmd-terminal-cwd`. config/chromium-flags.conf VAAPI removal and install/first-run/gtk-primary-paste.sh skipped (not applicable on Nix).
+
+**Post-sync cherry-picks & fixes (June 1, 2026)**:
+- ✅ Cherry-picked dev commit `fcde1057`: foot conventional copy/paste keybindings (`Control+Shift+c/v`, `XF86Copy/Paste`) in `modules/home-manager/foot.nix`.
+- ✅ Fixed porting bug in `hyprland/bindings.nix`: the `Universal copy/paste/cut` sendshortcut bindings were missing the `activewindow` target, so Hyprland rejected them with "sendshortcut: invalid args" — Super+C/V/X never worked. Upstream syntax is `sendshortcut, CTRL, Insert, activewindow`.
+
+**Dev catch-up (June 30, 2026)** — the only 2 dev commits since v3.8.2:
+- ✅ `dua` for Disk Usage (commit `9cf1852`): upstream swapped `dust` → `dua-cli` and the Disk Usage TUI launcher to `dua i`. Added `pkgs.dua` to the systemPackages TUIs and a floating `disk-usage` `xdg.desktopEntries` entry running `xdg-terminal-exec --app-id=TUI.float -e dua i` (the floating-TUI installer entries from `install/packaging/tuis.sh` were never ported before — this closes the Disk Usage half; Docker/lazydocker already has the `SUPER SHIFT D` binding). The Arch migration `1780739888.sh` is N/A on Nix.
+- ✅ Basecamp logo asset (commit `8075b8b`): refreshed `config/webapp-icons/Basecamp.png` from the upstream v5-release asset (66k → 151k).
 
 **Remaining gaps from this sync (intentional)**:
 - `omarchy-install-{browser,terminal,zed,helix,gaming-retroarch}`, `-remove-{browser,gaming-retroarch}`: Arch-only installers; declarative path on Nix.
@@ -162,7 +170,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: We track the **`master`** branch (v3.8.2 release)
+**Branch tracking**: We track the **`dev`** branch (currently `9cf1852` = v3.8.2 + 2 commits). Releases are cut to `master`/tags; new feature work lands on `dev` first. Note: the next major version is being developed on the separate **`omarchy-4`** branch (unreleased, ~740 commits ahead of `dev`) — see the v4 port tracking doc.
 
 **To check current Omarchy status**:
 ```bash

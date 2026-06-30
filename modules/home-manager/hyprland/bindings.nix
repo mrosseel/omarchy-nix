@@ -243,9 +243,9 @@
     "SUPER, Slash, Cycle monitor scaling, exec, omarchy-hyprland-monitor-scaling-cycle"
 
     # Copy / Paste / Cut
-    "SUPER, C, Universal copy, sendshortcut, CTRL, Insert,"
-    "SUPER, V, Universal paste, sendshortcut, SHIFT, Insert,"
-    "SUPER, X, Universal cut, sendshortcut, CTRL, X,"
+    "SUPER, C, Universal copy, sendshortcut, CTRL, Insert, activewindow"
+    "SUPER, V, Universal paste, sendshortcut, SHIFT, Insert, activewindow"
+    "SUPER, X, Universal cut, sendshortcut, CTRL, X, activewindow"
     "SUPER CTRL, V, Clipboard manager, exec, omarchy-launch-walker -m clipboard"
   ];
 

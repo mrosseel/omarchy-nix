@@ -11,6 +11,19 @@ in {
   # Provides proper MIME associations and Wayland support
 
   xdg.desktopEntries = {
+    # Disk Usage - floating TUI launcher (mirrors Omarchy install/packaging/tuis.sh)
+    # Upstream swapped `dust -r` for `dua i`; window class TUI.float is tagged
+    # floating in default/hypr/apps/system.conf.
+    disk-usage = {
+      name = "Disk Usage";
+      comment = "Disk Usage";
+      exec = "xdg-terminal-exec --app-id=TUI.float -e dua i";
+      icon = "${config.home.homeDirectory}/.config/omarchy/webapp-icons/Disk Usage.png";
+      type = "Application";
+      terminal = false;
+      startupNotify = true;
+    };
+
     # IMV - Image viewer with custom MIME types
     imv = {
       name = "Image Viewer";
