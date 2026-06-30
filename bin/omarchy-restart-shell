@@ -22,9 +22,6 @@ if [[ $("$omarchy_shell_bin" lock isLocked 2>/dev/null || true) == "true" ]]; th
   exit 1
 fi
 
-# Nix deviation: nixpkgs wraps quickshell, so its process comm becomes
-# ".quickshell-wrapped" and `pkill -x quickshell` never matches. Match the
-# full command line instead (covers both the wrapper and the real binary).
-pkill -f "(^|/)\.?quickshell(-wrapped)?( |$)" 2>/dev/null || true
+pkill -f "(^|/)\\.?quickshell(-wrapped)?( |$)" 2>/dev/null || true  # Nix: comm is .quickshell-wrapped
 sleep 0.2
 setsid quickshell -n -p "$CONFIG_DIR" >/dev/null 2>&1 &

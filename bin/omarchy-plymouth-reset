@@ -5,14 +5,13 @@
 
 theme_dir="/usr/share/plymouth/themes/omarchy"
 
-sudo find ~/.local/share/omarchy/default/plymouth -maxdepth 1 -type f -exec cp -t "$theme_dir/" {} +
+sudo find $OMARCHY_PATH/default/plymouth -maxdepth 1 -type f -exec cp -t "$theme_dir/" {} +
 sudo plymouth-set-default-theme omarchy
 
-if omarchy-cmd-present limine-mkinitcpio; then
+if false; then  # Nix: Plymouth theme is declarative (packages/plymouth-theme-omarchy.nix); no initramfs regen
   sudo limine-mkinitcpio
 else
   sudo mkinitcpio -P
 fi
 
-command -v omarchy-refresh-sddm >/dev/null && omarchy-refresh-sddm
-
+omarchy-refresh-sddm
