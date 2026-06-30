@@ -46,7 +46,7 @@ in {
     ./hyprland-preview-share-picker.nix
     ./hyprsunset.nix
     ./desktop-entries.nix
-    ./omarchy-shell.nix
+    (import ./omarchy-shell.nix inputs)
     ./light-theme-monitor.nix
     ./battery-monitor.nix
     ./voxtype.nix
