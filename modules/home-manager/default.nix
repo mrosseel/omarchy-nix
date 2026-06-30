@@ -194,7 +194,14 @@ in {
   # Restart the Omarchy shell after every switch so it picks up the new
   # binaries instead of holding onto a stale /nix/store path. omarchy-restart-shell
   # uses pkill -f (Nix wraps quickshell to comm `.quickshell-wrapped`).
+  #
+  # Also drop the Qt QML bytecode cache first. Qt keys ~/.cache/quickshell/qmlcache
+  # by the QML source path + Qt version, NOT the quickshell version — so a
+  # quickshell bump on the same Qt leaves stale bytecode that breaks the shell's
+  # JS modules (weather/network Model.js: "X is not a function"). Clearing it on
+  # every switch forces a clean recompile against the deployed quickshell.
   home.activation.restartOmarchyShell = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD rm -rf "''${XDG_CACHE_HOME:-$HOME/.cache}/quickshell/qmlcache" 2>/dev/null || true
     if command -v omarchy-restart-shell >/dev/null 2>&1; then
       $DRY_RUN_CMD omarchy-restart-shell 2>/dev/null || true
     fi
