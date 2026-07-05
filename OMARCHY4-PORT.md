@@ -11,22 +11,34 @@ line until v4 lands.
 > **`quattro`**. Track `quattro`, NOT `omarchy-4`. (Our omarchy-nix *branch* is
 > still named `omarchy-4` — that's just our branch name, unrelated to upstream's.)
 
-- **Branch**: `quattro` @ last commit `2026-06-29` (DHH, "Resolve launcher device icons") — **unreleased**, no `v4` tag, active daily.
-- **Scope**: ~984 commits ahead of `dev`. There is a **4.0 milestone** (1 issue open). Only ~5 open PRs, all additive.
+- **Branch**: `quattro` @ `af828481` ("Give it a little more time", ~2026-07-04) — **unreleased**, no `v4` tag, active daily.
+- **Scope**: ~1000 commits ahead of `dev`. There is a **4.0 milestone** (1 issue open). Only ~5 open PRs, all additive.
 - **What gates the release** (from recent commits): shell UX polish, display/monitor edge-case hardening, and the package-backed channel model (dev → edge → rc → stable) + v3→v4 migration path.
-- **Port baseline**: re-synced from `omarchy-4` (June 7) onto **`quattro`** on June 30 — 246 commits: re-vendored `shell/` + `default/{hypr,omarchy,themed}` + `bin` (11 new / 82 updated / 4 removed), adopted `bootstrap.lua` (inlined with a HOME fallback — `OMARCHY_PATH` is NOT in Hyprland's parse env), and migrated `current/theme` to `~/.local/state/omarchy/current/theme`.
+- **Port baseline**: `quattro` @ **`af828481`**, synced July 5 2026 (23 commits from `6ef0c019`): shared region picker `omarchy-capture-region` (screenshot + recording, Return = fullscreen, rotated monitors), plugin manager rewritten to plain git (`omarchy-plugin{,-catalog,-clone,-validate}` added; `-add/-remove/-source/-update` and `omarchy-config-shell-bar` deleted; new `omarchy-bar` owns bar config), `omarchy-shell` IPC via `qs ipc call`, clipboard watchers under `setpriv --pdeathsig`, notification history replay, shared `omarchy-theme-color` resolver, tmux window titles (`config/tmux/tmux.conf` re-vendored in full — it had lagged), simplified `omarchy-restart-shell` (kept the Nix `pkill -f .quickshell-wrapped` deviation). `test/` + `docs/` and the Arch-only `*-service-{dropbox,tailscale}` installers not vendored, as before.
+- **Previous baseline**: re-synced from `omarchy-4` (June 7) onto **`quattro`** on June 30 — 246 commits: re-vendored `shell/` + `default/{hypr,omarchy,themed}` + `bin` (11 new / 82 updated / 4 removed), adopted `bootstrap.lua` (inlined with a HOME fallback — `OMARCHY_PATH` is NOT in Hyprland's parse env), and migrated `current/theme` to `~/.local/state/omarchy/current/theme`.
 - **omarchy-nix sync baseline**: `main` is at Omarchy `dev` `9cf1852` (v3.8.2 + 2 commits).
 
 Re-measure before each work session:
 ```bash
 cd ../omarchy && git fetch origin quattro:refs/remotes/origin/quattro
 git log -1 --format='%h %ci' origin/quattro
-git rev-list --count origin/omarchy-4..origin/quattro   # delta since last port baseline
+git rev-list --count af828481..origin/quattro   # delta since last port baseline
 ```
+
+## Setup menu on Nix (July 5, 2026)
+The menu's Setup entries route through `omarchy-launch-config-editor` (now
+ported). Per-user config files it opens are **seeded once** as user-owned
+writable files (never overwritten on rebuild), matching upstream's
+installer-writes-once model: `~/.config/hypr/monitors.lua` (omarchy.scale baked
+in at seed time), `~/.config/hypr/hyprsunset.conf`, `~/.XCompose` (emoji
+include from `$OMARCHY_PATH/default/xcompose` + name/email from omarchy
+options). The remaining entries (Keybindings, Input, Config > Hyprland) open
+Nix-generated read-only files — view-only by design; edits belong in
+nixos-config / HM settings (the `hm.lua` bridge loads last and overrides).
 
 ## Known follow-ups (quattro)
 - **Window-border theming is build-time only.** Runtime theme switches recolor foot/terminals + shell, but not Hyprland borders (our generated `hypr.looknfeel` sets borders from the build-time base16; quattro loads `require_optional("omarchy.current.theme.hyprland")`). To make borders follow runtime switches, generate a per-theme `hyprland.lua` (border colors) into each theme dir and stop hard-setting borders in `hypr.looknfeel`.
-- v4 `omarchy-theme-set` shells out to helpers we don't ship (`omarchy-theme-set-templates`, `-restart-helix/-opencode`, `-theme-set-tmux/-pi`) — harmless "command not found" noise.
+- v4 `omarchy-theme-set` shells out to helpers we don't ship (`omarchy-restart-helix/-opencode`, `-theme-set-pi`) — harmless "command not found" noise. (`-theme-set-templates` and `-theme-set-tmux` are now vendored.)
 
 > **Decided (June 30, 2026):** `omarchy-shell` **replaces** the existing stack
 > (waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent) — no coexist/switch

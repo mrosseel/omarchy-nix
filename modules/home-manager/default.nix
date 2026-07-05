@@ -92,7 +92,9 @@ in {
           kitty = "kitty.desktop";
           foot = "foot.desktop";
         }
-        .${config.omarchy.terminal}
+        .${
+          config.omarchy.terminal
+        }
       }
     '';
     # Disable bluetooth GUI tray apps - we use bluetui TUI instead
@@ -114,6 +116,8 @@ in {
       recursive = true;
     };
     ".local/share/omarchy/version".source = ../../default/omarchy-version;
+    # Emoji compose sequences included from the seeded ~/.XCompose.
+    ".local/share/omarchy/default/xcompose".source = ../../default/xcompose;
     ".local/share/omarchy/default/hypr" = {
       source = ../../default/hypr;
       recursive = true;
@@ -216,6 +220,25 @@ in {
           chmod 755 "$target"
         fi
       done < <(cd "$src" && find . -type f -name '*.sample' -printf '%P\0')
+    fi
+  '';
+
+  # Seed ~/.XCompose like upstream install/user/xcompose.sh: emoji include +
+  # identification sequences. User-owned (Setup > Config > XCompose edits it),
+  # never overwritten. %H expands to $HOME in XCompose include paths.
+  home.activation.seedXCompose = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -e "$HOME/.XCompose" ]; then
+      cp ${pkgs.writeText "XCompose" ''
+      # Run omarchy-restart-xcompose to apply changes
+
+      # Include fast emoji access
+      include "%H/.local/share/omarchy/default/xcompose"
+
+      # Identification
+      <Multi_key> <space> <n> : "${config.omarchy.full_name}"
+      <Multi_key> <space> <e> : "${config.omarchy.email_address}"
+    ''} "$HOME/.XCompose"
+      chmod 644 "$HOME/.XCompose"
     fi
   '';
 

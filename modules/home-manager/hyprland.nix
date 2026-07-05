@@ -117,11 +117,24 @@ inputs: {
     o.window("com.mitchellh.ghostty", { scroll_touchpad = 0.2 })
   '';
 
+  # Upstream skel (config/hypr/monitors.lua) with omarchy.scale baked in.
+  # Seeded once as a user-owned file (Setup > Monitors edits it); later
+  # omarchy.scale changes only affect fresh installs, like upstream.
   monitorsLua = ''
-    -- Generated. GDK_SCALE from omarchy.scale; custom monitors go here in Lua:
-    -- hl.monitor({ output = "DP-2", mode = "preferred", position = "auto", scale = 1 })
-    hl.env("GDK_SCALE", "${toString cfg.scale}")
-    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+    -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
+    -- List current monitors and supported resolutions with: hyprctl monitors all
+
+    local omarchy_gdk_scale = ${toString cfg.scale}
+    local omarchy_monitor_scale = "auto"
+
+    hl.env("GDK_SCALE", tostring(omarchy_gdk_scale))
+    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
+
+    -- Configure a specific monitor.
+    -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })
+
+    -- Portrait/rotated secondary monitor (transform: 1 = 90°, 3 = 270°).
+    -- hl.monitor({ output = "DP-2", mode = "preferred", position = "auto", scale = 1, transform = 1 })
   '';
 
   autostartLua = ''
@@ -312,8 +325,17 @@ in {
     "hypr/looknfeel.lua".text = looknfeelLua;
     "hypr/envs.lua".text = envsLua;
     "hypr/input.lua".text = inputLua;
-    "hypr/monitors.lua".text = monitorsLua;
     "hypr/autostart.lua".text = autostartLua;
     "hypr/hm.lua".text = hmLua;
   };
+
+  # monitors.lua is user-owned like upstream (Setup > Monitors opens it in the
+  # editor), so it's seeded once instead of symlinked read-only from the store.
+  home.activation.seedHyprMonitors = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -e "$HOME/.config/hypr/monitors.lua" ]; then
+      mkdir -p "$HOME/.config/hypr"
+      cp ${pkgs.writeText "monitors.lua" monitorsLua} "$HOME/.config/hypr/monitors.lua"
+      chmod 644 "$HOME/.config/hypr/monitors.lua"
+    fi
+  '';
 }
