@@ -319,8 +319,21 @@ in {
     "hypr/looknfeel.lua".text = looknfeelLua;
     "hypr/envs.lua".text = envsLua;
     "hypr/input.lua".text = inputLua;
-    "hypr/monitors.lua".text = monitorsLua;
     "hypr/autostart.lua".text = autostartLua;
     "hypr/hm.lua".text = hmLua;
   };
+
+  # monitors.lua is NOT an HM store symlink like the other lua files: omarchy's
+  # runtime tools (omarchy-hyprland-monitor-scaling / -clamshell, omarchy-refresh
+  # -hyprland) rewrite it as a real file. An immutable symlink fights that — the
+  # runtime replaces it, then the next home-manager switch tries to back it up and
+  # dies on a stale monitors.lua.backup. Seed the default once and then leave it
+  # to the user/runtime, matching upstream omarchy (installs it, then you edit it).
+  home.activation.seedMonitorsLua = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    monitors="$HOME/.config/hypr/monitors.lua"
+    if [ ! -e "$monitors" ]; then
+      run mkdir -p "$(dirname "$monitors")"
+      run install -m644 ${pkgs.writeText "monitors.lua" monitorsLua} "$monitors"
+    fi
+  '';
 }
