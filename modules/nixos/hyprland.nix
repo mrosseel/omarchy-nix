@@ -23,6 +23,16 @@ in {
     withUWSM = true;
   };
 
+  # We build Hyprland (+ aquamarine, hyprutils, portal, …) from the hyprland
+  # flake, not nixpkgs, so cache.nixos.org has none of those store paths. Point
+  # at the upstream Hyprland cache so consumers pull prebuilt binaries instead
+  # of compiling the whole stack on every bump. Colocated with the package it
+  # serves; appends to the default substituters, doesn't replace them.
+  nix.settings.extra-substituters = [ "https://hyprland.cachix.org" ];
+  nix.settings.extra-trusted-public-keys = [
+    "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzJ6jXYv+S+rfAoja0iy6vGm7A="
+  ];
+
   # Override the auto-generated desktop file with our fixed version.
   # SDDM picks the session whose name contains "uwsm" (see default/sddm/omarchy/Main.qml).
   environment.systemPackages = [
