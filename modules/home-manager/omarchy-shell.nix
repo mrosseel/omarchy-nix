@@ -36,7 +36,32 @@ in {
   # autostart + the layer/window rules live in the vendored Lua framework
   # (default/hypr/autostart.lua, default/hypr/apps/omarchy-shell.lua).
   home.file = {
-    ".local/share/omarchy/shell".source = shellTree;
+    ".local/share/omarchy/shell" = {
+      source = shellTree;
+      # Quickshell watches the resolved store files, not this symlink, so a
+      # store-path swap on `home-manager switch` leaves the old instance running
+      # stale QML: dead clipboard watcher, missing `shell toggle` IPC, overlays
+      # that never load. Restart the shell whenever the tree changes so the new
+      # plugins/IPC take effect without a reboot. omarchy-restart-shell imports
+      # the session env from the running instance (works from the non-graphical
+      # activation context) and pkills every instance before launching one, so
+      # it also collapses any accidental duplicate instances. Best-effort: a
+      # headless/pre-login switch (no running shell) must not fail activation.
+      onChange = ''
+        OMARCHY_PATH="$HOME/.local/share/omarchy" \
+        PATH="${lib.makeBinPath [
+          quickshellPkg
+          pkgs.procps
+          pkgs.hyprland
+          pkgs.coreutils
+          pkgs.findutils
+          pkgs.gnused
+          pkgs.gnugrep
+          pkgs.util-linux
+        ]}:$PATH" \
+          "$HOME/.local/share/omarchy/bin/omarchy-restart-shell" 2>/dev/null || true
+      '';
+    };
     ".local/share/omarchy/config/omarchy/shell.json".source = ../../config/omarchy/shell.json;
   };
 }

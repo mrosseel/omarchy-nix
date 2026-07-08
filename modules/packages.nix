@@ -30,7 +30,6 @@ in {
       bibata-cursors
       gnome-themes-extra
       blueman
-      clipse
       xdg-utils
       xdg-terminal-exec
 

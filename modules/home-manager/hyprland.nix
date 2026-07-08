@@ -127,8 +127,10 @@ inputs: {
   autostartLua = ''
     -- Extra autostart on top of the Omarchy defaults (quickshell, fcitx5,
     -- udiskie, power profiles, monitor-watch all live in default.hypr.autostart).
-    o.launch_on_start("wl-clip-persist --clipboard regular")
-    o.launch_on_start("clipse -listen")
+    -- Clipboard is owned by omarchy-shell (shell/plugins/clipboard) as of v4;
+    -- upstream dropped the old wl-clip-persist + clipse autostart. The port's
+    -- omarchy-shell clipboard watcher works once the shell runs current QML,
+    -- which omarchy-shell.nix now guarantees by restarting the shell on switch.
   '';
 
   ##########################################################################
