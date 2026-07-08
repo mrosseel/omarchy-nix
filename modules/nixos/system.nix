@@ -51,9 +51,25 @@ in {
   # Login configuration (matches upstream omarchy: SDDM Wayland greeter on Hyprland).
   # Autologin path mirrors /etc/sddm.conf.d/autologin.conf from upstream install/login/sddm.sh.
   services.displayManager = let
+    # The greeter runs its own minimal Hyprland compositor, which does NOT
+    # inherit the system keyboard layout the way the user session does. Without
+    # an explicit input block it defaults to us/qwerty, locking out anyone on a
+    # different layout (e.g. dvorak/azerty) — they type the right password but
+    # the wrong keysyms reach PAM. Source it from services.xserver.xkb so the
+    # greeter matches the system's keyboard. (Upstream's static greeter config
+    # omits this; on Arch the greeter inherits XKB defaults differently.)
+    xkb = config.services.xserver.xkb;
     sddmHyprlandConf =
       pkgs.writeText "sddm-hyprland.conf"
-      (builtins.readFile ../../default/sddm/hyprland.conf);
+      (builtins.readFile ../../default/sddm/hyprland.conf
+        + ''
+
+          input {
+            kb_layout = ${xkb.layout}
+            kb_variant = ${xkb.variant}
+            kb_options = ${xkb.options}
+          }
+        '');
     hyprlandPkg = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     loginUser =
       if cfg.seamless_boot.username != null
