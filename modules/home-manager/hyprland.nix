@@ -294,6 +294,11 @@ in {
   wayland.windowManager.hyprland = {
     enable = true;
     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    # Keep HM emitting hyprland.conf (hyprlang), not hyprland.lua. HM's default
+    # configType flips to "lua" at stateVersion 26.05; if it wrote its own
+    # hyprland.lua it would collide with the one we ship via xdg.configFile below.
+    # Pinning hyprlang keeps HM's output the harmless (ignored) hyprland.conf.
+    configType = "hyprlang";
     # We ship a Lua config; Hyprland 0.55 auto-loads ~/.config/hypr/hyprland.lua
     # and ignores hyprland.conf when the .lua exists. HM may still write a
     # hyprland.conf from any settings/extraConfig — it's harmless (ignored), and
