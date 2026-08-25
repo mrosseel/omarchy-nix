@@ -107,6 +107,13 @@ in {
       [Desktop Entry]
       Hidden=true
     '';
+    # Upstream config/autostart/org.fcitx.Fcitx5.desktop: the fcitx5 package
+    # ships an XDG autostart entry, and that instance grabs the D-Bus name
+    # first, leaving omarchy-fcitx5.service in an endless restart loop.
+    ".config/autostart/org.fcitx.Fcitx5.desktop".text = ''
+      [Desktop Entry]
+      Hidden=true
+    '';
     # Hide duplicate Brave entry (nixpkgs bug: NoDisplay=true is outside [Desktop Entry] section)
     ".local/share/applications/com.brave.Browser.desktop".text = ''
       [Desktop Entry]
