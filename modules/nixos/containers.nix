@@ -17,8 +17,11 @@ in {
     # };
   };
 
-  # Add user to docker group for permission access (like omarchy does with usermod -aG docker ${USER})
-  users.users.${cfg.username} = lib.mkIf config.virtualisation.docker.enable {
+  # The docker group is root-equivalent, so upstream leaves the user out of it
+  # by default and gates daemon access behind a polkit prompt instead
+  # (omarchy-sudo-docker / omarchy-launch-docker-tui). Sudoless Docker is the
+  # explicit opt-in.
+  users.users.${cfg.username} = lib.mkIf (config.virtualisation.docker.enable && cfg.containers.sudoless_docker) {
     extraGroups = ["docker"];
   };
 }

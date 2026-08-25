@@ -91,6 +91,23 @@ lib: {
       default = "ghostty";
       description = "Terminal emulator to use. foot is Omarchy 4 (quattro)'s default; it accepts xterm-style `-e` so the terminal keybinds work unchanged.";
     };
+    containers = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          sudoless_docker = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Add the user to the docker group so docker works without a prompt.
+              The docker group is root-equivalent, so upstream Omarchy leaves it
+              off by default and gates Docker access behind a polkit prompt.
+            '';
+          };
+        };
+      };
+      default = {};
+      description = "Container (Docker) configuration";
+    };
     office_suite = lib.mkOption {
       type = lib.types.submodule {
         options = {
@@ -200,7 +217,7 @@ lib: {
         "SUPER SHIFT, M, Music player, exec, $music"
         "SUPER SHIFT, N, Neovim, exec, $terminal -e nvim"
         "SUPER SHIFT, T, Top, exec, $terminal -e btop"
-        "SUPER SHIFT, D, Lazy Docker, exec, $terminal -e lazydocker"
+        "SUPER SHIFT, D, Lazy Docker, exec, $terminal -e ~/.local/share/omarchy/bin/omarchy-launch-docker-tui"
         "SUPER SHIFT, I, Messenger, exec, $messenger"
         "SUPER SHIFT, O, Obsidian, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
         "SUPER SHIFT, SLASH, Password manager, exec, $passwordManager"

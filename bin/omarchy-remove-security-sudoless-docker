@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# omarchy:summary=Disable sudoless Docker by removing your user from the docker group
+
+# Nix deviation: group membership is declarative here, so this explains the
+# option instead of running gpasswd like upstream does.
+
+set -e
+
+if omarchy-sudo-docker --configured; then
+  echo "Sudoless Docker is not enabled: $USER is not in the docker group."
+  exit 0
+fi
+
+echo "On NixOS this is a declarative setting. To disable sudoless Docker, set"
+echo "this in your NixOS configuration and rebuild:"
+echo ""
+echo "  omarchy.containers.sudoless_docker = false;"
+echo ""
+echo "Then: sudo nixos-rebuild switch (and reboot to apply the group change)."
+echo ""
+echo "Docker access then goes through a polkit/sudo prompt again: the Docker"
+echo "TUI (Super + Shift + D) and the Windows VM ask when they need it."

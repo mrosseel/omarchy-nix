@@ -11,10 +11,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Omarchy 4 (quattro) tracks rolling quickshell; nixpkgs lags (0.3.0), which
-    # left the bg reveal transition + network/weather panels broken. Pin upstream.
+    # Omarchy 4 (quattro) is back on packaged quickshell now that 0.3.1 kills
+    # synchronously; nixpkgs still lags (0.3.0), so pin the release tag.
     quickshell = {
-      url = "github:quickshell-mirror/quickshell";
+      url = "github:quickshell-mirror/quickshell/v0.3.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
