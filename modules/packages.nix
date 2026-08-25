@@ -9,6 +9,7 @@
   voxtype = pkgs.callPackage ../packages/voxtype.nix {};
   ttfx = pkgs.callPackage ../packages/ttfx.nix {};
   omacalc = pkgs.callPackage ../packages/omacalc.nix {};
+  tensaku = pkgs.callPackage ../packages/tensaku.nix {};
   cfg = config.omarchy;
 in {
   # Regular packages
@@ -41,7 +42,7 @@ in {
       foot
 
       # Screenshot and recording
-      satty
+      tensaku # Custom package; replaced satty upstream (quattro)
       wf-recorder
       gpu-screen-recorder
       slurp
