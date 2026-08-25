@@ -12,7 +12,9 @@ local function shell_quote(path)
 end
 
 function M.files(dir, module_prefix, options)
-  local handle = io.popen("find " .. shell_quote(dir) .. " -maxdepth 1 -type f -name '*.lua' -printf '%f\\n' 2>/dev/null | sort")
+  -- Nix deviation: -xtype f instead of upstream's -type f, because home-manager
+  -- deploys these files as symlinks into the store and -type f skips symlinks.
+  local handle = io.popen("find " .. shell_quote(dir) .. " -maxdepth 1 -xtype f -name '*.lua' -printf '%f\\n' 2>/dev/null | sort")
   if handle then
     for filename in handle:lines() do
       local module = filename:gsub("%.lua$", "")
