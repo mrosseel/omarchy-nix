@@ -52,10 +52,20 @@ in {
           mods = "Control";
           action = "Copy";
         }
+        # Send Shift+Return as CSI-u so TUIs can distinguish it from Return
+        # without treating it as Alt+Return. Upstream writes \u001b as a TOML
+        # escape; Nix has no \u escape, so build the ESC byte via fromJSON.
         {
           key = "Return";
           mods = "Shift";
-          chars = "\\u001B\\r";
+          chars = (builtins.fromJSON ''"\u001b"'') + "[13;2u";
+        }
+        # Legacy encoding sends Alt+Shift+Return the same as Alt+Return; send
+        # CSI-u so tmux can match M-S-Enter.
+        {
+          key = "Return";
+          mods = "Alt|Shift";
+          chars = (builtins.fromJSON ''"\u001b"'') + "[13;4u";
         }
       ];
     };

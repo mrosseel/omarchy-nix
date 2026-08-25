@@ -116,6 +116,7 @@ screen at `hm.lua:19`.
 - **`omarchy-setup-lock` not vendored** — it writes `/etc/pam.d/omarchy-lock-password`, which `modules/nixos/system.nix` already provides declaratively.
 - **Window-border theming is build-time only.** Runtime theme switches recolor foot/terminals + shell, but not Hyprland borders (our generated `hypr.looknfeel` sets borders from the build-time base16; quattro loads `require_optional("omarchy.current.theme.hyprland")`). To make borders follow runtime switches, generate a per-theme `hyprland.lua` (border colors) into each theme dir and stop hard-setting borders in `hypr.looknfeel`.
 - v4 `omarchy-theme-set` shells out to helpers we don't ship (`omarchy-restart-helix/-opencode`, `-theme-set-pi`) — harmless "command not found" noise. (`-theme-set-templates` and `-theme-set-tmux` are now vendored.)
+- **`tensaku` is not packaged.** The imv `Ctrl+e` bind, `omarchy-capture-screenshot`, and `omarchy-clipboard-open` call `tensaku-edit`; those paths fail quietly until tensaku gets a Nix package.
 
 > **Decided (June 30, 2026):** `omarchy-shell` **replaces** the existing stack
 > (waybar/walker/mako/swayosd/hyprlock/hyprpolkitagent) — no coexist/switch

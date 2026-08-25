@@ -9,7 +9,7 @@
   xdg.configFile."hyprland-preview-share-picker/config.yaml".text = ''
     # Paths to stylesheets on the filesystem which should be applied to the application
     # Note: CSS theming is handled via base16 in the future
-    stylesheets: ["../omarchy/current/theme/hyprland-preview-share-picker.css"]
+    stylesheets: ["../../.local/state/omarchy/current/theme/hyprland-preview-share-picker.css"]
 
     # Default page selected when the picker is opened
     default_page: outputs

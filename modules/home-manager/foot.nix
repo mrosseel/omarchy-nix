@@ -40,6 +40,13 @@ in {
         primary-paste = "none";
         clipboard-paste = "Shift+Insert Control+Shift+v XF86Paste";
       };
+
+      # Send Shift+Return / Alt+Shift+Return as CSI-u so TUIs and tmux can
+      # distinguish them from Return / Alt+Return.
+      text-bindings = {
+        "\\x1b[13;2u" = "Shift+Return";
+        "\\x1b[13;4u" = "Mod1+Shift+Return";
+      };
     };
   };
 }

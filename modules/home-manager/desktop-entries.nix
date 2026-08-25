@@ -113,6 +113,20 @@ in {
       ];
     };
 
+    # Obsidian with upstream's config/obsidian/user-flags.conf flags. On Arch
+    # the package wrapper reads that file; the nixpkgs package does not, so
+    # carry the flags on the desktop entry instead (same approach as Typora).
+    obsidian = {
+      name = "Obsidian";
+      comment = "Knowledge base";
+      exec = "obsidian -disable-gpu --enable-wayland-ime %u";
+      icon = "obsidian";
+      type = "Application";
+      categories = ["Office"];
+      mimeType = ["x-scheme-handler/obsidian"];
+      settings.StartupWMClass = "md.Obsidian";
+    };
+
     # Typora - Markdown editor with Wayland IME support
     typora = {
       name = "Typora";

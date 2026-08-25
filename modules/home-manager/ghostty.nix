@@ -33,6 +33,10 @@ in {
         # Universal copy/paste (works with Hyprland's Super+C/V → Ctrl/Shift+Insert mapping)
         "shift+insert=paste_from_clipboard"
         "control+insert=copy_to_clipboard"
+        # Send Shift+Return / Alt+Shift+Return as CSI-u so TUIs and tmux can
+        # distinguish them from Return / Alt+Return.
+        "shift+enter=csi:13;2u"
+        "alt+shift+enter=csi:13;4u"
         # Split resize (Super+Ctrl+Shift+Alt+Arrow)
         "super+control+shift+alt+arrow_down=resize_split:down,100"
         "super+control+shift+alt+arrow_up=resize_split:up,100"

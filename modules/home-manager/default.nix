@@ -111,6 +111,13 @@ in {
     # and stop fcitx5 from overriding the X11 keyboard layout (#760).
     ".config/fcitx5/conf/clipboard.conf".source = ../../config/fcitx5/conf/clipboard.conf;
     ".config/fcitx5/conf/xcb.conf".source = ../../config/fcitx5/conf/xcb.conf;
+    # Shipped user configs (upstream copies these from config/ into ~/.config
+    # at install time). The pristine copy lives under $OMARCHY_PATH/config so
+    # omarchy-refresh-config can restore it; the activation block below seeds
+    # a writable copy into ~/.config once, never overwriting user edits.
+    ".local/share/omarchy/config/herdr/config.toml".source = ../../config/herdr/config.toml;
+    ".local/share/omarchy/config/xournalpp/settings.xml".source = ../../config/xournalpp/settings.xml;
+    ".local/share/omarchy/config/opencode/opencode.json".source = ../../config/opencode/opencode.json;
     # Upstream config/autostart/org.fcitx.Fcitx5.desktop: the fcitx5 package
     # ships an XDG autostart entry, and that instance grabs the D-Bus name
     # first, leaving omarchy-fcitx5.service in an endless restart loop.
@@ -191,6 +198,23 @@ in {
   home.sessionPath = [
     "$HOME/.local/share/omarchy/bin"
   ];
+
+  # Seed writable copies of the shipped user configs (herdr, xournalpp,
+  # opencode) into ~/.config. These apps rewrite their own config files, so a
+  # read-only home.file symlink would break them; upstream installs plain
+  # copies. Existing files are never touched — omarchy-refresh-config restores
+  # the shipped version on request.
+  home.activation.seedShippedUserConfigs = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    for rel in herdr/config.toml xournalpp/settings.xml opencode/opencode.json; do
+      src="$HOME/.local/share/omarchy/config/$rel"
+      dst="$HOME/.config/$rel"
+      if [ -e "$src" ] && [ ! -e "$dst" ]; then
+        mkdir -p "$(dirname "$dst")"
+        cp "$src" "$dst"
+        chmod 644 "$dst"
+      fi
+    done
+  '';
 
   # Copy logo.txt/icon.txt to screensaver.txt/about.txt on first use
   # (user-customizable via omarchy-branding-{screensaver,about}).

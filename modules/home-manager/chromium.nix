@@ -35,6 +35,7 @@
   xdg.configFile."chromium-flags.conf".text = ''
     --ozone-platform=wayland
     --ozone-platform-hint=wayland
+    --password-store=gnome-libsecret
     --enable-features=TouchpadOverscrollHistoryNavigation
     --load-extension=~/.local/share/omarchy/default/chromium/extensions/copy-url,~/.local/share/omarchy/default/chromium/extensions/whatsapp-slim
     # Chromium crash workaround for Wayland color management on Hyprland
