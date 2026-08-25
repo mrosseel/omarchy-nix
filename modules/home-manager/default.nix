@@ -107,6 +107,10 @@ in {
       [Desktop Entry]
       Hidden=true
     '';
+    # Upstream config/fcitx5/conf: neuter the clipboard module's paste hotkeys
+    # and stop fcitx5 from overriding the X11 keyboard layout (#760).
+    ".config/fcitx5/conf/clipboard.conf".source = ../../config/fcitx5/conf/clipboard.conf;
+    ".config/fcitx5/conf/xcb.conf".source = ../../config/fcitx5/conf/xcb.conf;
     # Upstream config/autostart/org.fcitx.Fcitx5.desktop: the fcitx5 package
     # ships an XDG autostart entry, and that instance grabs the D-Bus name
     # first, leaving omarchy-fcitx5.service in an endless restart loop.
