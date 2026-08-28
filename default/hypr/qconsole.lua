@@ -60,14 +60,15 @@ local function fit()
 
   -- A monitor handle whose output has gone away answers nil to every field, and
   -- layout changes are exactly when that happens, so this also covers reading
-  -- height and reserved below.
+  -- height below. Reserved can be nil on its own too, before anything has
+  -- reserved an edge, so it gets its own fallback rather than a bail-out.
   if not monitor or not monitor.scale or monitor.scale <= 0 then
     return
   end
 
   -- Monitor dimensions are in physical pixels; gaps are logical, so the scale
   -- has to come out before the reserved area (already logical) comes off.
-  local reserved = monitor.reserved
+  local reserved = monitor.reserved or { top = 0, bottom = 0 }
   local usable = monitor.height / monitor.scale - reserved.top - reserved.bottom
 
   cover(math.max(0, math.floor(usable * (1 - share))))
