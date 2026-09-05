@@ -194,38 +194,27 @@ lib: {
     };
     quick_app_bindings = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      description = "A list of single keystroke key bindings to launch common apps.";
-      default = [
-        # Web apps - SUPER SHIFT (matches upstream Omarchy; plain SUPER is reserved
-        # for clipboard / window-management bindings, so promoting webapps to plain
-        # SUPER produces double-fires with SUPER+C/V/X universal copy/paste/cut).
-        "SUPER SHIFT, A, ChatGPT, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp chatgpt https://chatgpt.com"
-        "SUPER SHIFT ALT, A, Grok, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp grok https://grok.com"
-        "SUPER SHIFT, C, Calendar, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'hey.*calendar' https://app.hey.com/calendar/weeks/"
-        "SUPER SHIFT, E, Email, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp hey https://app.hey.com"
-        "SUPER SHIFT, Y, YouTube, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp youtube https://youtube.com/"
-        "SUPER SHIFT ALT, G, WhatsApp, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp whatsapp https://web.whatsapp.com/"
-        "SUPER SHIFT, X, X, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus-webapp 'x.com' https://x.com/"
-        "SUPER SHIFT ALT, X, X Post, exec, ~/.local/share/omarchy/bin/omarchy-launch-webapp https://x.com/compose/post"
+      description = ''
+        Extra single keystroke key bindings to launch apps, in hyprlang
+        "MODS, KEY, Description, exec, command" form.
 
-        # Core apps - SUPER SHIFT to avoid conflicts with tiling/clipboard keys
-        "SUPER, RETURN, Terminal, exec, $terminal"
-        "SUPER ALT, RETURN, Tmux, exec, $terminal tmux new"
-        "SUPER SHIFT, RETURN, Browser, exec, $browser"
-        "SUPER SHIFT, F, File manager, exec, $fileManager"
-        "SUPER SHIFT, B, Web browser, exec, $browser"
-        "SUPER SHIFT, M, Music player, exec, $music"
-        "SUPER SHIFT, N, Neovim, exec, $terminal -e nvim"
+        These become extra o.bind() calls on top of the Omarchy defaults in
+        default/hypr/bindings/applications.lua. Hyprland's Lua binder appends,
+        it does not replace. A combo that Omarchy already binds therefore fires
+        twice. Keep upstream combos out of this list. To change the app behind
+        a default binding, set omarchy.terminal or omarchy.browser, or run
+        `omarchy default editor`.
+      '';
+      default = [
+        # Omarchy binds no btop, calculator, or second messenger key, so these
+        # three are additions and not overrides.
         "SUPER SHIFT, T, Top, exec, $terminal -e btop"
-        "SUPER SHIFT, D, Lazy Docker, exec, $terminal -e ~/.local/share/omarchy/bin/omarchy-launch-docker-tui"
         "SUPER SHIFT, I, Messenger, exec, $messenger"
-        "SUPER SHIFT, O, Obsidian, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus obsidian 'obsidian --disable-gpu'"
-        "SUPER SHIFT, SLASH, Password manager, exec, $passwordManager"
         # quattro replaced gnome-calculator with omacalc, so that is what
         # modules/packages.nix ships. Override this list to bind something else.
         "SUPER SHIFT, R, Calculator, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus omacalc omacalc"
-        # Uncomment if gaming.enable = true (changed from SUPER, S to avoid scratchpad conflict):
-        # "SUPER SHIFT, S, Steam, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
+        # Uncomment if gaming.enable = true (Omarchy binds SUPER SHIFT, S to Google Maps):
+        # "SUPER SHIFT ALT, S, Steam, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
       ];
     };
     seamless_boot = lib.mkOption {

@@ -503,8 +503,16 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
   - Omarchy-Nix: `modules/home-manager/hyprland/bindings.nix`
 
 - **Adding quick app shortcuts**:
-  - Omarchy: Check existing keybindings in `config/hypr/hyprland.conf`
-  - Omarchy-Nix: Modify `quick_app_bindings` default in `config.nix` or override in user configuration
+  - Omarchy: `default/hypr/bindings/applications.lua`
+  - Omarchy-Nix: add to `quick_app_bindings` in `config.nix`. Use it only for
+    combos Omarchy does not already bind. `hl.bind()` appends, so a duplicate
+    combo launches the app twice.
+  - **Changing the app behind a default binding**: set the app, not the binding.
+    - `omarchy.terminal` writes `~/.config/xdg-terminals.list`, which
+      `xdg-terminal-exec` reads.
+    - `omarchy.browser` writes the `x-scheme-handler/https` default, which
+      `omarchy-launch-browser` reads.
+    - `omarchy default editor` writes `~/.local/state/omarchy/defaults/editor`.
 
 - **Adding backgrounds/assets**:
   - Omarchy: `../omarchy/default/` (backgrounds, icons, etc.)
