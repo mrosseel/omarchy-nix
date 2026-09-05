@@ -170,7 +170,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: **`main` is the v4 line** and tracks upstream's **`quattro`** branch (port baseline `23dab9ec`, post-v4.0.1, August 25 2026). The pre-v4 v3.8.x state is kept on `archive/main-pre-v4`; the old `omarchy-4` working branch is gone — do not recreate it, `main` is where v4 lives. Upstream's own `omarchy-4` branch is frozen at June 7; **do not sync against it — use `quattro`**. `OMARCHY4-PORT.md` is the authoritative sync status; the "Omarchy Sync Status" section above documents the older `dev`-line history.
+**Branch tracking**: **`main` is the v4 line** and tracks upstream's **`quattro`** branch (port baseline `49306774`, post-v4.0.2, September 5 2026). The pre-v4 v3.8.x state is kept on `archive/main-pre-v4`; the old `omarchy-4` working branch is gone — do not recreate it, `main` is where v4 lives. Upstream's own `omarchy-4` branch is frozen at June 7; **do not sync against it — use `quattro`**. `OMARCHY4-PORT.md` is the authoritative sync status; the "Omarchy Sync Status" section above documents the older `dev`-line history.
 
 **To check current Omarchy status**:
 ```bash
