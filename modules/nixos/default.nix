@@ -21,5 +21,6 @@ in {
     ./voxtype.nix
     ./hardware.nix
     ./tuning.nix
+    ./kernel.nix
   ];
 }

@@ -359,6 +359,31 @@ lib: {
       default = {};
       description = "Voxtype voice dictation configuration";
     };
+    kernel = lib.mkOption {
+      type = lib.types.enum ["default" "zen" "omarchy"];
+      default = "default";
+      description = ''
+        Which kernel to boot.
+
+        `default` leaves `boot.kernelPackages` alone, so you get whatever your
+        own configuration or NixOS picks.
+
+        `zen` is nixpkgs' `linux_zen`. It carries much of the scheduler and
+        memory-management tuning upstream's kernel does, and it comes from the
+        NixOS binary cache.
+
+        `omarchy` builds upstream's own kernel: mainline plus 94 patches and
+        Arch's config, which quattro made the default on every machine bar T2
+        Macs. It also adds hardware fixes zen has none of, for Panther Lake
+        display, Dell XPS SOF audio, ASUS touchpads and AMD pstate.
+
+        There is no binary cache for `omarchy`. Selecting it compiles a kernel
+        with -O3 and CONFIG_RUST on this machine, and again on every upstream
+        pkgrel bump. Upstream shipped six of those in the package's first four
+        days. Budget the time before you turn it on.
+      '';
+    };
+
     hardware = lib.mkOption {
       type = lib.types.submodule {
         options = {
