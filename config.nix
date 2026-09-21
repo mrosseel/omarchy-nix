@@ -382,6 +382,11 @@ lib: {
             default = false;
             description = "ASUS Zenbook UX5406AA Panther Lake / Xe3 display backlight fix (xe.enable_dpcd_backlight=1).";
           };
+          elgato_camlink_4k.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Elgato Cam Link 4K: hide the raw 4:3 capture node and relay it as a fixed 1280x720 16:9 virtual camera through v4l2-relayd + v4l2loopback.";
+          };
           intel_ptl_fred.enable = lib.mkOption {
             type = lib.types.bool;
             default = false;

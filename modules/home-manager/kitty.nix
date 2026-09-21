@@ -35,8 +35,10 @@ in {
       hide_window_decorations = lib.mkDefault "yes";
       confirm_os_window_close = lib.mkDefault 0;
 
-      # Allow remote access
-      allow_remote_control = lib.mkDefault "yes";
+      # Allow local cwd lookup, but reject remote control through terminal
+      # output (quattro security fix: "yes" lets any program that can write to
+      # the terminal drive kitty).
+      allow_remote_control = lib.mkDefault "socket-only";
 
       # omarchy-cmd-terminal-cwd finds the pane's cwd through this socket.
       listen_on = lib.mkDefault "unix:\${XDG_RUNTIME_DIR}/omarchy-kitty-{kitty_pid}";

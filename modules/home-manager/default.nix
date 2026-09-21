@@ -56,6 +56,7 @@ in {
     ./zellij.nix
     ./tmux.nix
     ./audio-tuning.nix
+    ./owe.nix
     (import ./theme-generator.nix inputs)
   ];
 

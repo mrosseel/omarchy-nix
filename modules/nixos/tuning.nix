@@ -28,6 +28,12 @@
     # Solve common flakiness with SSH (MTU discovery on flaky links).
     "net.ipv4.tcp_mtu_probing" = lib.mkDefault 1;
 
+    # BBR estimates bottleneck bandwidth and minimum RTT and paces to them,
+    # where cubic keeps pushing until packets drop. That cuts queueing latency
+    # (bufferbloat) on fast links. fq is the qdisc BBR is built to pace through.
+    "net.core.default_qdisc" = lib.mkDefault "fq";
+    "net.ipv4.tcp_congestion_control" = lib.mkDefault "bbr";
+
     # Tune reclaim for swap on zram, which is orders of magnitude faster than
     # the disk swapfile these defaults assume.
     "vm.swappiness" = lib.mkDefault 150;
@@ -82,6 +88,18 @@
       ManagedOOMSwap = "kill";
     };
   };
+
+  # Kyber keeps reads in their own queue and throttles the depth it submits to
+  # hold a 2ms read latency target, so interactive reads keep flowing while a
+  # large build, copy, or package upgrade floods the disk with writes. The
+  # kernel's own pick (none or mq-deadline, depending on the device) does not
+  # regulate latency once the queue fills. Whole disks only: partitions have no
+  # scheduler of their own, and zram is memory with nothing to schedule.
+  # (quattro etc/udev/rules.d/60-omarchy-io-scheduler.rules)
+  boot.kernelModules = ["kyber-iosched"];
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="nvme*|sd*|mmcblk*|vd*", ATTR{queue/scheduler}="kyber"
+  '';
 
   # Keep Wi-Fi power save off: it trades 20-300ms latency spikes on idle links
   # for a fraction of a watt, and broken firmware (Intel BE200/BE211) drops the

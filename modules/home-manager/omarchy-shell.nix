@@ -47,9 +47,18 @@ inputs: {
       --replace-fail 'id <= 10' 'id <= ${toString workspaceCount}'
   '';
 
+  # Elsewhen, the world clock plugin quattro installs by default and places
+  # immediately before the centre clock (config/omarchy/shell.json). Arch ships
+  # it as its own package dropped into the shell's bundled plugin directory; on
+  # Nix it is copied into the same tree so PluginRegistry's `find -type f`
+  # discovery sees it.
+  elsewhen = pkgs.callPackage ../../packages/elsewhen.nix {};
+
   shellTree = pkgs.runCommand "omarchy-shell-tree" {} ''
     cp -r ${../../shell} $out
     chmod -R u+w $out
+    cp -r ${elsewhen}/share/omarchy/shell/plugins/omacom.elsewhen $out/plugins/
+    chmod -R u+w $out/plugins/omacom.elsewhen
     ${patchWorkspaces}
   '';
 in {

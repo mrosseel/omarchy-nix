@@ -9,7 +9,11 @@
   voxtype = pkgs.callPackage ../packages/voxtype.nix {};
   ttfx = pkgs.callPackage ../packages/ttfx.nix {};
   omacalc = pkgs.callPackage ../packages/omacalc.nix {};
-  tensaku = pkgs.callPackage ../packages/tensaku.nix {};
+  omasnap = pkgs.callPackage ../packages/omasnap.nix {
+    layer-shell-qt = pkgs.kdePackages.layer-shell-qt;
+  };
+  owe = pkgs.callPackage ../packages/owe.nix {};
+  elsewhen = pkgs.callPackage ../packages/elsewhen.nix {};
   cfg = config.omarchy;
 in {
   # Regular packages
@@ -18,6 +22,10 @@ in {
       # Base system tools
       git
       vim
+      # quattro added the original `vi` to the base packages. On Arch the `vi`
+      # package owns /usr/bin/{vi,ex,view} and vim owns none of them, so nvi
+      # takes priority here to land the same three commands.
+      (lib.hiPrio nvi)
       libnotify
       pavucontrol
       brightnessctl
@@ -42,7 +50,7 @@ in {
       foot
 
       # Screenshot and recording
-      tensaku # Custom package; replaced satty upstream (quattro)
+      omasnap # Custom package; replaced tensaku upstream (quattro)
       wf-recorder
       gpu-screen-recorder
       slurp
