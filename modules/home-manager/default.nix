@@ -26,6 +26,41 @@ inputs: {
     if selectedTheme ? custom-scheme && selectedTheme.custom-scheme
     then customSchemes.${selectedTheme.base16-theme}
     else inputs.nix-colors.colorSchemes.${selectedTheme.base16-theme};
+
+  # Install and Remove rows kept in the menu. The other rows call the pacman
+  # helpers omarchy-pkg-add and omarchy-pkg-present, which do not exist on
+  # NixOS. These rows only write files in $HOME, so they work here.
+  keptMenuRows = [
+    "install.style"
+    "install.style.theme"
+    "install.style.background"
+    "install.webapp"
+    "install.tui"
+    "remove.theme"
+    "remove.webapp"
+    "remove.tui"
+  ];
+
+  # The vendored menu file stays a copy of upstream. The filter runs at build
+  # time, so an upstream sync does not add the pacman rows again. The build
+  # fails when a kept row is no longer in the upstream file.
+  omarchyMenuDir = pkgs.runCommand "omarchy-default-menu" {} ''
+    mkdir -p $out
+    cp --no-preserve=mode ${../../default/omarchy}/* $out/
+    ${pkgs.gawk}/bin/awk -v keep="${lib.concatStringsSep " " keptMenuRows}" '
+      BEGIN { n = split(keep, k, " "); for (i = 1; i <= n; i++) kept[k[i]] = 1 }
+      match($0, /^  "(install|remove)\.[^"]*"/) {
+        id = substr($0, RSTART + 3, RLENGTH - 4)
+        if (!(id in kept)) next
+        seen[id] = 1
+      }
+      { print }
+      END {
+        for (id in kept) if (!(id in seen)) { print "omarchy-menu.jsonc: kept row " id " is missing" > "/dev/stderr"; failed = 1 }
+        exit failed
+      }
+    ' ${../../default/omarchy/omarchy-menu.jsonc} > $out/omarchy-menu.jsonc
+  '';
 in {
   imports = [
     (import ./hyprland.nix inputs)
@@ -154,8 +189,9 @@ in {
     };
     # omarchy-shell menu definition + launcher hides (the shell menu plugin reads
     # $OMARCHY_PATH/default/omarchy/omarchy-menu.jsonc; missing = "Nothing here yet").
+    # The menu has the pacman Install and Remove rows removed (see keptMenuRows).
     ".local/share/omarchy/default/omarchy" = {
-      source = ../../default/omarchy;
+      source = omarchyMenuDir;
       recursive = true;
     };
     # Per-terminal screensaver configs. omarchy-launch-screensaver loads

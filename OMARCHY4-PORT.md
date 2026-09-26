@@ -148,6 +148,17 @@ options). The remaining entries (Keybindings, Input, Config > Hyprland) open
 Nix-generated read-only files — view-only by design; edits belong in
 nixos-config / HM settings (the `hm.lua` bridge loads last and overrides).
 
+## Install and Remove menus on Nix (September 26, 2026)
+`default/omarchy/omarchy-menu.jsonc` stays a copy of upstream. At build time,
+`modules/home-manager/default.nix` removes all `install.*` and `remove.*` rows
+that are not in `keptMenuRows`. The removed rows call `omarchy-pkg-add` or
+`omarchy-pkg-present`. These scripts do not exist here, so the rows failed.
+The kept rows only write files in `$HOME`: Style > Theme and Background, Web
+App, TUI, and their Remove rows. `omarchy-tui-install` is now ported verbatim.
+The build fails when a kept row is no longer in the upstream file. On a sync,
+copy the upstream menu file as before and check new `install.*` rows against
+this rule.
+
 ## HM→Lua bind bridge: dispatcher names (August 23, 2026)
 The bridge in `modules/home-manager/hyprland.nix` used to emit
 `hl.dsp.<dispatcher>(args)` for whatever word a `bind*` line names. The v4 lua
