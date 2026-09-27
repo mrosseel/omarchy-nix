@@ -100,6 +100,13 @@ in {
       source = ../../bin;
       recursive = true;
     };
+    # The steps omarchy-provision-first-run runs at first login. Without them
+    # every step fails, first-run never marks itself done, and it runs again
+    # at every login. See install/user/first-run for the Nix changes.
+    ".local/share/omarchy/install/user/first-run" = {
+      source = ../../install/user/first-run;
+      recursive = true;
+    };
     ".config/omarchy/branding" = {
       source = ../../config/branding;
       recursive = true;
@@ -353,7 +360,8 @@ in {
   };
 
   # Agent skill symlinks. Upstream does this in omarchy-provision-user, which is
-  # part of the Arch installer's one-shot user setup and never runs on Nix.
+  # part of the Arch installer's one-shot user setup. On Nix it is marked done
+  # below and does not run.
   # Symlinks (not home.file) because every agent expects a real directory it can
   # walk, and the loop picks up new skills without an edit here.
   home.activation.linkOmarchyAgentSkills = lib.hm.dag.entryAfter ["writeBoundary"] ''
@@ -366,6 +374,18 @@ in {
         $DRY_RUN_CMD ln -sfn "$skill" "$dir/$name"
       done
     done
+  '';
+
+  # Home Manager does the work of omarchy-provision-user: the skill links
+  # above, xdg.userDirs below, and the default browser. The script itself
+  # cannot finish on Nix, because install/user/all.sh is not shipped. Without
+  # its done marker, omarchy-provision-first-run calls it at every login. On
+  # the way it runs xdg-user-dirs-update --set, which ignores enabled=False
+  # and writes a plain user-dirs.dirs over the Home Manager link. The next
+  # switch then stops when the backup of that file already exists.
+  home.activation.markOmarchyUserProvisioned = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD mkdir -p "$HOME/.local/state/omarchy/done"
+    $DRY_RUN_CMD touch "$HOME/.local/state/omarchy/done/finalize-user"
   '';
 
   # Lock the session before suspend. Mirrors upstream

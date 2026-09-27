@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Omarchy-Nix: a no-op. Upstream invites the user to install Voxtype with
+# omarchy-voxtype-install, which uses pacman. On Nix, Voxtype is the
+# omarchy.voxtype.enable option, so there is nothing to install here.
+
+exit 0
