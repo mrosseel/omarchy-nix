@@ -51,10 +51,16 @@ in {
   services.dbus.enable = true;
   xdg.portal = {
     enable = true;
-    extraPortals = [pkgs.xdg-desktop-portal-gtk];
+    extraPortals = [pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-gnome];
     config.common.default = "*";
     config.hyprland.default = ["hyprland" "gtk"];
   };
+
+  # Deviation from Omarchy: the file chooser comes from the GNOME portal (GTK4)
+  # and not the GTK portal (GTK3). The GTK3 chooser is local-only by default and
+  # the GTK portal never turns that off, so Other Locations shows no network
+  # hosts and no Connect to Server field. The GTK4 chooser has no such filter.
+  xdg.portal.config.hyprland."org.freedesktop.impl.portal.FileChooser" = ["gnome"];
 
   # Enable InputCapture portal for screen sharing applications like Deskflow
   xdg.portal.config.hyprland."org.freedesktop.impl.portal.InputCapture" = ["hyprland"];
