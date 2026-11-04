@@ -12,7 +12,8 @@ if omarchy-cmd-missing hex; then
 fi
 # Download the speech model here, with progress, instead of silently on first launch.
 hex model install
-systemctl --user enable hex.service
+# Omarchy-Nix: omarchy.hex.enable enables hex.service. `systemctl --user enable`
+# would link the unit's store path into ~/.config/systemd/user.
 # Launching through the CLI saves this session's display environment for the unit before starting it.
 hex start
 omarchy-dictation-use hex
