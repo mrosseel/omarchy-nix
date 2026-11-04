@@ -3,52 +3,42 @@
   stdenv,
   fetchFromGitHub,
   qt6,
-  makeDesktopItem,
-  copyDesktopItems,
 }:
 # quattro replaced gnome-calculator with omacalc, which follows the Omarchy
-# theme and system light/dark mode. Bound to SUPER + CTRL + Q and XF86Calculator
-# in default/hypr/bindings/utilities.lua.
-stdenv.mkDerivation rec {
+# theme and system light/dark mode. Bound to SUPER + SHIFT + Q in
+# default/hypr/bindings/applications.lua.
+stdenv.mkDerivation (finalAttrs: {
   pname = "omacalc";
-  version = "0.2.2";
+  version = "0.3.1";
 
   src = fetchFromGitHub {
     owner = "omacom-io";
     repo = "omacalc";
-    tag = "v${version}";
-    hash = "sha256-I+WxkMz/2hCf4OpJKu99+30c0CxyxFD0M6eSLFDLs1I=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-Q1LGLTmMz8jqPGptyp8oZKr3iCM2YTR0f/NbmPY8AFQ=";
   };
 
-  nativeBuildInputs = [qt6.qmake qt6.wrapQtAppsHook copyDesktopItems];
+  # bin/build runs qmake6 and make. The qmake hook does the same steps.
+  nativeBuildInputs = [qt6.qmake qt6.wrapQtAppsHook];
   buildInputs = [qt6.qtbase qt6.qtdeclarative];
 
-  # Upstream ships no install target: qmake's default would land the binary in
-  # the source dir. Install it (and the bundled iA Writer fonts) by hand.
+  # The project has no install target. Install the same files as the PKGBUILD.
+  # The iA Writer fonts are compiled into the binary as Qt resources.
   installPhase = ''
     runHook preInstall
     install -Dm755 omacalc $out/bin/omacalc
-    install -Dm644 -t $out/share/fonts/truetype/omacalc $src/fonts/*.ttf
+    install -Dm644 LICENSE $out/share/licenses/omacalc/LICENSE
+    install -Dm644 fonts/OFL.txt $out/share/licenses/omacalc/OFL.txt
+    install -Dm644 pkgbuild/omacalc.svg $out/share/icons/hicolor/scalable/apps/omacalc.svg
+    install -Dm644 pkgbuild/omacalc.desktop $out/share/applications/omacalc.desktop
     runHook postInstall
   '';
 
-  desktopItems = [
-    (makeDesktopItem {
-      name = "omacalc";
-      desktopName = "Calculator";
-      exec = "omacalc";
-      icon = "accessories-calculator";
-      categories = ["Utility" "Calculator"];
-      startupWMClass = "omacalc";
-    })
-  ];
-
-  meta = with lib; {
-    description = "Omarchy's simple calculator";
+  meta = {
+    description = "Dead-simple calculator built with Qt Quick";
     homepage = "https://github.com/omacom-io/omacalc";
-    license = licenses.mit;
-    maintainers = [];
+    license = [lib.licenses.mit lib.licenses.ofl];
     mainProgram = "omacalc";
-    platforms = platforms.linux;
+    platforms = lib.platforms.linux;
   };
-}
+})

@@ -14,19 +14,6 @@ in {
   # Provides proper MIME associations and Wayland support
 
   xdg.desktopEntries = {
-    # Disk Usage - floating TUI launcher (mirrors Omarchy install/packaging/tuis.sh)
-    # Upstream swapped `dust -r` for `dua i`; window class TUI.float is tagged
-    # floating in default/hypr/apps/system.conf.
-    disk-usage = {
-      name = "Disk Usage";
-      comment = "Disk Usage";
-      exec = "xdg-terminal-exec --app-id=TUI.float -e dua i";
-      icon = "${config.home.homeDirectory}/.config/omarchy/webapp-icons/Disk Usage.png";
-      type = "Application";
-      terminal = false;
-      startupNotify = true;
-    };
-
     # System monitor (btop) in the launcher. Quattro HIDES the desktop id "btop"
     # via default/omarchy/launcher.hides (it kept btop on the now-removed waybar
     # CPU button), so an entry with id `btop` never shows. Use a non-hidden id

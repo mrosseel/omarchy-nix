@@ -37,31 +37,37 @@ inputs: {
   # lets `find -type f` see them. (lua framework under default/hypr is fine as
   # per-file symlinks because lua require() follows symlinks.)
 
-  # Upstream's workspace widget hard-codes the 1-10 range Omarchy binds. Patch
-  # that ceiling here rather than forking the QML, so the vendored tree stays a
-  # byte-for-byte copy of upstream at the default and re-vendoring is a plain
-  # overwrite. Only rewrites the file when the count actually differs.
-  workspaceCount = config.omarchy.shell.workspace_count;
-  patchWorkspaces = lib.optionalString (workspaceCount != 10) ''
-    substituteInPlace $out/plugins/bar/widgets/Workspaces.qml \
-      --replace-fail 'id <= 10' 'id <= ${toString workspaceCount}'
+  # NixOS has no /usr/share. Two shell files read fixed paths there, so point
+  # them at the NixOS locations:
+  # - Elsewhen reads zone1970.tab for the coordinates of a zone it cannot
+  #   geocode. NixOS puts the tzdata files at /etc/zoneinfo.
+  # - The app icon index also scans /usr/share/pixmaps. Nix packages put
+  #   pixmaps in share/pixmaps of each XDG data dir, so scan those too. Without
+  #   this, apps such as VS Code show no icon in the launcher.
+  patchUsrPaths = ''
+    substituteInPlace $out/plugins/panels/elsewhen/Panel.qml \
+      --replace-fail '/usr/share/zoneinfo/zone1970.tab' '/etc/zoneinfo/zone1970.tab'
+    substituteInPlace $out/services/AppLibrary.qml \
+      --replace-fail 'do dirs="$dirs $d/icons"; done;' 'do dirs="$dirs $d/icons"; pixmaps="$pixmaps $d/pixmaps"; done;' \
+      --replace-fail 'find /usr/share/pixmaps -maxdepth 1' 'find /usr/share/pixmaps $pixmaps -maxdepth 1'
   '';
-
-  # Elsewhen, the world clock plugin quattro installs by default and places
-  # immediately before the centre clock (config/omarchy/shell.json). Arch ships
-  # it as its own package dropped into the shell's bundled plugin directory; on
-  # Nix it is copied into the same tree so PluginRegistry's `find -type f`
-  # discovery sees it.
-  elsewhen = pkgs.callPackage ../../packages/elsewhen.nix {};
 
   shellTree = pkgs.runCommand "omarchy-shell-tree" {} ''
     cp -r ${../../shell} $out
     chmod -R u+w $out
-    cp -r ${elsewhen}/share/omarchy/shell/plugins/omacom.elsewhen $out/plugins/
-    chmod -R u+w $out/plugins/omacom.elsewhen
-    ${patchWorkspaces}
+    ${patchUsrPaths}
   '';
 in {
+  # Upstream now gives each monitor its own block of ten workspaces
+  # (default/hypr/monitor-workspaces.lua). The bar shows the monitor's own block
+  # and, after a gap, any other workspace that is on that monitor. The old
+  # `id <= 10` limit that workspace_count raised is gone, so the option does
+  # nothing now.
+  warnings = lib.optional (config.omarchy.shell.workspace_count != 10) ''
+    omarchy.shell.workspace_count has no effect. The bar now shows every
+    workspace on a monitor: its own block of ten first, then the others.
+  '';
+
   # Omarchy 4 desktop shell. The whole desktop is a single long-running
   # Quickshell instance (omarchy-shell) that hosts the bar, launcher, menu,
   # notifications, OSD, lock and polkit as plugins under $OMARCHY_PATH/shell.
@@ -72,7 +78,15 @@ in {
   # (Launcher.qml: `gtk-launch <desktopId>`). It's always present on Arch but not
   # on Nix, so without it EVERY launcher app-launch silently fails ("Launching
   # <app>…" with nothing opening).
-  home.packages = [quickshellPkg pkgs.gtk3];
+  #
+  # libxkbcommon provides `xkbcli`. The bar's keyboard layout widget runs
+  # `xkbcli list` for the layout names, and omarchy-menu-keybindings (SUPER K)
+  # runs `xkbcli compile-keymap`. Arch always has it; Nix does not.
+  #
+  # inotify-tools provides `inotifywait`. PluginRegistry uses it to reload a
+  # plugin when its files change, and InputDevices uses it to see a keyboard or
+  # mouse come and go. Upstream lists it in omarchy-base.packages.
+  home.packages = [quickshellPkg pkgs.gtk3 pkgs.libxkbcommon pkgs.inotify-tools];
 
   # Deploy the upstream Quickshell tree to $OMARCHY_PATH/shell and the default
   # shell.json to $OMARCHY_PATH/config/omarchy/shell.json. The quickshell

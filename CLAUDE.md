@@ -170,7 +170,7 @@ When implementing features:
 - ✅ Updated btop settings for v1.4.6 (terminal_sync, cpu_watts, battery_watts, gpu_mirror, etc.)
 - ✅ Simplified waybar network tooltips (removed bandwidth stats)
 
-**Branch tracking**: **`main` is the v4 line** and tracks upstream's **`quattro`** branch (port baseline `ee8ebf61`, September 21 2026). The pre-v4 v3.8.x state is kept on `archive/main-pre-v4`; the old `omarchy-4` working branch is gone — do not recreate it, `main` is where v4 lives. Upstream's own `omarchy-4` branch is frozen at June 7; **do not sync against it — use `quattro`**. `OMARCHY4-PORT.md` is the authoritative sync status; the "Omarchy Sync Status" section above documents the older `dev`-line history.
+**Branch tracking**: **`main` is the v4 line** and tracks upstream's **`quattro`** branch (port baseline `5f2fb785`, November 4 2026). The pre-v4 v3.8.x state is kept on `archive/main-pre-v4`; the old `omarchy-4` working branch is gone — do not recreate it, `main` is where v4 lives. Upstream's own `omarchy-4` branch is frozen at June 7; **do not sync against it — use `quattro`**. `OMARCHY4-PORT.md` is the authoritative sync status; the "Omarchy Sync Status" section above documents the older `dev`-line history.
 
 **To check current Omarchy status**:
 ```bash
@@ -305,7 +305,7 @@ Both modules import their options from `config.nix`, which defines all user-conf
 6. All application modules receive the colorScheme via `config.colorScheme`
 
 **Custom Themes**:
-- Custom base16 schemes (ethereal, hackerman, osaka-jade, ristretto, miasma, vantablack, white, retro-82, lumon) are defined in `modules/custom-base16-schemes.nix`
+- Custom base16 schemes (ethereal, hackerman, jade-horse, ristretto, miasma, vantablack, white, retro-82, lumon, lupine, solitude, last-horizon, starship) are defined in `modules/custom-base16-schemes.nix`
 - Marked with `custom-scheme = true` in `modules/themes.nix`
 
 **Theme Files**:
@@ -319,7 +319,7 @@ Both modules import their options from `config.nix`, which defines all user-conf
 **Main Configuration** (`config.nix`):
 - Defines all user-configurable options using NixOS module system
 - Required options: `username`, `full_name`, `email_address`, `theme`
-- Theme options: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, rose-pine, rose-pine-dawn, rose-pine-moon, nord, gruvbox, gruvbox-light, flexoki-light, matte-black, ethereal, hackerman, osaka-jade, ristretto, miasma, vantablack, white, retro-82, lumon
+- Theme options: tokyo-night, kanagawa, everforest, catppuccin, catppuccin-latte, rose-pine, rose-pine-dawn, rose-pine-moon, nord, gruvbox, gruvbox-light, flexoki-light, matte-black, ethereal, hackerman, jade-horse, ristretto, miasma, vantablack, white, retro-82, lumon, lupine, solitude, last-horizon, starship
 - Optional features: `gaming.enable`, `nvidia.enable`, `office_suite.enable`, `seamless_boot.enable`, `fido2_auth.enable`, `firewall.enable`
 - Light theme detection: `light_theme_detection.enable`, `light_theme_detection.light_theme_mappings`
 
@@ -573,9 +573,10 @@ All scripts are deployed via `home.file` in `modules/home-manager/default.nix` a
 
 Core inputs defined in `flake.nix`:
 - `nixpkgs`: Main package repository (nixos-unstable)
-- `hyprland`: Hyprland compositor from upstream (pinned to v0.55.2)
+- `hyprland`: Hyprland compositor from upstream (pinned to v0.57.1)
 - `nix-colors`: Base16 color scheme integration
 - `home-manager`: User configuration management
+- `hex`: Hex dictation source (`anomalyco/hex`, pinned to a release tag), built only when `omarchy.hex.enable` is set
 
 The flake expects to be used alongside a user's existing NixOS configuration with Home Manager integration.
 
@@ -603,7 +604,7 @@ The flake expects to be used alongside a user's existing NixOS configuration wit
 - base16 color variables are accessed via `config.colorScheme.palette.base00` through `base0F`
 
 **Hyprland Configuration**:
-- Hyprland is pinned to v0.55.2 via the omarchy-nix flake input - update carefully
+- Hyprland is pinned to v0.57.1 via the omarchy-nix flake input - update carefully
 - Environment variables are set in `modules/home-manager/hyprland/envs.nix`
 - Keybindings support metadata (description) as 3rd parameter: `"SUPER, B, Browser, exec, $browser"`
 

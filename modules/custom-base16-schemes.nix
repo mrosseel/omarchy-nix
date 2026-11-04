@@ -45,26 +45,28 @@
     base0F = "2ec27e"; # Deprecated (green)
   };
 
-  osaka-jade = {
-    slug = "osaka-jade";
-    scheme = "Osaka Jade";
+  # Derived from upstream themes/jade-horse/colors.toml (dark, jade green).
+  # Jade Horse replaced Osaka Jade upstream (#16594).
+  jade-horse = {
+    slug = "jade-horse";
+    scheme = "Jade Horse";
     author = "Omarchy (port by omarchy-nix)";
-    base00 = "11221C"; # Default Background (dark green-black)
-    base01 = "192b24"; # Lighter Background
-    base02 = "364538"; # Selection Background
-    base03 = "32473B"; # Comments, Invisibles
-    base04 = "C1C497"; # Dark Foreground (beige)
-    base05 = "e6d8ba"; # Default Foreground (cream)
-    base06 = "f0e8cc"; # Light Foreground
-    base07 = "faf5e8"; # Light Background
-    base08 = "E67D64"; # Variables (coral/red)
-    base09 = "DEB266"; # Integers (orange/gold)
-    base0A = "E1B55E"; # Classes (yellow)
-    base0B = "81B8A8"; # Strings (teal)
-    base0C = "71CEAD"; # Regex (jade - active border)
-    base0D = "71CEAD"; # Functions (jade)
-    base0E = "D6D5BC"; # Keywords (beige)
-    base0F = "BFD99A"; # Deprecated (lime green)
+    base00 = "142620"; # Default Background
+    base01 = "0f1e19"; # Lighter Background (dark_background)
+    base02 = "2b5147"; # Selection Background
+    base03 = "64887b"; # Comments, Invisibles (muted)
+    base04 = "91ad9f"; # Dark Foreground
+    base05 = "dfede5"; # Default Foreground
+    base06 = "bed6c9"; # Light Foreground
+    base07 = "f0faf4"; # Light Background (bright_foreground)
+    base08 = "d88d91"; # Variables (red)
+    base09 = "d2ab8d"; # Integers (orange)
+    base0A = "c5cc91"; # Classes (yellow)
+    base0B = "8bcbb1"; # Strings (green)
+    base0C = "86c7c5"; # Regex (cyan)
+    base0D = "8bcbb1"; # Functions (accent, active border)
+    base0E = "b7a1c8"; # Keywords (magenta)
+    base0F = "7e8970"; # Deprecated (brown)
   };
 
   ristretto = {
@@ -266,5 +268,28 @@
     base0D = "b59790"; # Functions (blue / accent — active border)
     base0E = "c4d8e2"; # Keywords (magenta)
     base0F = "8a8588"; # Deprecated (border mid-tone)
+  };
+
+  # Derived from upstream themes/starship/colors.toml (dark, warm orange accent).
+  starship = {
+    slug = "starship";
+    scheme = "Starship";
+    author = "Omarchy (port by omarchy-nix)";
+    base00 = "1c1c1e"; # Default Background
+    base01 = "161618"; # Lighter Background (dark_background)
+    base02 = "3a3a3c"; # Selection Background
+    base03 = "8e8e93"; # Comments, Invisibles (muted)
+    base04 = "98989d"; # Dark Foreground
+    base05 = "f5f5f7"; # Default Foreground
+    base06 = "fbfbfd"; # Light Foreground
+    base07 = "ffffff"; # Light Background (bright_foreground)
+    base08 = "ff5f4a"; # Variables (red)
+    base09 = "ff6a3d"; # Integers (orange)
+    base0A = "ffc27a"; # Classes (yellow)
+    base0B = "ff9f0a"; # Strings (green; upstream sets it to the accent orange)
+    base0C = "a6dcef"; # Regex (cyan)
+    base0D = "ff9f0a"; # Functions (accent, active border)
+    base0E = "ff8fa3"; # Keywords (magenta)
+    base0F = "b8a99a"; # Deprecated (brown)
   };
 }

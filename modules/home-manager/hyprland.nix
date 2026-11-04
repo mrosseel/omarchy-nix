@@ -2,14 +2,27 @@ inputs: {
   config,
   pkgs,
   lib,
-  osConfig ? {},
   ...
 }: let
   cfg = config.omarchy;
 
-  hasNvidiaDrivers =
-    (osConfig ? services)
-    && builtins.elem "nvidia" (osConfig.services.xserver.videoDrivers or []);
+  hyprlandPkg = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+
+  # Titlebars for floating workspaces. A Hyprland plugin loads only into the
+  # Hyprland it was built against, so build it against the session's Hyprland.
+  titlebars = pkgs.callPackage ../../packages/omarchy-hyprland-titlebars.nix {
+    hyprland = hyprlandPkg;
+  };
+
+  # The vendored Omarchy Lua framework, deployed to $OMARCHY_PATH/default/hypr.
+  # Upstream loads the titlebars plugin from its Arch path. That path does not
+  # exist on Nix, so point it at the store path at build time. The vendored
+  # file stays a plain copy of upstream.
+  defaultHypr = pkgs.runCommand "omarchy-default-hypr" {} ''
+    cp -r --no-preserve=mode ${../../default/hypr} $out
+    substituteInPlace $out/workspace-modes.lua \
+      --replace-fail /usr/lib/omarchy-hyprland-titlebars/titlebars.so ${titlebars.pluginPath}
+  '';
 
   # $terminal/$browser/... Hyprland variables don't exist in the Lua config, so
   # resolve them to concrete commands at build time before emitting o.bind().
@@ -51,86 +64,51 @@ inputs: {
     ${lib.concatMapStringsSep "\n" mkBind cfg.quick_app_bindings}
   '';
 
-  envEntries =
-    (lib.optionals hasNvidiaDrivers [
-      ["NVD_BACKEND" "direct"]
-      ["LIBVA_DRIVER_NAME" "nvidia"]
-      ["__GLX_VENDOR_LIBRARY_NAME" "nvidia"]
-    ])
-    ++ [
-      ["XCURSOR_SIZE" "24"]
-      ["HYPRCURSOR_SIZE" "24"]
-      ["XCURSOR_THEME" "Bibata-Modern-Classic"]
-      ["HYPRCURSOR_THEME" "Bibata-Modern-Classic"]
-      ["GDK_BACKEND" "wayland"]
-      ["QT_QPA_PLATFORM" "wayland"]
-      ["MOZ_ENABLE_WAYLAND" "1"]
-      ["ELECTRON_OZONE_PLATFORM_HINT" "wayland"]
-      ["OZONE_PLATFORM" "wayland"]
-      ["CHROMIUM_FLAGS" "--enable-features=UseOzonePlatform --ozone-platform=wayland --gtk-version=4"]
-      ["XCOMPOSEFILE" "~/.XCompose"]
-      ["EDITOR" "nvim"]
-      ["GTK_THEME" "Adwaita:dark"]
-      ["XDG_CURRENT_DESKTOP" "Hyprland"]
-      ["XDG_SESSION_TYPE" "wayland"]
-      ["XDG_SESSION_DESKTOP" "Hyprland"]
-    ];
+  # The NVIDIA variables are not set here. Upstream default/hypr/nvidia.lua
+  # sets them from the hardware, and sets the VA-API and GLX drivers only when
+  # NVIDIA drives the display. A value here would override that check.
+  envEntries = [
+    ["XCURSOR_SIZE" "24"]
+    ["HYPRCURSOR_SIZE" "24"]
+    ["XCURSOR_THEME" "Bibata-Modern-Classic"]
+    ["HYPRCURSOR_THEME" "Bibata-Modern-Classic"]
+    ["GDK_BACKEND" "wayland"]
+    ["QT_QPA_PLATFORM" "wayland"]
+    ["MOZ_ENABLE_WAYLAND" "1"]
+    ["ELECTRON_OZONE_PLATFORM_HINT" "wayland"]
+    ["OZONE_PLATFORM" "wayland"]
+    ["CHROMIUM_FLAGS" "--enable-features=UseOzonePlatform --ozone-platform=wayland --gtk-version=4"]
+    ["XCOMPOSEFILE" "~/.XCompose"]
+    ["EDITOR" "nvim"]
+    ["GTK_THEME" "Adwaita:dark"]
+    ["XDG_CURRENT_DESKTOP" "Hyprland"]
+    ["XDG_SESSION_TYPE" "wayland"]
+    ["XDG_SESSION_DESKTOP" "Hyprland"]
+  ];
   envsLua = ''
     -- Generated from the nix Hyprland env set.
     ${lib.concatMapStringsSep "\n" (e: "hl.env(${builtins.toJSON (builtins.elemAt e 0)}, ${builtins.toJSON (builtins.elemAt e 1)})") envEntries}
     hl.config({ xwayland = { force_zero_scaling = true }, ecosystem = { no_update_news = true } })
   '';
 
-  inputLua = ''
-    -- Generated from the nix input options.
-    hl.config({
-      input = {
-        kb_layout = "us",
-        kb_options = "compose:caps",
-        repeat_rate = 40,
-        repeat_delay = 250,
-        numlock_by_default = true,
-        follow_mouse = 1,
-        sensitivity = 0,
-        touchpad = {
-          natural_scroll = false,
-          clickfinger_behavior = true,
-          scroll_factor = 0.4,
-        },
-      },
-    })
-    o.window("(Alacritty|kitty|foot)", { scroll_touchpad = 1.5 })
-    o.window("com.mitchellh.ghostty", { scroll_touchpad = 0.2 })
-  '';
+  # Upstream skel (config/hypr/input.lua): comments only. Omarchy's input
+  # defaults live in default/hypr/input.lua, which reads the keyboard layout and
+  # sets kb_options from /etc/xkb (modules/nixos/hyprland.nix). Settings here
+  # would replace those defaults.
+  inputLua = builtins.readFile ../../config/hypr/input.lua;
 
-  # Upstream skel (config/hypr/monitors.lua) with omarchy.scale baked in.
-  # Seeded once as a user-owned file (Setup > Monitors edits it); later
-  # omarchy.scale changes only affect fresh installs, like upstream.
-  monitorsLua = ''
-    -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
-    -- List current monitors and supported resolutions with: hyprctl monitors all
+  # Upstream skel (config/hypr/monitors.lua). Seeded once as a user-owned file
+  # (the monitor panel and Setup > Monitors edit it). Omarchy's defaults live in
+  # default/hypr/monitors.lua, which sets GDK_SCALE to 2. Nix deviation: an
+  # omarchy.scale other than 2 is added as a GDK_SCALE line. Later changes to
+  # omarchy.scale only affect a fresh seed, like upstream.
+  monitorsLua =
+    builtins.readFile ../../config/hypr/monitors.lua
+    + lib.optionalString (cfg.scale != 2) ''
 
-    -- Monitor scale is Hyprland's scale for the output. It sizes everything
-    -- Wayland-native, accepts fractions (1.6, 1.75), and applies immediately.
-    -- "auto" lets Hyprland pick per display.
-    local omarchy_monitor_scale = "auto"
-
-    hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
-
-    -- Configure a specific monitor.
-    -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })
-
-    -- Portrait/rotated secondary monitor (transform: 1 = 90°, 3 = 270°).
-    -- hl.monitor({ output = "DP-2", mode = "preferred", position = "auto", scale = 1, transform = 1 })
-
-    -- GDK scale is GDK_SCALE, the factor GTK draws its own UI at. It's what
-    -- sizes X11/XWayland windows, which Omarchy leaves unscaled so they stay
-    -- crisp instead of being stretched by the compositor. GTK only honors whole
-    -- numbers, so use the nearest integer to the monitor scale, and restart an
-    -- app for a change to reach it.
-    local omarchy_gdk_scale = ${toString cfg.scale}
-    hl.env("GDK_SCALE", tostring(omarchy_gdk_scale))
-  '';
+      -- Set from omarchy.scale.
+      hl.env("GDK_SCALE", "${toString cfg.scale}")
+    '';
 
   autostartLua = ''
     -- Extra autostart on top of the Omarchy defaults (quickshell, fcitx5,
@@ -341,7 +319,7 @@ inputs: {
 in {
   wayland.windowManager.hyprland = {
     enable = true;
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    package = hyprlandPkg;
     # Keep HM emitting hyprland.conf (hyprlang), not hyprland.lua. HM's default
     # configType flips to "lua" at stateVersion 26.05; if it wrote its own
     # hyprland.lua it would collide with the one we ship via xdg.configFile below.
@@ -357,8 +335,13 @@ in {
   # State dir for the active theme (was created by the now-removed swaybg.nix).
   home.file.".config/omarchy/current/.keep".text = "";
 
+  home.file.".local/share/omarchy/default/hypr" = {
+    source = defaultHypr;
+    recursive = true;
+  };
+
   # The Omarchy 4 Lua config: upstream framework (deployed to
-  # $OMARCHY_PATH/default/hypr via default.nix) + nix-generated user overrides.
+  # $OMARCHY_PATH/default/hypr above) + nix-generated user overrides.
   xdg.configFile = {
     "hypr/hyprland.lua".text = hyprlandLua;
     "hypr/bindings.lua".text = bindingsLua;

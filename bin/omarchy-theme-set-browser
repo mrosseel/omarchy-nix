@@ -25,9 +25,14 @@ refresh_running_browser() {
   local command="$2"
   local pgrep_args="${3:--x}"
 
-  if omarchy-cmd-present "$command" && pgrep $pgrep_args "$process" >/dev/null; then
-    "$command" --refresh-platform-policy --no-startup-window &>/dev/null
-  fi
+# A managed color.json is already correct only when it is a regular, root-owned
+# file with mode 0644 containing exactly the canonical JSON for the requested
+# color.
+file_is_canonical() {
+  local file=$1
+  [[ -f $file && ! -L $file ]] || return 1
+  [[ $(<"$file") == "$expected_json" ]] || return 1
+  [[ $(stat -c '%U:%G %a' "$file") == "root:root 644" ]]
 }
 
 set_browser_policy /etc/chromium/policies/managed

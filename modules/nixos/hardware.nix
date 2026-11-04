@@ -69,8 +69,8 @@ in {
       boot.kernelParams = ["xe.enable_dpcd_backlight=1"];
     })
 
-    # Intel Panther Lake hardware video acceleration
-    # Mirrors install/config/hardware/intel/video-acceleration.sh
+    # Intel hardware video acceleration (Panther Lake, Wildcat Lake and older)
+    # Mirrors install/hardware/intel/video-acceleration.sh
     (lib.mkIf hw.intel_ptl_video_accel.enable {
       hardware.graphics = {
         enable = true;
@@ -163,6 +163,40 @@ in {
         ExecStart=${camlinkRelay}
       '';
     })
+
+    # Keyboard top row: media keys or F1-F12 by default
+    # Mirrors bin/omarchy-keyboard-toprow, which install/hardware/fix-fkeys.sh
+    # runs with mediakeys on a fresh install. Three drivers keep Fn-lock on the
+    # host and set it again at every boot from a module option: hid_asus,
+    # asus_wmi and hid_apple. NixOS also puts this modprobe config in the
+    # initrd, where hid_asus and hid_apple can load.
+    (lib.mkIf (hw.keyboard_toprow != null) (let
+      fnkeys = hw.keyboard_toprow == "fnkeys";
+      fnmode =
+        if fnkeys
+        then "2"
+        else "1";
+      fnlock =
+        if fnkeys
+        then "1"
+        else "0";
+      first =
+        if fnkeys
+        then "F1-F12"
+        else "the media keys";
+      second =
+        if fnkeys
+        then "the media keys"
+        else "F1-F12";
+    in {
+      boot.extraModprobeConfig = ''
+        # Written by omarchy-keyboard-toprow: the top row sends ${first} by default,
+        # and Fn (Fn+Esc to lock it) gives ${second}.
+        options hid_apple fnmode=${fnmode}
+        options hid_asus fnlock_default=${fnlock}
+        options asus_wmi fnlock_default=${fnlock}
+      '';
+    }))
 
     # Lenovo Yoga Pro 7 14IAH10 bass speaker pin quirk
     # Mirrors install/config/hardware/lenovo/fix-yoga-pro7-bass-speakers.sh

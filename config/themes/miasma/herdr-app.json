@@ -1,0 +1,18 @@
+{
+  "background": "#222222",
+  "foreground": "#c2c2b0",
+  "selection": "#383838",
+  "cursor": "#c2c2b0",
+  "ansi": [
+    "#222222", "#685742", "#5f875f", "#b36d43",
+    "#78824b", "#bb7744", "#c9a554", "#c2c2b0",
+    "#666666", "#685742", "#5f875f", "#b36d43",
+    "#78824b", "#bb7744", "#c9a554", "#c2c2b0"
+  ],
+  "colors": {
+    "accent": "#78824b",
+    "accent_foreground": "#222222",
+    "solid": "#78824b",
+    "solid_foreground": "#222222"
+  }
+}

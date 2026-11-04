@@ -7,6 +7,7 @@
   #   default/systemd/zram-generator.conf.d/90-omarchy.conf
   #   etc/tmpfiles.d/omarchy-zswap.conf
   #   etc/sysctl.d/99-omarchy-sysctl.conf
+  #   etc/sysctl.d/90-omarchy-arp.conf
   #   etc/systemd/logind.conf.d/20-inhibit-delay.conf
   #   etc/NetworkManager/conf.d/omarchy-wifi-powersave.conf
 
@@ -44,6 +45,17 @@
     "vm.dirty_background_bytes" = lib.mkDefault 67108864;
     "vm.dirty_bytes" = lib.mkDefault 268435456;
     "vm.dirty_writeback_centisecs" = lib.mkDefault 1500;
+
+    # quattro etc/sysctl.d/90-omarchy-arp.conf. Answer ARP only for the
+    # interface's own address, and announce from it. With a dock's Ethernet and
+    # Wi-Fi on the same network, the kernel default lets each answer for the
+    # other's address. Wi-Fi then claims the wired address while NetworkManager
+    # still checks it for conflicts, so NetworkManager takes the wired routes
+    # down and traffic stays on Wi-Fi.
+    "net.ipv4.conf.all.arp_ignore" = lib.mkDefault 1;
+    "net.ipv4.conf.default.arp_ignore" = lib.mkDefault 1;
+    "net.ipv4.conf.all.arp_announce" = lib.mkDefault 2;
+    "net.ipv4.conf.default.arp_announce" = lib.mkDefault 2;
   };
 
   # omarchy-system-sleep-lock holds a delay inhibitor so the session locks

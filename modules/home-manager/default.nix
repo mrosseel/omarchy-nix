@@ -2,9 +2,17 @@ inputs: {
   config,
   pkgs,
   lib,
+  osConfig ? {},
   ...
 }: let
   packages = import ../packages.nix {inherit pkgs config lib;};
+
+  # The fcitx5 with the input method addons, from modules/packages.nix. A
+  # NixOS i18n.inputMethod setup takes precedence when the user has one.
+  fcitx5Package =
+    if (osConfig.i18n.inputMethod.package or null) != null
+    then osConfig.i18n.inputMethod.package
+    else packages.fcitx5;
 
   themes = import ../themes.nix;
   customSchemes = import ../custom-base16-schemes.nix;
@@ -115,10 +123,6 @@ in {
     # omarchy-branding-{screensaver,about} reset reads from $OMARCHY_PATH/.
     ".local/share/omarchy/logo.txt".source = ../../config/branding/logo.txt;
     ".local/share/omarchy/icon.txt".source = ../../config/branding/icon.txt;
-    ".config/omarchy/screensaver" = {
-      source = ../../config/screensaver;
-      recursive = true;
-    };
     ".config/omarchy/webapp-icons" = {
       source = ../../config/webapp-icons;
       recursive = true;
@@ -150,17 +154,30 @@ in {
       [Desktop Entry]
       Hidden=true
     '';
-    # Upstream config/fcitx5/conf: neuter the clipboard module's paste hotkeys
-    # and stop fcitx5 from overriding the X11 keyboard layout (#760).
-    ".config/fcitx5/conf/clipboard.conf".source = ../../config/fcitx5/conf/clipboard.conf;
-    ".config/fcitx5/conf/xcb.conf".source = ../../config/fcitx5/conf/xcb.conf;
     # Shipped user configs (upstream copies these from config/ into ~/.config
     # at install time). The pristine copy lives under $OMARCHY_PATH/config so
     # omarchy-refresh-config can restore it; the activation block below seeds
     # a writable copy into ~/.config once, never overwriting user edits.
     ".local/share/omarchy/config/herdr/config.toml".source = ../../config/herdr/config.toml;
-    ".local/share/omarchy/config/xournalpp/settings.xml".source = ../../config/xournalpp/settings.xml;
     ".local/share/omarchy/config/opencode/opencode.json".source = ../../config/opencode/opencode.json;
+    ".local/share/omarchy/config/opencode/cli.json".source = ../../config/opencode/cli.json;
+    # Omarchy-Nix deviation: the shipped dictation default is voxtype, not
+    # superwhisper. Superwhisper is proprietary and dictates in the cloud, so
+    # it is opt-in through omarchy.superwhisper.enable.
+    ".local/share/omarchy/config/omarchy/defaults/dictation".source = ../../config/omarchy/defaults/dictation;
+    # Fcitx5 defaults: the hotkeys, the clipboard paste keys, and no override of
+    # the keyboard layout (#760). omarchy-input-method reads these copies under
+    # $OMARCHY_PATH/config/fcitx5 and merges them into the user's files.
+    ".local/share/omarchy/config/fcitx5" = {
+      source = ../../config/fcitx5;
+      recursive = true;
+    };
+    # Links in every app go through omarchy-browser.desktop, which hands them
+    # to the running default browser and focuses it. XDG reads this
+    # Hyprland-specific list before mimeapps.list, where the browser itself
+    # stays.
+    ".config/hyprland-mimeapps.list".source = ../../config/hyprland-mimeapps.list;
+    ".local/share/applications/omarchy-browser.desktop".source = ../../applications/omarchy-browser.desktop;
     # Upstream config/autostart/org.fcitx.Fcitx5.desktop: the fcitx5 package
     # ships an XDG autostart entry, and that instance grabs the D-Bus name
     # first, leaving omarchy-fcitx5.service in an endless restart loop.
@@ -186,10 +203,8 @@ in {
     };
     # Emoji compose sequences included from the seeded ~/.XCompose.
     ".local/share/omarchy/default/xcompose".source = ../../default/xcompose;
-    ".local/share/omarchy/default/hypr" = {
-      source = ../../default/hypr;
-      recursive = true;
-    };
+    # default/hypr is deployed by hyprland.nix, which patches the titlebars
+    # plugin path into it.
     ".local/share/omarchy/default/themed" = {
       source = ../../default/themed;
       recursive = true;
@@ -201,21 +216,48 @@ in {
       source = omarchyMenuDir;
       recursive = true;
     };
-    # Per-terminal screensaver configs. omarchy-launch-screensaver loads
-    # $OMARCHY_PATH/default/<terminal>/screensaver* for whatever xdg-terminal-exec
-    # resolves as default; missing = ghostty/foot/etc. "error opening" on launch.
-    ".local/share/omarchy/default/ghostty" = {
-      source = ../../default/ghostty;
-      recursive = true;
-    };
     ".local/share/omarchy/default/alacritty" = {
       source = ../../default/alacritty;
       recursive = true;
     };
-    ".local/share/omarchy/default/foot" = {
-      source = ../../default/foot;
+    # Translation catalogs. omarchy-i18n, omarchy-language and the shell
+    # (Commons/I18n.qml) read $OMARCHY_PATH/default/i18n.
+    ".local/share/omarchy/default/i18n" = {
+      source = ../../default/i18n;
       recursive = true;
     };
+    # Input method helpers (omarchy-input-method, omarchy-language, the shell's
+    # input indicator) and the Fcitx5 D-Bus activation template.
+    ".local/share/omarchy/default/input-methods" = {
+      source = ../../default/input-methods;
+      recursive = true;
+    };
+    # omarchy-theme-set-glass imports this into GTK apps for Glassy windows.
+    ".local/share/omarchy/default/gtk" = {
+      source = ../../default/gtk;
+      recursive = true;
+    };
+    # omarchy-launch-slack runs default/slack/launcher.py.
+    ".local/share/omarchy/default/slack" = {
+      source = ../../default/slack;
+      recursive = true;
+    };
+    # Session defaults (TERMINAL, EDITOR, HYPRLAND_NO_RT). The uwsm env file
+    # below sources this copy.
+    ".local/share/omarchy/default/uwsm" = {
+      source = ../../default/uwsm;
+      recursive = true;
+    };
+    # Upstream ships default/uwsm/env.d/10-omarchy to /usr/share/uwsm/env.d.
+    # The uwsm in nixpkgs (0.23) does not read env.d directories, so this
+    # file does the same job from ~/.config/uwsm/env. The env bootstrap is not
+    # sourced here: on Nix, OMARCHY_PATH comes from environment.sessionVariables
+    # and the omarchy bin dir from environment.extraInit.
+    ".config/uwsm/env".text = ''
+      # Omarchy session defaults. Override them in ~/.config/uwsm/default.
+      . "$HOME/.local/share/omarchy/default/uwsm/default"
+      [ -f "$HOME/.config/uwsm/default" ] && . "$HOME/.config/uwsm/default"
+    '';
     # Hook sample tree (read-only source under $OMARCHY_PATH); the activation
     # below seeds copies into ~/.config/omarchy/hooks/ so users can rename
     # *.sample to enable a hook.
@@ -243,19 +285,37 @@ in {
     "$HOME/.local/share/omarchy/bin"
   ];
 
-  # Seed writable copies of the shipped user configs (herdr, xournalpp,
-  # opencode) into ~/.config. These apps rewrite their own config files, so a
-  # read-only home.file symlink would break them; upstream installs plain
-  # copies. Existing files are never touched — omarchy-refresh-config restores
-  # the shipped version on request.
-  home.activation.seedShippedUserConfigs = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    for rel in herdr/config.toml xournalpp/settings.xml opencode/opencode.json; do
+  # Seed writable copies of the shipped user configs into ~/.config. These
+  # files are rewritten at runtime (by the app itself, by omarchy-input-method,
+  # or by omarchy-dictation-use), so a read-only home.file symlink would break
+  # them; upstream installs plain copies from /etc/skel. Existing files are
+  # never touched — omarchy-refresh-config restores the shipped version on
+  # request. This runs after linkGeneration, so the source links exist on the
+  # first switch, and the old fcitx5 conf symlinks are gone before the copies
+  # take their place.
+  home.activation.seedShippedUserConfigs = lib.hm.dag.entryAfter ["linkGeneration"] ''
+    for rel in \
+      herdr/config.toml \
+      opencode/opencode.json \
+      opencode/cli.json \
+      omarchy/defaults/dictation \
+      fcitx5/config \
+      fcitx5/conf/clipboard.conf \
+      fcitx5/conf/xcb.conf \
+      fcitx5/conf/quickphrase.conf \
+      fcitx5/conf/wayland.conf \
+      fcitx5/conf/pinyin.conf; do
       src="$HOME/.local/share/omarchy/config/$rel"
       dst="$HOME/.config/$rel"
       if [ -e "$src" ] && [ ! -e "$dst" ]; then
-        mkdir -p "$(dirname "$dst")"
-        cp "$src" "$dst"
-        chmod 644 "$dst"
+        $DRY_RUN_CMD mkdir -p "$(dirname "$dst")"
+        $DRY_RUN_CMD cp "$src" "$dst"
+        # OpenCode keeps cli.json private (migration 1793565796).
+        if [ "$rel" = opencode/cli.json ]; then
+          $DRY_RUN_CMD chmod 600 "$dst"
+        else
+          $DRY_RUN_CMD chmod 644 "$dst"
+        fi
       fi
     done
   '';
@@ -277,18 +337,28 @@ in {
   # Seed ONLY the flags.lua keep-file (the dir needs >=1 file). The effect
   # toggles (window-no-gaps, single-window-aspect-ratio, …) are turned on by
   # RUNNING omarchy-toggle, never pre-seeded — seeding them all forced every
-  # toggle ON (0 gaps, square single windows). voxtype.lua carries the F9
-  # dictation binds, so seed it only when voxtype is enabled.
-  home.activation.seedHyprToggles = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  # toggle ON (0 gaps, square single windows).
+  home.activation.seedHyprToggles = lib.hm.dag.entryAfter ["linkGeneration"] ''
     src="$HOME/.local/share/omarchy/default/hypr/toggles"
     dst="$HOME/.local/state/omarchy/toggles/hypr"
     mkdir -p "$dst"
     [ -e "$dst/flags.lua" ] || cp "$src/flags.lua" "$dst/flags.lua" 2>/dev/null || true
-    ${lib.optionalString config.omarchy.voxtype.enable ''
-      [ -e "$dst/voxtype.lua" ] || cp "$src/voxtype.lua" "$dst/voxtype.lua" 2>/dev/null || true
-    ''}
     # One-time cleanup of stale v3 .conf toggles from earlier builds.
     rm -f "$dst"/*.conf 2>/dev/null || true
+    # The Voxtype toggle is obsolete (migration 1784767406). Its F9 binds now
+    # come from default/hypr/bindings/dictation.lua for every backend.
+    rm -f "$dst/voxtype.lua"
+    # A VM usually renders on the CPU, so it starts without animations and
+    # with opaque windows (install/user/hardware/vm-no-animations.sh). Upstream
+    # does this once at user setup. The done marker keeps it to one time, so
+    # omarchy-toggle-animations can turn them back on.
+    if [ ! -e "$HOME/.local/state/omarchy/done/vm-no-animations" ]; then
+      if ${pkgs.systemd}/bin/systemd-detect-virt --vm --quiet; then
+        cp "$src/no-animations.lua" "$src/window-opaque.lua" "$dst/" 2>/dev/null || true
+      fi
+      mkdir -p "$HOME/.local/state/omarchy/done"
+      touch "$HOME/.local/state/omarchy/done/vm-no-animations"
+    fi
   '';
 
   # Seed ~/.config/omarchy/hooks/ with .sample files from the read-only source
@@ -365,13 +435,19 @@ in {
   # Symlinks (not home.file) because every agent expects a real directory it can
   # walk, and the loop picks up new skills without an edit here.
   home.activation.linkOmarchyAgentSkills = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.pi/agent/skills"
+    dirs=("$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.pi/agent/skills" "$HOME/.gemini/config/skills" "$HOME/.hermes/skills")
+    $DRY_RUN_CMD mkdir -p "''${dirs[@]}"
     for skill in "$HOME"/.local/share/omarchy/default/agents/skills/*/; do
       [ -d "$skill" ] || continue
       skill=''${skill%/}
       name=''${skill##*/}
-      for dir in "$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.codex/skills" "$HOME/.pi/agent/skills"; do
+      for dir in "''${dirs[@]}"; do
         $DRY_RUN_CMD ln -sfn "$skill" "$dir/$name"
+      done
+      for profile in "$HOME"/.hermes/profiles/*/; do
+        [ -d "$profile" ] || continue
+        $DRY_RUN_CMD mkdir -p "$profile/skills"
+        $DRY_RUN_CMD ln -sfn "$skill" "$profile/skills/$name"
       done
     done
   '';
@@ -408,12 +484,14 @@ in {
     Install.WantedBy = ["graphical-session.target"];
   };
 
-  # fcitx5 turns the CapsLock compose sequences in ~/.XCompose into text for
-  # Wayland clients. quattro moved it out of the Hyprland autostart into a user
-  # unit (default/systemd/user/omarchy-fcitx5.service).
+  # fcitx5 runs the input methods and turns the Shift + CapsLock compose
+  # sequences in ~/.XCompose into text for Wayland clients
+  # (default/systemd/user/omarchy-fcitx5.service). The upstream unit also has
+  # ConditionPathExists=/usr/bin/fcitx5. It is left out here, because the
+  # store path always exists.
   systemd.user.services.omarchy-fcitx5 = {
     Unit = {
-      Description = "Fcitx5 input method (XCompose sequences)";
+      Description = "Fcitx5 input methods and XCompose sequences";
       After = ["graphical-session.target"];
       PartOf = ["graphical-session.target"];
       # Ordering alone does not stop an SSH session's user manager from starting
@@ -422,12 +500,49 @@ in {
       ConditionEnvironment = "WAYLAND_DISPLAY";
     };
     Service = {
-      Type = "simple";
+      Type = "dbus";
+      BusName = "org.fcitx.Fcitx5";
       # notificationitem duplicates the tray entry omarchy renders itself.
-      ExecStart = "${pkgs.fcitx5}/bin/fcitx5 --disable notificationitem";
+      # --replace takes the bus name from a fcitx5 started outside the unit.
+      ExecStart = "${fcitx5Package}/bin/fcitx5 --replace --disable notificationitem";
       # always, not on-failure: fcitx5 exits 0 when another instance owns its bus
       # name, and a clean exit still leaves the user with no input method.
       Restart = "always";
+      RestartSec = 2;
+    };
+    Install.WantedBy = ["graphical-session.target"];
+  };
+
+  # D-Bus activation goes through the unit above
+  # (default/input-methods/org.fcitx.Fcitx5.service). Upstream's
+  # omarchy-input-method writes this file with Exec=/usr/bin/fcitx5. Here it
+  # names the store path, and omarchy-input-method leaves a file that has
+  # SystemdService= alone.
+  xdg.dataFile."dbus-1/services/org.fcitx.Fcitx5.service".text = ''
+    # Installed per-user so D-Bus activation uses the supervised Omarchy unit.
+    [D-BUS Service]
+    Name=org.fcitx.Fcitx5
+    Exec=${fcitx5Package}/bin/fcitx5
+    SystemdService=omarchy-fcitx5.service
+  '';
+
+  # Bluetooth pairing agent (default/systemd/user/bt-agent.service). The shell
+  # panel pairs through non-interactive bluetoothctl, which registers no agent.
+  # With no agent, BlueZ turns bonding off, so a pairing connects once but
+  # stores no link key and the device fails to reconnect.
+  systemd.user.services.bt-agent = {
+    Unit = {
+      Description = "Bluetooth pairing agent (auto-accept)";
+      Documentation = "man:bt-agent(1)";
+      ConditionPathIsDirectory = "/sys/class/bluetooth";
+      After = ["dbus.socket"];
+      Requires = ["dbus.socket"];
+    };
+    Service = {
+      Type = "simple";
+      ExecCondition = "${pkgs.systemd}/bin/systemctl is-active --quiet bluetooth.service";
+      ExecStart = "${pkgs.bluez-tools}/bin/bt-agent -c NoInputNoOutput";
+      Restart = "on-failure";
       RestartSec = 2;
     };
     Install.WantedBy = ["graphical-session.target"];

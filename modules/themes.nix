@@ -77,9 +77,9 @@
     custom-scheme = true;
   };
 
-  "osaka-jade" = {
-    base16-theme = "osaka-jade";
-    vscode-theme = "Ocean Green: Dark";
+  "jade-horse" = {
+    base16-theme = "jade-horse";
+    vscode-theme = "Jade Horse";
     custom-scheme = true;
   };
 
@@ -134,6 +134,12 @@
   "last-horizon" = {
     base16-theme = "last-horizon";
     vscode-theme = "Last Horizon";
+    custom-scheme = true;
+  };
+
+  "starship" = {
+    base16-theme = "starship";
+    vscode-theme = "Starship";
     custom-scheme = true;
   };
 }

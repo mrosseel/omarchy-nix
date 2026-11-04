@@ -9,6 +9,7 @@
   wayland-scanner,
   wayland-protocols,
   wayland,
+  libdeflate,
   qt6,
   layer-shell-qt,
   tesseract,
@@ -18,13 +19,13 @@
 # editor and OCR path behind omarchy-capture-screenshot and omarchy-clipboard-open.
 stdenv.mkDerivation (finalAttrs: {
   pname = "omasnap";
-  version = "1.21.0";
+  version = "1.24.0";
 
   src = fetchFromGitHub {
     owner = "omacom";
     repo = "omasnap";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-kpoPb5F5yqcczBRUfENsEfv+BD67zQsTG9Ur6Bi3viE=";
+    hash = "sha256-ntlb7Nwrg7nuvBsTsbv9Va3TOSyPLqzEimP4tGb5rAE=";
   };
 
   nativeBuildInputs = [
@@ -38,6 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     wayland
+    libdeflate
     qt6.qtbase
     layer-shell-qt
   ];
@@ -56,6 +58,11 @@ stdenv.mkDerivation (finalAttrs: {
   postFixup = ''
     wrapProgram $out/bin/omasnap \
       --prefix PATH : ${lib.makeBinPath [tesseract wl-clipboard]}
+  '';
+
+  postInstall = ''
+    install -Dm644 ../README.md $out/share/doc/omasnap/README.md
+    install -Dm644 ../LICENSE $out/share/licenses/omasnap/LICENSE
   '';
 
   meta = {

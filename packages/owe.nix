@@ -5,7 +5,6 @@
   meson,
   ninja,
   pkg-config,
-  cmake,
   makeWrapper,
   wayland-scanner,
   wayland,
@@ -16,34 +15,32 @@
   ffmpeg,
   systemdLibs,
   socat,
-  qt6,
+  bash,
 }:
 # OWE is quattro's video wallpaper engine. It owns the desktop background while
-# it runs and feeds the lock screen its frames through the owe-lockfeed QML
-# plugin, which omarchy-shell's lock surface imports.
+# it runs.
 #
-# Upstream splits this into two Arch packages built from one tree (owe and
-# owe-lockfeed). Nix has no reason to split them, so the QML plugin is built in
-# the same derivation and lands in the same qtbase QML import path.
+# Upstream also builds owe-lockfeed, a QML plugin from the same tree, but
+# dropped it from the base packages when the lock screen moved to a still frame
+# (upstream 2a1ff8d83). The shell imports no OWE QML module now, so this
+# derivation builds only the owe package.
 stdenv.mkDerivation (finalAttrs: {
   pname = "owe";
-  version = "0.2.2";
+  version = "0.2.13";
 
   src = fetchFromGitHub {
     owner = "omacom";
     repo = "owe";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-JvoyGlw9LU0CMB0HQfcl9T98Z+161F7H/16jQiCilhI=";
+    hash = "sha256-VQmoE05xMXLdbXhZaRL/My90o7bszwo8hI0++Jb9a8Q=";
   };
 
   nativeBuildInputs = [
     meson
     ninja
     pkg-config
-    cmake
     makeWrapper
     wayland-scanner
-    qt6.wrapQtAppsHook
   ];
 
   buildInputs = [
@@ -54,29 +51,14 @@ stdenv.mkDerivation (finalAttrs: {
     mpv-unwrapped
     ffmpeg
     systemdLibs
-    qt6.qtbase
-    qt6.qtdeclarative
   ];
 
-  # The tree carries both a meson project (the daemon, renderer and CLI) and a
-  # standalone CMake project for the lock feed plugin. mesonConfigurePhase would
-  # try to configure the CMake one too, so drive the plugin build by hand.
-  dontUseCmakeConfigure = true;
-
-  postBuild = ''
-    cmake -S ../qml-plugin -B qml-plugin-build \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX=$out \
-      -DCMAKE_INSTALL_LIBDIR=lib
-    cmake --build qml-plugin-build
-  '';
-
+  # The unit runs owed through /bin/bash, which NixOS does not have.
   postInstall = ''
-    cmake --install qml-plugin-build
-
     install -Dm644 ../systemd/owed.service $out/share/systemd/user/owed.service
     substituteInPlace $out/share/systemd/user/owed.service \
-      --replace-fail '%h/.local/bin/owed' "$out/bin/owed"
+      --replace-fail '%h/.local/bin/owed' "$out/bin/owed" \
+      --replace-fail '/bin/bash' '${lib.getExe bash}'
 
     install -Dm755 ../hooks/owe-idle $out/bin/owe-idle
     install -Dm644 ../hooks/theme-set.d/10-owe-sync $out/share/owe/10-owe-sync

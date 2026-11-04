@@ -125,7 +125,7 @@ omarchy = {
 - `matte-black`
 - `ethereal`
 - `hackerman`
-- `osaka-jade`
+- `jade-horse`
 - `ristretto`
 - `miasma`
 - `vantablack`
@@ -135,6 +135,7 @@ omarchy = {
 - `lupine` (light)
 - `solitude`
 - `last-horizon`
+- `starship`
 
 **Light theme auto-detection:**
 ```nix

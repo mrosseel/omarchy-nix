@@ -3,7 +3,7 @@
 # a rebuild of the flake, so the update prompt is left out.
 
 notify_wifi() {
-  omarchy-notification-send -u critical -g 󰖩 "Setup Wi-Fi" "Click to configure the wireless network." \
+  omarchy-notification-send -u critical -g 󰖩 "$(omarchy-i18n firstRun.wifiTitle)" "$(omarchy-i18n firstRun.wifiBody)" \
     --exec omarchy-shell shell toggle omarchy.network
 }
 

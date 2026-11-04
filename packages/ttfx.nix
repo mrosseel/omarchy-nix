@@ -1,30 +1,46 @@
 {
   lib,
+  stdenv,
   rustPlatform,
   fetchFromGitHub,
+  installShellFiles,
 }:
 # quattro replaced python-terminaltexteffects with ttfx, a parity-exact Rust
 # port that renders byte-identical frames from a single dependency-free binary.
-# The screensaver runs at --frame-rate 120, which the Python original could not
-# hold on a fullscreen canvas.
-rustPlatform.buildRustPackage rec {
+# omarchy-screensaver links the same crate for its effects.
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "ttfx";
-  version = "0.3.1";
+  version = "0.5.1";
 
   src = fetchFromGitHub {
-    owner = "omacom-io";
+    owner = "omacom";
     repo = "ttfx";
-    tag = "v${version}";
-    hash = "sha256-uJOM/mIhM/0pAu2Aa1q6XSaKcM7BxH7mxoU5eUVG9Ek=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-/cECljrthspJsg6fgWMm4QIv8V3FJLuP/pbZoRKFVAc=";
   };
 
-  cargoHash = "sha256-pVS/GPipxRr45lE8Jnp86Jkg2EdAuoxg1pFx+UMzgXc=";
+  cargoHash = "sha256-xSv2a0Q1biE20cOHkSOADxFfRNYKH/1MNCA03hQX9pE=";
 
-  meta = with lib; {
+  nativeBuildInputs = [installShellFiles];
+
+  # The PKGBUILD ships the bash and zsh completions the binary prints.
+  postInstall =
+    ''
+      install -Dm644 LICENSE $out/share/licenses/ttfx/LICENSE
+      install -Dm644 NOTICE $out/share/licenses/ttfx/NOTICE
+      install -Dm644 README.md $out/share/doc/ttfx/README.md
+    ''
+    + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+      installShellCompletion --cmd ttfx \
+        --bash <($out/bin/ttfx --print-completion bash) \
+        --zsh <($out/bin/ttfx --print-completion zsh)
+    '';
+
+  meta = {
     description = "Terminal text effects as a single static binary";
-    homepage = "https://github.com/omacom-io/ttfx";
-    license = licenses.mit;
-    maintainers = [];
+    homepage = "https://github.com/omacom/ttfx";
+    license = lib.licenses.mit;
     mainProgram = "ttfx";
+    platforms = lib.platforms.linux;
   };
-}
+})

@@ -9,7 +9,8 @@
   xdg.configFile."brave-flags.conf".text = ''
     --ozone-platform=wayland
     --ozone-platform-hint=wayland
-    --enable-features=TouchpadOverscrollHistoryNavigation
+    --enable-features=TouchpadOverscrollHistoryNavigation,OverlayScrollbar
+    --no-default-browser-check
     # Chromium crash workaround for Wayland color management on Hyprland
     # See https://github.com/hyprwm/Hyprland/issues/11957
     --disable-features=WaylandWpColorManagerV1

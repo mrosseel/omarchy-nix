@@ -3,19 +3,15 @@
 in {
   # OWE, quattro's video wallpaper engine. While owed runs it owns the desktop
   # video layer: shell/plugins/background/Background.qml keeps its own layer
-  # empty behind a video so OWE's shows through, and the lock screen draws its
-  # frames from the OWE lock feed through shell/plugins/lock/LockFeedSurface.qml.
+  # empty behind a video so OWE's shows through. The lock screen does not play
+  # the video. It shows a still frame that shell/plugins/lock/poster.sh makes
+  # with ffmpegthumbnailer, so the shell needs no OWE QML module.
   #
   # Upstream enables owed.service in install/user/first-run/enable-user-units.sh
   # and installs the theme-set hook with
   # `omarchy-hook-install theme-set /usr/share/owe/10-owe-sync`.
   # mpv does the decoding; ffmpeg probes and transcodes the sources OWE accepts.
   home.packages = [owe pkgs.mpv pkgs.ffmpeg];
-
-  # LockFeedSurface.qml does `import Owe.LockFeed`, which the shell only
-  # resolves if the plugin's QML import path is on QML2_IMPORT_PATH. The plugin
-  # lives in this derivation rather than in quickshell's own import path.
-  home.sessionVariables.QML2_IMPORT_PATH = "${owe}/lib/qt6/qml\${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}";
 
   systemd.user.services.owed = {
     Unit = {
@@ -25,7 +21,9 @@ in {
     };
     Service = {
       Type = "simple";
-      ExecStart = "${owe}/bin/owed";
+      # Same command as the owed.service that the owe package ships: it gets
+      # the boot intro ready. A missing helper leaves a plain daemon start.
+      ExecStart = "${pkgs.bash}/bin/bash -c 'exec ${owe}/bin/owed --prepare-intro \"$(\"$$OMARCHY_PATH/bin/omarchy-theme-bg-boot-intro\" --resolve-startup 2>/dev/null)\"'";
       Restart = "on-failure";
       RestartSec = 2;
     };

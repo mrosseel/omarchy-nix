@@ -36,27 +36,45 @@
     --ozone-platform=wayland
     --ozone-platform-hint=wayland
     --password-store=gnome-libsecret
-    --enable-features=TouchpadOverscrollHistoryNavigation
+    --enable-features=TouchpadOverscrollHistoryNavigation,OverlayScrollbar
     --load-extension=~/.local/share/omarchy/default/chromium/extensions/copy-url,~/.local/share/omarchy/default/chromium/extensions/whatsapp-slim
+    --no-default-browser-check
     # Chromium crash workaround for Wayland color management on Hyprland
     # See https://github.com/hyprwm/Hyprland/issues/11957
     --disable-features=WaylandWpColorManagerV1
   '';
 
-  # Chromium preferences for dark mode
-  xdg.configFile."chromium/Default/Preferences".text = builtins.toJSON {
-    extensions = {
-      theme = {
-        id = "";
-        use_system = false;
-        use_custom = false;
+  # Chromium preferences for dark mode. Chromium writes Preferences itself, so
+  # a managed file (a read-only symlink) loses all other settings and makes the
+  # next activation fail on the old .backup copy. Merge the keys in instead.
+  home.activation.chromiumDarkModePreferences = let
+    darkMode = builtins.toJSON {
+      extensions = {
+        theme = {
+          id = "";
+          use_system = false;
+          use_custom = false;
+        };
+      };
+      browser = {
+        theme = {
+          color_scheme = 2; # Dark mode
+          user_color = 2;
+        };
       };
     };
-    browser = {
-      theme = {
-        color_scheme = 2; # Dark mode
-        user_color = 2;
-      };
-    };
-  };
+  in
+    lib.hm.dag.entryAfter ["writeBoundary"] ''
+      prefs="${config.xdg.configHome}/chromium/Default/Preferences"
+      if [ -L "$prefs" ]; then
+        run rm "$prefs"
+      fi
+      run mkdir -p "$(dirname "$prefs")"
+      if [ -s "$prefs" ]; then
+        merged="$(${pkgs.jq}/bin/jq -c --argjson dark '${darkMode}' '. * $dark' "$prefs")" \
+          && run ${pkgs.coreutils}/bin/tee "$prefs" <<<"$merged" >/dev/null
+      else
+        run ${pkgs.coreutils}/bin/tee "$prefs" <<<'${darkMode}' >/dev/null
+      fi
+    '';
 }

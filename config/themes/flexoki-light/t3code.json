@@ -1,0 +1,36 @@
+{
+  "name": "Omarchy",
+  "appearance": "light",
+  "canvas": "#FFFCF0",
+  "accent": "#205EA6",
+  "colors": {
+    "chrome": "#FFFCF0",
+    "toolbar": "#FFFCF0",
+    "toolbarForeground": "#100F0F",
+    "toolbarBorder": "#B7B5AC",
+
+    "text": "#100F0F",
+    "border": "#B7B5AC",
+    "focus": "#205EA6",
+
+    "sidebar": "#f2efe4",
+    "sidebarForeground": "#100F0F",
+    "sidebarBorder": "#B7B5AC",
+    "sidebarRowHover": "#e4e2d7",
+    "sidebarRowActive": "#ccd5d9",
+    "sidebarRowSelected": "#CECDC3",
+
+    "error": "#8d3730",
+    "warning": "#8d6f13",
+
+    "codeBackground": "#f2efe4",
+    "codeForeground": "#100F0F",
+
+    "terminalBackground": "#FFFCF0",
+    "terminalForeground": "#100F0F",
+    "terminalCursor": "#100F0F",
+    "terminalSelection": "#CECDC3",
+    "terminalScrollbar": "#B7B5AC",
+    "terminalScrollbarHover": "#878580"
+  }
+}

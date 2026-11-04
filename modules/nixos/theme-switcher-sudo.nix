@@ -41,7 +41,10 @@ in {
 
   # Mirrors etc/sudoers.d/omarchy-passwd-tries: three tries is easy to burn on a
   # long passphrase typed into a lock screen prompt.
+  # Mirrors etc/sudoers.d/omarchy-sudo-timeout (#17000): one sudo password
+  # lasts ten minutes in a terminal.
   security.sudo.extraConfig = ''
     Defaults passwd_tries=10
+    Defaults timestamp_timeout=10
   '';
 }

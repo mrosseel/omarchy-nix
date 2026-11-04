@@ -19,8 +19,11 @@ in {
     ./nvidia.nix
     ./theme-switcher-sudo.nix
     ./voxtype.nix
+    ./superwhisper.nix
+    (import ./hex.nix inputs)
     ./hardware.nix
     ./tuning.nix
     ./kernel.nix
+    ./settings.nix
   ];
 }

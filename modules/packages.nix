@@ -13,9 +13,34 @@
     layer-shell-qt = pkgs.kdePackages.layer-shell-qt;
   };
   owe = pkgs.callPackage ../packages/owe.nix {};
-  elsewhen = pkgs.callPackage ../packages/elsewhen.nix {};
+  omarchy-screensaver = pkgs.callPackage ../packages/omarchy-screensaver.nix {};
+  omarchy-local-ai = pkgs.callPackage ../packages/omarchy-local-ai.nix {};
+  hype = pkgs.callPackage ../packages/hype.nix {};
+  gliff = pkgs.callPackage ../packages/gliff.nix {};
+  signed = pkgs.callPackage ../packages/signed.nix {};
+  disktree = pkgs.callPackage ../packages/disktree.nix {};
+  monologue = pkgs.callPackage ../packages/monologue.nix {};
+  superwhisper = pkgs.callPackage ../packages/superwhisper.nix {};
+  # fcitx5 with the addons upstream installs for Japanese, Korean and Chinese
+  # (install/omarchy-base.packages). omarchy-fcitx5.service runs this build.
+  fcitx5 = pkgs.qt6Packages.fcitx5-with-addons.override {
+    addons = with pkgs;
+      [
+        fcitx5-gtk
+        qt6Packages.fcitx5-qt
+        fcitx5-chewing
+        qt6Packages.fcitx5-chinese-addons
+        fcitx5-hangul
+        fcitx5-mozc
+        fcitx5-table-extra
+      ]
+      # Superwhisper types the dictated text through its own fcitx5 addon.
+      ++ lib.optionals cfg.superwhisper.enable [superwhisper];
+  };
   cfg = config.omarchy;
 in {
+  inherit fcitx5;
+
   # Regular packages
   systemPackages = with pkgs;
     [
@@ -42,6 +67,16 @@ in {
       blueman
       xdg-utils
       xdg-terminal-exec
+      # Upstream base packages that the shell and bin/ scripts call.
+      wl-clipboard # clipboard plugin (wl-paste --watch), notifications
+      socat # omarchy-shell IPC, omarchy-hyprland-monitor-watch
+      grim # omarchy-capture-qr, omarchy-capture-text
+      (tesseract.override {enableLanguages = ["eng"];}) # omarchy-capture-text
+      cliamp # Music TUI binding
+      pulseaudio # pactl only, for the omarchy-audio-* scripts; PipeWire stays the server
+      desktop-file-utils # update-desktop-database for webapp-remove
+      e2fsprogs # chattr for disk-speedtest and hibernation-setup
+      v4l-utils # v4l2-ctl for the screen recording webcam overlay
 
       # Terminal emulators
       ghostty
@@ -65,8 +100,11 @@ in {
       glib # gsettings, used by omarchy-theme-set-gnome for the GTK light/dark theme
       imagemagick # thumbnails for omarchy-menu-images (theme/background pickers), transcode, bar-text-color
       udiskie # automount removable drives (upstream autostart)
-      fcitx5 # input method (upstream autostart: fcitx5 --disable notificationitem)
+      # default/hypr/startup-cursor.lua resets the X11 root cursor with it.
+      xsetroot
+      fcitx5 # input method with addons (see the let binding above)
       fcitx5-gtk
+      qt6Packages.fcitx5-qt
       libsForQt5.fcitx5-qt
 
       # Shell tools
@@ -98,8 +136,6 @@ in {
 
       # TUIs
       lazygit
-      lazydocker
-      dua # Disk Usage TUI (upstream swapped dust -> dua-cli)
       btop
       powertop
       fastfetch
@@ -107,8 +143,13 @@ in {
       bluetui
       inxi
 
-      # Screensaver (quattro swapped python terminaltexteffects -> ttfx)
+      # Native Wayland screensaver (quattro replaced the terminal one). It
+      # draws the branding text with ttfx effects.
+      omarchy-screensaver
       ttfx
+
+      # The engine behind `omarchy agent local`
+      omarchy-local-ai
 
       # GUIs
       (
@@ -123,15 +164,12 @@ in {
       loupe
       krita
       pinta
-      xournalpp
       localsend
-
-      # Video production
-      obs-studio
-    ]
-    ++ lib.optionals (pkgs ? kdenlive) [kdenlive]
-    ++ lib.optionals (pkgs ? libsForQt5.kdenlive) [libsForQt5.kdenlive]
-    ++ [
+      signed # quattro replaced Xournal++ with Signed for signing PDFs
+      disktree # quattro replaced the dua Disk Usage TUI with Disktree
+      hype # Markdown presentations
+      monologue # webcam recorder
+      gliff # Hyprland remote desktop over SSH
     ]
     ++ lib.optionals cfg.office_suite.enable [
       libreoffice-fresh
@@ -139,6 +177,9 @@ in {
     ++ lib.optionals cfg.voxtype.enable [
       voxtype
       wtype
+    ]
+    ++ lib.optionals cfg.superwhisper.enable [
+      superwhisper
     ]
     ++ [
       # Can't find this in nixpkgs!

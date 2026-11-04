@@ -30,7 +30,7 @@ lib: {
         "matte-black"
         "ethereal"
         "hackerman"
-        "osaka-jade"
+        "jade-horse"
         "ristretto"
         "miasma"
         "vantablack"
@@ -40,6 +40,7 @@ lib: {
         "lupine"
         "solitude"
         "last-horizon"
+        "starship"
       ];
       default = "tokyo-night";
       description = "Theme to use for Omarchy configuration";
@@ -206,13 +207,8 @@ lib: {
         `omarchy default editor`.
       '';
       default = [
-        # Omarchy binds no btop, calculator, or second messenger key, so these
-        # three are additions and not overrides.
-        "SUPER SHIFT, T, Top, exec, $terminal -e btop"
-        "SUPER SHIFT, I, Messenger, exec, $messenger"
-        # quattro replaced gnome-calculator with omacalc, so that is what
-        # modules/packages.nix ships. Override this list to bind something else.
-        "SUPER SHIFT, R, Calculator, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus omacalc omacalc"
+        # Omarchy now binds btop (SUPER SHIFT T), the calculator (SUPER SHIFT Q)
+        # and SUPER SHIFT I itself, so the list is empty by default.
         # Uncomment if gaming.enable = true (Omarchy binds SUPER SHIFT, S to Google Maps):
         # "SUPER SHIFT ALT, S, Steam, exec, ~/.local/share/omarchy/bin/omarchy-launch-or-focus steam steam"
       ];
@@ -359,6 +355,29 @@ lib: {
       default = {};
       description = "Voxtype voice dictation configuration";
     };
+    hex.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Install Hex as a dictation backend. Hex is open source (MIT) and runs
+        its speech model on the device. Pick it in Setup > Defaults >
+        Dictation, which runs omarchy-install-dictation-hex. Upstream offers
+        Hex as an optional backend too.
+      '';
+    };
+    superwhisper.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Install Superwhisper as a dictation backend. Pick it in Setup >
+        Defaults > Dictation, which runs omarchy-install-dictation-superwhisper.
+
+        Upstream installs Superwhisper on every new system and makes it the
+        default backend. Omarchy-Nix does not: Superwhisper is proprietary
+        (unfree) and sends audio to its cloud by default. Voxtype stays the
+        default backend.
+      '';
+    };
     kernel = lib.mkOption {
       type = lib.types.enum ["default" "zen" "omarchy"];
       default = "default";
@@ -420,7 +439,25 @@ lib: {
           intel_ptl_video_accel.enable = lib.mkOption {
             type = lib.types.bool;
             default = false;
-            description = "Intel Panther Lake (and modern HD/UHD/Iris/Xe/Arc) hardware video acceleration via intel-media-driver + libvpl + vpl-gpu-rt.";
+            description = "Intel hardware video acceleration via intel-media-driver + libvpl + vpl-gpu-rt. Covers HD/UHD/Iris/Xe/Arc and the newer GPUs that lspci names only \"[Intel Graphics]\": non-Arc Panther Lake and Wildcat Lake.";
+          };
+          keyboard_toprow = lib.mkOption {
+            type = lib.types.nullOr (lib.types.enum ["mediakeys" "fnkeys"]);
+            default = null;
+            description = ''
+              What the keyboard's top row sends by default, on keyboards that
+              leave Fn-lock to Linux: ASUS laptops and keyboards (hid_asus,
+              asus_wmi) and Apple or Apple-style keyboards such as the Lofree
+              Flow (hid_apple). Mirrors `omarchy keyboard toprow`.
+
+              `mediakeys`: the top row sends the media keys, and Fn gives F1-F12.
+              Upstream sets this on a fresh install.
+
+              `fnkeys`: the top row sends F1-F12, and Fn gives the media keys.
+
+              `null` leaves the kernel defaults alone. Upstream leaves an
+              existing install as it is, so this is the default here.
+            '';
           };
           intel_ptl_sof_firmware.enable = lib.mkOption {
             type = lib.types.bool;

@@ -10,6 +10,13 @@ in {
   # Create /bin/bash symlink for Omarchy script compatibility
   systemd.tmpfiles.rules = [
     "L+ /bin/bash - - - - ${pkgs.bash}/bin/bash"
+    # Upstream scripts and the shell run /usr/bin/python3 by path, so that a
+    # mise or venv python never runs them. NixOS has no /usr/bin/python3. This
+    # links the same interpreter that modules/packages.nix installs.
+    "L+ /usr/bin/python3 - - - - ${pkgs.python3.withPackages (ps: [ps.pygobject3])}/bin/python3"
+    # The idle service, omarchy-system-lock and omarchy-launch-screensaver find
+    # the screensaver at this Arch path, and some match its process by it.
+    "L+ /usr/lib/omarchy-screensaver - - - - ${pkgs.callPackage ../../packages/omarchy-screensaver.nix {}}/lib/omarchy-screensaver"
   ];
 
   security.rtkit.enable = true;
@@ -33,7 +40,6 @@ in {
 
     # Silent boot configuration
     consoleLogLevel = lib.mkIf cfg.seamless_boot.silent_boot 3;
-    initrd.verbose = lib.mkIf cfg.seamless_boot.silent_boot false;
     kernelParams = lib.mkIf cfg.seamless_boot.silent_boot [
       "quiet"
       "splash"
@@ -51,23 +57,72 @@ in {
   # Login configuration (matches upstream omarchy: SDDM Wayland greeter on Hyprland).
   # Autologin path mirrors /etc/sddm.conf.d/autologin.conf from upstream install/login/sddm.sh.
   services.displayManager = let
-    # The greeter runs its own minimal Hyprland compositor, which does NOT
-    # inherit the system keyboard layout the way the user session does. Without
-    # an explicit input block it defaults to us/qwerty, locking out anyone on a
-    # different layout (e.g. dvorak/azerty) — they type the right password but
-    # the wrong keysyms reach PAM. Source it from services.xserver.xkb so the
-    # greeter matches the system's keyboard. (Upstream's static greeter config
-    # omits this; on Arch the greeter inherits XKB defaults differently.)
+    # Upstream default/sddm/hyprland.lua (#6896) gives the greeter the system
+    # keyboard layout, read from XKBLAYOUT and XKBVARIANT in /etc/vconsole.conf.
+    # Nix deviation: NixOS keeps the layout in services.xserver.xkb, not in
+    # vconsole.conf, so the same rules run here at build time.
     xkb = config.services.xserver.xkb;
+
+    # Layouts that can't type Latin letters, and the us variants that can't
+    # either (Russian phonetic and Cherokee). Keep in step with
+    # default/hypr/input.lua.
+    nonLatinLayouts = ["af" "am" "ara" "bd" "bg" "by" "et" "ge" "gr" "il" "in" "iq" "ir" "kg" "kh" "kz" "la" "lk" "mk" "mm" "mn" "mv" "np" "rs" "ru" "sy" "th" "tj" "ua"];
+    nonLatinUsVariants = ["chr" "rus"];
+
+    layouts = lib.splitString "," xkb.layout;
+    variants = lib.splitString "," xkb.variant;
+    variantAt = i:
+      if i < builtins.length variants
+      then builtins.elemAt variants i
+      else "";
+    removeAt = i: list: lib.sublist 0 i list ++ lib.drop (i + 1) list;
+
+    # A greeter that can't type Latin letters can't take a password either, so
+    # a non-Latin layout gets us in front, reachable back with Left Alt + Right
+    # Alt. Variants pair with layouts by position. An existing us entry moves to
+    # the front with its variant instead of adding a duplicate toggle stop.
+    usIndex =
+      lib.findFirst
+      (i: builtins.elemAt layouts i == "us" && !(lib.elem (variantAt i) nonLatinUsVariants))
+      null
+      (lib.range 0 (builtins.length layouts - 1));
+    greeterInput =
+      if lib.elem (builtins.head layouts) nonLatinLayouts
+      then {
+        layout = lib.concatStringsSep "," (["us"]
+          ++ (
+            if usIndex == null
+            then layouts
+            else removeAt usIndex layouts
+          ));
+        variant = lib.concatStringsSep "," ([
+            (
+              if usIndex == null
+              then ""
+              else variantAt usIndex
+            )
+          ]
+          ++ (
+            if usIndex != null && usIndex < builtins.length variants
+            then removeAt usIndex variants
+            else variants
+          ));
+        options = "grp:alts_toggle";
+      }
+      else {
+        inherit (xkb) layout variant;
+        options = "";
+      };
+
     sddmHyprlandConf =
       pkgs.writeText "sddm-hyprland.conf"
       (builtins.readFile ../../default/sddm/hyprland.conf
         + ''
 
           input {
-            kb_layout = ${xkb.layout}
-            kb_variant = ${xkb.variant}
-            kb_options = ${xkb.options}
+            kb_layout = ${greeterInput.layout}
+            kb_variant = ${greeterInput.variant}
+            kb_options = ${greeterInput.options}
           }
         '');
     hyprlandPkg = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
@@ -159,6 +214,14 @@ in {
 
   # Power management profiles (performance/balanced/power-saver)
   services.power-profiles-daemon.enable = true;
+  # The shell's battery service and power panel read Quickshell.Services.UPower,
+  # and omarchy-battery-status runs the upower CLI.
+  services.upower.enable = true;
+  # Upstream #14737 replaces stock power-profiles-daemon with
+  # omarchy-power-profiles-daemon, which adds the CPU drivers that ARM laptops
+  # need. The NixOS module installs the D-Bus service and powerprofilesctl from
+  # this package.
+  services.power-profiles-daemon.package = lib.mkDefault (pkgs.callPackage ../../packages/omarchy-power-profiles-daemon.nix {});
 
   # Credential storage for apps (gnome-keyring); SDDM PAM lines configured above.
   services.gnome.gnome-keyring.enable = true;
