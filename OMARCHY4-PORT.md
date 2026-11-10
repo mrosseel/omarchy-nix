@@ -10,9 +10,10 @@ v3.8.x state is preserved on `archive/main-pre-v4`.
 > `omarchy-4` is frozen at `17f024d4` (June 7); active daily development is on
 > **`quattro`**. Sync against `quattro`, NOT `omarchy-4`.
 
-- **Branch**: `quattro` @ `df3d01ce` (Nov 9 2026). `dev`/`master` are still the 3.8.x line; keep syncing against `quattro`.
+- **Branch**: `quattro` @ `255acd9b` (Nov 10 2026). `dev`/`master` are still the 3.8.x line; keep syncing against `quattro`.
 - **Release tags `v4.0.3` and `v4.0.4` are behind `quattro`.** They sit on a separate stable line. Both carry the linux-omarchy default kernel and the DKMS kernel-header fixes, and `quattro` already has the same commits. Nothing in either tag needs a port of its own.
-- **Port baseline**: `quattro` @ **`df3d01ce`**, synced November 10 2026 (68 commits from `5f2fb785`). Built for nixtop, not yet switched. Ported:
+- **Port baseline**: `quattro` @ **`255acd9b`**, synced November 10 2026 (69 commits from `5f2fb785`). Switched on nixtop. Ported:
+  - **`255acd9b`**: identical notifications that arrive together collapse into one card again. `shell/plugins/notifications/{Service.qml,Store.js}` are plain copies. The docs and test changes stay out.
   - **Mechanical re-vendor.** 200 files in `bin/`, `shell/` and `default/` matched `5f2fb785` exactly and now match `df3d01ce`. Among them: the agents panel (30-day spend with nothing to configure, the recommended local model on the first page), the clipboard, emoji, Wi-Fi, weather, monitor and i18n fixes, plugin add without a reload, glassy windows for every window, the Ctrl + brightness keyboard-backlight keys, the bell config and the Hex push-to-talk fix. `omarchy-menu.jsonc` merged cleanly, and the three Hermes rows stay out.
   - **Startup cursor removed, as upstream.** `default/hypr/startup-cursor.lua` and its blank cursor theme are deleted, and `xsetroot` leaves the package list.
   - **qtengine replaces the GTK Qt platform theme.** `qtengine` is in systemPackages. Qt apps find its plugin through `QT_PLUGIN_PATH`, which `modules/nixos/system.nix` sets to the profile plugin dirs, as the NixOS qt module does. `~/.config/qtengine/config.json` is seeded once as a writable copy, and `omarchy-theme-set-qt` runs at activation, as `install/user/theme.sh` does. Every theme has a new `qtengine.colors`, rendered with the recipe below. All the other rendered files came out byte-identical.
