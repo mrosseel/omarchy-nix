@@ -45,25 +45,32 @@ in {
           #!${pkgs.bash}/bin/bash
           set -euo pipefail
 
+          ipt=${pkgs.iptables}/bin/iptables
+
           # Ensure Docker doesn't bypass firewall rules
-          # Add DOCKER-USER chain rules to control Docker traffic
-          ${pkgs.iptables}/bin/iptables -N DOCKER-USER 2>/dev/null || true
-
-          # Block all forward traffic by default for Docker
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -j DROP
-
-          # Allow established and related connections
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-
-          # Allow loopback traffic
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -i lo -j ACCEPT
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -o lo -j ACCEPT
-
-          # Allow internal Docker network communication
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT
+          # Rebuild the DOCKER-USER chain from scratch so reruns don't stack duplicate rules
+          $ipt -N DOCKER-USER 2>/dev/null || true
+          $ipt -F DOCKER-USER
 
           # Allow Docker containers to reach the host (for development)
-          ${pkgs.iptables}/bin/iptables -I DOCKER-USER -s 172.16.0.0/12 -d 172.17.0.1 -j ACCEPT
+          $ipt -A DOCKER-USER -s 172.16.0.0/12 -d 172.17.0.1 -j ACCEPT
+
+          # Allow internal Docker network communication
+          $ipt -A DOCKER-USER -s 172.16.0.0/12 -d 172.16.0.0/12 -j ACCEPT
+
+          # Allow loopback traffic
+          $ipt -A DOCKER-USER -o lo -j ACCEPT
+          $ipt -A DOCKER-USER -i lo -j ACCEPT
+
+          # Allow established and related connections
+          $ipt -A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+          # Let trusted interfaces (networking.firewall.trustedInterfaces, e.g. tailscale0
+          # for exit node / subnet routing) skip the Docker drop
+          ${lib.concatMapStrings (i: "$ipt -A DOCKER-USER -i ${i} -j RETURN\n") (lib.remove "lo" config.networking.firewall.trustedInterfaces)}
+
+          # Block all other forward traffic
+          $ipt -A DOCKER-USER -j DROP
 
           echo "Docker firewall rules applied successfully"
         '';
