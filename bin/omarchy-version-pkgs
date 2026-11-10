@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# omarchy:summary=Print when system packages were last upgraded
+
+# Nix deviation: NixOS has no pacman log. A rebuild makes a new system
+# generation, and the profile link to it carries the time of that rebuild.
+upgraded=$(stat -c %y /nix/var/nix/profiles/system)
+locale=$(omarchy-language locale)
+
+omarchy-i18n about.updatedAt \
+  "$(LC_TIME=$locale date -d "$upgraded" +"%A %d %B %Y")" \
+  "$(date -d "$upgraded" +"%H:%M")"

@@ -177,6 +177,14 @@ in {
     OMARCHY_PATH = "$HOME/.local/share/omarchy";
   };
 
+  # Qt apps load the qtengine platform theme as a plugin. On Arch it sits in
+  # Qt's own plugin dir. Here it is in the system profile, which Qt apps only
+  # search through QT_PLUGIN_PATH. The NixOS qt module sets the same paths.
+  environment.profileRelativeSessionVariables.QT_PLUGIN_PATH = ["/${pkgs.qt6.qtbase.qtPluginPrefix}"];
+
+  # The About box config. omarchy-launch-about reads it from this path.
+  environment.etc."fastfetch/config.jsonc".source = ../../etc/fastfetch/config.jsonc;
+
   # Upstream ships bin/ in /usr/bin; here it's under $HOME and home.sessionPath
   # only reaches interactive shells. Add it in /etc/profile so `bash -l`
   # (omarchy-shell menu actions, SSH) finds omarchy-* too.

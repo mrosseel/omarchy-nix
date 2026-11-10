@@ -464,6 +464,11 @@ lib: {
             default = false;
             description = "Install Sound Open Firmware for the audio DSP on non-XPS Intel Panther Lake systems (mainline kernel only optdeps it).";
           };
+          hp_zbook_ultra_g3a.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "HP ZBook Ultra G3a: a UCM profile for the TAS2783 speakers and RT712 microphones, and a udev rule that disables the phantom USB port that blocks fingerprint enrollment.";
+          };
           lenovo_yoga_pro7_bass.enable = lib.mkOption {
             type = lib.types.bool;
             default = false;

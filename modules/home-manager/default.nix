@@ -69,6 +69,21 @@ inputs: {
       }
     ' ${../../default/omarchy/omarchy-menu.jsonc} > $out/omarchy-menu.jsonc
   '';
+
+  # omarchy-hw-software-rendering asks Mesa for the GL renderer through ctypes.
+  # NixOS has no libEGL.so.1 or libgbm.so.1 on the default library path, so the
+  # probe always failed and a CPU session kept its animations. The build points
+  # only this script's shebang at a python that finds both libraries.
+  glProbePython = pkgs.writeShellScript "omarchy-python3-gl" ''
+    export LD_LIBRARY_PATH=${pkgs.libglvnd}/lib:${pkgs.libgbm}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    exec /usr/bin/python3 "$@"
+  '';
+  omarchyBinDir = pkgs.runCommand "omarchy-bin" {} ''
+    cp -r ${../../bin} $out
+    chmod -R u+w $out
+    sed -i '1s|^#!/usr/bin/python3$|#!${glProbePython}|' $out/omarchy-hw-software-rendering
+    grep -qx '#!${glProbePython}' $out/omarchy-hw-software-rendering
+  '';
 in {
   imports = [
     (import ./hyprland.nix inputs)
@@ -95,7 +110,7 @@ in {
     ./voxtype.nix
     ./fonts.nix
     ./imv.nix
-    ./evince.nix
+    ./papers.nix
     ./zellij.nix
     ./tmux.nix
     ./audio-tuning.nix
@@ -105,7 +120,7 @@ in {
 
   home.file = {
     ".local/share/omarchy/bin" = {
-      source = ../../bin;
+      source = omarchyBinDir;
       recursive = true;
     };
     # The steps omarchy-provision-first-run runs at first login. Without them
@@ -159,6 +174,7 @@ in {
     # omarchy-refresh-config can restore it; the activation block below seeds
     # a writable copy into ~/.config once, never overwriting user edits.
     ".local/share/omarchy/config/herdr/config.toml".source = ../../config/herdr/config.toml;
+    ".local/share/omarchy/config/qtengine/config.json".source = ../../config/qtengine/config.json;
     ".local/share/omarchy/config/opencode/opencode.json".source = ../../config/opencode/opencode.json;
     ".local/share/omarchy/config/opencode/cli.json".source = ../../config/opencode/cli.json;
     # Omarchy-Nix deviation: the shipped dictation default is voxtype, not
@@ -197,6 +213,11 @@ in {
     ".local/share/omarchy/version".source = ../../default/omarchy-version;
     # Agent skills. omarchy-agent-crash reads diagnose-crash/SKILL.md from here,
     # and the omarchy skill is linked into every agent's skills dir below.
+    # omarchy-refresh-herdr-app copies these keys into ~/.config/herdr-app.
+    ".local/share/omarchy/default/herdr-app" = {
+      source = ../../default/herdr-app;
+      recursive = true;
+    };
     ".local/share/omarchy/default/agents" = {
       source = ../../default/agents;
       recursive = true;
@@ -296,6 +317,7 @@ in {
   home.activation.seedShippedUserConfigs = lib.hm.dag.entryAfter ["linkGeneration"] ''
     for rel in \
       herdr/config.toml \
+      qtengine/config.json \
       opencode/opencode.json \
       opencode/cli.json \
       omarchy/defaults/dictation \
@@ -318,6 +340,14 @@ in {
         fi
       fi
     done
+  '';
+
+  # install/user/theme.sh runs omarchy-theme-set-qt once the theme is staged.
+  # The seeded qtengine config then takes the theme's icon theme before the
+  # first theme switch. The script writes only when the icon theme differs.
+  home.activation.omarchyThemeSetQt = lib.hm.dag.entryAfter ["seedShippedUserConfigs" "omarchy-theme-symlink"] ''
+    $DRY_RUN_CMD env PATH="${lib.makeBinPath [pkgs.jq pkgs.coreutils]}:$PATH" \
+      "$HOME/.local/share/omarchy/bin/omarchy-theme-set-qt" || true
   '';
 
   # Copy logo.txt/icon.txt to screensaver.txt/about.txt on first use

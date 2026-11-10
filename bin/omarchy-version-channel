@@ -2,6 +2,13 @@
 
 # omarchy:summary=Print the active Omarchy mirror and package channel
 
+# Nix deviation: NixOS has no pacman mirrors or package repos. Its packages
+# come from the nixpkgs release that built the system, so print that.
+if [[ -e /etc/NIXOS ]]; then
+  nixos-version
+  exit 0
+fi
+
 # Arch Linux ARM's mirrors are the same hosts with an arm- prefix.
 if grep -Eq "https://(arm-)?stable-mirror\.omarchy\.org/" /etc/pacman.d/mirrorlist; then
   mirror="stable"

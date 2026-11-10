@@ -205,5 +205,29 @@ in {
         options snd-sof-intel-hda-generic hda_model=alc287-yoga9-bass-spk-pin
       '';
     })
+
+    # HP ZBook Ultra G3a: speakers and microphones, and fingerprint enrollment.
+    # Upstream ships default/alsa/ucm2 and the udev rule in omarchy-settings.
+    # On Nix this is a per-machine opt-in, as for the other laptops here.
+    (lib.mkIf hw.hp_zbook_ultra_g3a.enable (let
+      # alsa-ucm-conf with the Omarchy machine profile on top. ALSA reads one
+      # ucm2 tree, so the profile cannot sit in a directory of its own.
+      ucm2 = pkgs.runCommand "alsa-ucm-conf-omarchy" {} ''
+        mkdir -p $out/share/alsa
+        cp -R ${pkgs.alsa-ucm-conf}/share/alsa/ucm2 $out/share/alsa/ucm2
+        chmod -R u+w $out/share/alsa/ucm2
+        cp -RP ${../../default/alsa/ucm2}/. $out/share/alsa/ucm2/
+      '';
+      ucm2Dir = "${ucm2}/share/alsa/ucm2";
+    in {
+      environment.sessionVariables.ALSA_CONFIG_UCM2 = ucm2Dir;
+      systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = ucm2Dir;
+      systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = ucm2Dir;
+
+      services.udev.packages = [
+        (pkgs.writeTextDir "lib/udev/rules.d/60-omarchy-hp-zbook-ultra-g3a-usb.rules"
+          (builtins.readFile ../../etc/udev/rules.d/60-omarchy-hp-zbook-ultra-g3a-usb.rules))
+      ];
+    }))
   ];
 }

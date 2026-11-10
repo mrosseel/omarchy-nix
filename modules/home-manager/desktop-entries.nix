@@ -147,8 +147,8 @@ in {
       "image/bmp" = "imv.desktop";
       "image/tiff" = "imv.desktop";
 
-      # PDF → Evince
-      "application/pdf" = "org.gnome.Evince.desktop";
+      # PDF → Papers
+      "application/pdf" = "org.gnome.Papers.desktop";
 
       # Video → mpv
       "video/mp4" = "mpv.desktop";

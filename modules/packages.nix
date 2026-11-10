@@ -100,8 +100,6 @@ in {
       glib # gsettings, used by omarchy-theme-set-gnome for the GTK light/dark theme
       imagemagick # thumbnails for omarchy-menu-images (theme/background pickers), transcode, bar-text-color
       udiskie # automount removable drives (upstream autostart)
-      # default/hypr/startup-cursor.lua resets the X11 root cursor with it.
-      xsetroot
       fcitx5 # input method with addons (see the let binding above)
       fcitx5-gtk
       qt6Packages.fcitx5-qt
@@ -217,6 +215,7 @@ in {
       # Qt Wayland and theming
       kdePackages.qtwayland
       qt5.qtwayland
+      qtengine # QT_QPA_PLATFORMTHEME=qtengine in default/hypr/envs.lua
     ];
 
   homePackages = with pkgs; [
